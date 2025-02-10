@@ -1,0 +1,96 @@
+name: python CI
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+  workflow_dispatch: # allows triggering manually
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-ci-trigger:
+    name: detect ci trigger
+    runs-on: ubuntu-latest
+    if: |
+      github.repository == 'keewis/healpix-geo'
+      && (github.event_name == 'push' || github.event_name == 'pull_request')
+    outputs:
+      triggered: ${{ steps.detect-trigger.outputs.trigger-found }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: xarray-contrib/ci-trigger@v1
+        id: detect-trigger
+        with:
+          keyword: "[skip-ci]"
+
+  test:
+    name: ${{ matrix.os }} py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    needs: detect-ci-trigger
+    if: needs.detect-ci-trigger.outputs.triggered == 'false'
+    env:
+      FORCE_COLOR: 3
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - "ubuntu-latest"
+          - "macos-latest"
+          # building the proj-sys crate appears to be tricky on windows
+          # - "windows-latest"
+        python-version: ["3.10", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: ci/requirements/environment.yaml
+          environment-name: python-tests
+          cache-environment: true
+          cache-environment-key: "${{runner.os}}-${{runner.arch}}-py${{matrix.python-version}}-${{env.TODAY}}-${{hashFiles(env.CONDA_ENV_FILE)}}"
+          create-args: >-
+            python=${{matrix.python-version}}
+
+      - name: Create rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Help finding installed libraries
+        run: |
+          pushd $CONDA_PREFIX
+          echo "PKG_CONFIG_PATH=$(readlink -f lib/pkgconfig)" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$(readlink -f lib)" >> $GITHUB_ENV
+          popd
+
+          if [[ -z "$CONDA_PREFIX" ]]; then
+            echo "CONDA_PREFIX is unset!"
+            exit 1
+          fi
+
+      - name: Install the package
+        run: |
+          maturin develop
+
+      - name: Check imports
+        run: |
+          python -c 'import healpix_geo'
+
+      - name: Run tests
+        run: |
+          python -m pytest --cov=healpix_geo

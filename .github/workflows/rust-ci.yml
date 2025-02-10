@@ -1,0 +1,157 @@
+name: Rust CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+concurrency:
+  group: ${{ github.workflow }}.${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-ci-trigger:
+    name: detect ci trigger
+    runs-on: ubuntu-latest
+    if: |
+      github.repository == 'keewis/healpix-geo'
+      && (github.event_name == 'push' || github.event_name == 'pull_request')
+    outputs:
+      triggered: ${{ steps.detect-trigger.outputs.trigger-found }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: xarray-contrib/ci-trigger@v1
+        id: detect-trigger
+        with:
+          keyword: "[skip-ci]"
+
+  test:
+    name: ${{ matrix.os }} py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+
+    needs: detect-ci-trigger
+    if: needs.detect-ci-trigger.outputs.triggered == 'false'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - "ubuntu-latest"
+          # building proj-sys on windows appears to not really be possible
+          # - "windows-latest"
+          - "macos-latest"
+        python-version: ["3.10", "3.12", "3.13"]
+
+    env:
+      FORCE_COLOR: 3
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: rust-tests
+          environment-file: ci/requirements/environment-rust.yaml
+          cache-environment: true
+          cache-environment-key: "${{runner.os}}-${{runner.arch}}-rust-py${{ matrix.python-version }}-${{env.TODAY}}-${{hashFiles(env.CONDA_ENV_FILE)}}"
+          create-args: >-
+            python=${{ matrix.python-version }}
+      - name: Create rust cache
+        uses: Swatinem/rust-cache@v2
+      - name: Help finding installed libraries
+        run: |
+          pushd $CONDA_PREFIX
+          export PKG_CONFIG_PATH=$(readlink -f lib/pkgconfig)
+          export LD_LIBRARY_PATH=$(readlink -f lib)
+          export CPATH=$(readlink -f include)
+          export PYO3_PYTHON=$(readlink -f bin/python)
+          popd
+
+          if [[ -z "$CONDA_PREFIX" ]]; then
+            echo "CONDA_PREFIX is unset!";
+            exit 1
+          fi
+
+          if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            mkdir -p target/debug/deps
+            ln -s "$CONDA_PREFIX/lib/libpython${{ matrix.python-version }}.dylib" target/debug/deps
+            ls -l target/debug/deps
+            ls -l $CONDA_PREFIX/lib
+          fi
+
+          echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          echo "CPATH=$CPATH" >> $GITHUB_ENV
+          echo "PYO3_PYTHON=$PYO3_PYTHON" >> $GITHUB_ENV
+
+          echo >> .cargo/config.toml
+          echo "[env]" >> .cargo/config.toml
+          echo "PKG_CONFIG_PATH = '$PKG_CONFIG_PATH'" >> .cargo/config.toml
+          echo "LD_LIBRARY_PATH = '$LD_LIBRARY_PATH'" >> .cargo/config.toml
+          echo "CPATH = '$CPATH'" >> .cargo/config.toml
+          echo "PYO3_PYTHON = '$PYO3_PYTHON'" >> .cargo/config.toml
+
+          echo "final cargo config:"
+          cat .cargo/config.toml
+          echo "---"
+          echo "env:"
+          env
+
+      - name: Run tests
+        run: |
+          cargo build --tests --keep-going
+          cargo test --no-fail-fast
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    env:
+      FORCE_COLOR: 3
+
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Setup micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: rust-tests
+          environment-file: ci/requirements/environment-rust.yaml
+          cache-environment: true
+          cache-environment-key: "${{runner.os}}-${{runner.arch}}-rust-${{env.TODAY}}-${{hashFiles(env.CONDA_ENV_FILE)}}"
+          create-args: >-
+            python=${{ matrix.python-version }}
+
+      - name: Create rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Cargo clippy
+        run: |
+          cargo clippy --tests -- -D warnings
