@@ -11,7 +11,7 @@ from healpix_geo import nested
     "indexing_scheme",
     [
         "nested",
-        pytest.param("ring", mark=pytest.mark.skip(reason="not implemented yet")),
+        pytest.param("ring", marks=pytest.mark.skip(reason="not implemented yet")),
     ],
 )
 def test_neighbours_in_kth_ring(depth, ring, indexing_scheme):
