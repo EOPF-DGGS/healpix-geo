@@ -74,6 +74,7 @@ dependencies = [
 [[package]]
 name = "cdshealpix"
 version = "0.7.3"
+source = "git+https://github.com/cds-astro/cds-healpix-rust.git#ac75c510419de7036def776d4a4990b4e429414a"
 dependencies = [
  "base64",
  "bincode",
