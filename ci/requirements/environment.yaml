@@ -5,3 +5,4 @@ dependencies:
   - pkg-config
   - pytest
   - pytest-cov
+  - numpy
