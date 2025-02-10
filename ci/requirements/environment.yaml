@@ -1,0 +1,7 @@
+channels:
+  - conda-forge
+dependencies:
+  - maturin
+  - pkg-config
+  - pytest
+  - pytest-cov
