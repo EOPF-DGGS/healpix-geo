@@ -1,14 +1,62 @@
 use pyo3::prelude::*;
 
-/// Formats the sum of two numbers as string.
-#[pyfunction]
-fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
-    Ok((a + b).to_string())
+#[pymodule]
+mod nested {
+    use super::*;
+    use cdshealpix as healpix;
+    use ndarray::{s, Array1, Zip};
+    use numpy::{PyArrayDyn, PyArrayMethods};
+
+    /// Wrapper of `neighbours_in_kth_ring`
+    /// The given array must be of size (2 * ring + 1) ** 2
+    #[pyfunction]
+    unsafe fn neighbours_in_kth_ring<'a>(
+        _py: Python,
+        depth: u8,
+        ipix: &Bound<'a, PyArrayDyn<u64>>,
+        ring: u32,
+        neighbours: &Bound<'a, PyArrayDyn<i64>>,
+        nthreads: u16,
+    ) -> PyResult<()> {
+        let ipix = ipix.as_array();
+        let mut neighbours = neighbours.as_array_mut();
+        let layer = healpix::nested::get(depth);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(nthreads as usize)
+                .build()
+                .unwrap();
+            pool.install(|| {
+                Zip::from(neighbours.rows_mut())
+                    .and(&ipix)
+                    .par_for_each(|mut n, &p| {
+                        let map = layer
+                            .neighbours_in_kth_ring(p, ring)
+                            .into_iter()
+                            .map(|v| v as i64);
+
+                        n.slice_mut(s![..]).assign(&Array1::from_iter(map));
+                    })
+            });
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Zip::from(neighbours.rows_mut())
+                .and(&ipix)
+                .for_each(|mut n, &p| {
+                    let layer = healpix::nested::get(depth);
+                    let map = layer.neighbours_in_kth_ring(p, ring);
+
+                    n.slice_mut(s![..]).assign(map[..]);
+                });
+        }
+        Ok(())
+    }
 }
 
-/// A Python module implemented in Rust.
 #[pymodule]
-fn healpix_geo(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
-    Ok(())
+mod healpix_geo {
+    #[pymodule_export]
+    use super::nested;
 }
