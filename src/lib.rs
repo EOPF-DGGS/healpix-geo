@@ -31,12 +31,14 @@ mod nested {
                 Zip::from(neighbours.rows_mut())
                     .and(&ipix)
                     .par_for_each(|mut n, &p| {
-                        let map = layer
-                            .neighbours_in_kth_ring(p, ring)
-                            .into_iter()
-                            .map(|v| v as i64);
+                        let map = Array1::from_iter(
+                            layer
+                                .neighbours_in_kth_ring(p, ring)
+                                .into_iter()
+                                .map(|v| v as i64),
+                        );
 
-                        n.slice_mut(s![..]).assign(&Array1::from_iter(map));
+                        n.slice_mut(s![..]).assign(&map);
                     })
             });
         }
@@ -45,10 +47,14 @@ mod nested {
             Zip::from(neighbours.rows_mut())
                 .and(&ipix)
                 .for_each(|mut n, &p| {
-                    let layer = healpix::nested::get(depth);
-                    let map = layer.neighbours_in_kth_ring(p, ring);
+                    let map = Array1::from_iter(
+                        layer
+                            .neighbours_in_kth_ring(p, ring)
+                            .into_iter()
+                            .map(|v| v as i64),
+                    );
 
-                    n.slice_mut(s![..]).assign(map[..]);
+                    n.slice_mut(s![..]).assign(&map);
                 });
         }
         Ok(())
