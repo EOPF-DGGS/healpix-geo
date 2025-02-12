@@ -38,7 +38,7 @@ mod nested {
                                 .map(|v| v as i64),
                         );
 
-                        n.slice_mut(s![..]).assign(&map);
+                        n.slice_mut(s![..map.len()]).assign(&map);
                     })
             });
         }
