@@ -74,7 +74,7 @@ dependencies = [
 [[package]]
 name = "cdshealpix"
 version = "0.7.3"
-source = "git+https://github.com/cds-astro/cds-healpix-rust.git#ac75c510419de7036def776d4a4990b4e429414a"
+source = "git+https://github.com/keewis/cds-healpix-rust.git?branch=kth-ring-neighbours#f06234c2418c9bfae511f09215742e2a0ecf8782"
 dependencies = [
  "base64",
  "bincode",
