@@ -207,7 +207,6 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: "wheels-*"
           path: dist
       - name: Show downloaded files
         shell: bash
