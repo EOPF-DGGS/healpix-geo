@@ -7,8 +7,8 @@ mod nested {
     use ndarray::{s, Array1, Zip};
     use numpy::{PyArrayDyn, PyArrayMethods};
 
-    /// Wrapper of `neighbours_in_kth_ring`
-    /// The given array must be of size (2 * ring + 1) ** 2
+    /// Wrapper of `neighbours_disk`
+    /// The given array must be of size (2 * ring + 1)^2
     #[pyfunction]
     unsafe fn neighbours_disk<'a>(
         _py: Python,
