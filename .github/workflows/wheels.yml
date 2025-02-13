@@ -205,7 +205,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          pattern: "wheels-*"
+          pattern: "wheels-*/*"
           path: dist
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
