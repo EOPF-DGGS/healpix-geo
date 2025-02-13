@@ -14,9 +14,9 @@ from healpix_geo import nested
         pytest.param("ring", marks=pytest.mark.skip(reason="not implemented yet")),
     ],
 )
-def test_neighbours_in_kth_ring(depth, ring, indexing_scheme):
+def test_neighbours_disk(depth, ring, indexing_scheme):
     if indexing_scheme == "nested":
-        neighbours_in_kth_ring = nested.neighbours_in_kth_ring
+        neighbours_in_kth_ring = nested.neighbours_disk
         neighbours = cdshealpix.nested.neighbours
 
     ipixels = np.array([50, 100], dtype="int64")
