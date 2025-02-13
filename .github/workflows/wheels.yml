@@ -3,7 +3,7 @@
 #
 #    maturin generate-ci github
 #
-name: Release
+name: Build wheels
 
 on:
   push:
