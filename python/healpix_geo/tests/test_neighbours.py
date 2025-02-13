@@ -28,3 +28,4 @@ def test_neighbours_disk(depth, ring, indexing_scheme):
         expected = neighbours(ipix=ipixels, depth=depth)
 
     np.testing.assert_equal(np.sort(actual, axis=-1), np.sort(expected, axis=-1))
+    np.testing.assert_equal(actual[:, 0], ipixels)
