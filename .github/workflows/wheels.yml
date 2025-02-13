@@ -59,7 +59,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          args: --release --out dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
           sccache: "true"
           manylinux: ${{ matrix.manylinux }}
 
@@ -97,7 +97,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          args: --release --out dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
           sccache: "true"
           manylinux: musllinux_1_2
 
@@ -129,7 +129,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          args: --release --out dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
           sccache: "true"
 
       - name: Upload wheels
@@ -162,7 +162,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.9 -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          args: --release --out dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
           sccache: "true"
 
       - name: Upload wheels
