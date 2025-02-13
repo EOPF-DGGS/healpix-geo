@@ -10,7 +10,7 @@ mod nested {
     /// Wrapper of `neighbours_in_kth_ring`
     /// The given array must be of size (2 * ring + 1) ** 2
     #[pyfunction]
-    unsafe fn neighbours_in_kth_ring<'a>(
+    unsafe fn neighbours_disk<'a>(
         _py: Python,
         depth: u8,
         ipix: &Bound<'a, PyArrayDyn<u64>>,
@@ -32,10 +32,7 @@ mod nested {
                     .and(&ipix)
                     .par_for_each(|mut n, &p| {
                         let map = Array1::from_iter(
-                            layer
-                                .neighbours_in_kth_ring(p, ring)
-                                .into_iter()
-                                .map(|v| v as i64),
+                            layer.neighbours_disk(p, ring).into_iter().map(|v| v as i64),
                         );
 
                         n.slice_mut(s![..map.len()]).assign(&map);
@@ -48,10 +45,7 @@ mod nested {
                 .and(&ipix)
                 .for_each(|mut n, &p| {
                     let map = Array1::from_iter(
-                        layer
-                            .neighbours_in_kth_ring(p, ring)
-                            .into_iter()
-                            .map(|v| v as i64),
+                        layer.neighbours_disk(p, ring).into_iter().map(|v| v as i64),
                     );
 
                     n.slice_mut(s![..]).assign(&map);

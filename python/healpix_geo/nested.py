@@ -17,7 +17,7 @@ def _check_ipixels(data, depth):
         )
 
 
-def neighbours_in_kth_ring(ipix, depth, ring, num_threads=0):
+def neighbours_disk(ipix, depth, ring, num_threads=0):
     """Get the kth ring neighbouring cells of some HEALPix cells at a given depth.
 
     This method returns a :math:`N` x :math:`(2 k + 1)^2` `np.uint64` numpy array containing the neighbours of each cell of the :math:`N` sized `ipix` array.
@@ -69,8 +69,6 @@ def neighbours_in_kth_ring(ipix, depth, ring, num_threads=0):
         (*ipix.shape, (2 * ring + 1) ** 2), dtype=np.int64, fill_value=-1
     )
     num_threads = np.uint16(num_threads)
-    healpix_geo.nested.neighbours_in_kth_ring(
-        depth, ipix, ring, neighbours, num_threads
-    )
+    healpix_geo.nested.neighbours_disk(depth, ipix, ring, neighbours, num_threads)
 
     return neighbours
