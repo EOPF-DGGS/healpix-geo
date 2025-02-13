@@ -207,7 +207,9 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
+          pattern: "wheels-*"
           path: dist
+          merge-multiple: true
       - name: Show downloaded files
         shell: bash
         run: ls -lR
