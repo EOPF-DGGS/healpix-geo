@@ -1,8 +1,9 @@
-import cdshealpix
+import cdshealpix.nested
+import cdshealpix.ring
 import numpy as np
 import pytest
 
-from healpix_geo import nested
+import healpix_geo
 
 
 @pytest.mark.parametrize("depth", [2, 8])
@@ -11,17 +12,25 @@ from healpix_geo import nested
     "indexing_scheme",
     [
         "nested",
-        pytest.param("ring", marks=pytest.mark.skip(reason="not implemented yet")),
+        "ring",
     ],
 )
 def test_neighbours_disk(depth, ring, indexing_scheme):
     if indexing_scheme == "nested":
-        neighbours_in_kth_ring = nested.neighbours_disk
+        neighbours_disk = healpix_geo.nested.neighbours_disk
         neighbours = cdshealpix.nested.neighbours
+    elif indexing_scheme == "ring":
+        neighbours_disk = healpix_geo.ring.neighbours_disk
+
+        def neighbours(ipix, depth):
+            return cdshealpix.to_ring(
+                cdshealpix.nested.neighbours(cdshealpix.from_ring(ipix, depth), depth),
+                depth=depth,
+            )
 
     ipixels = np.array([50, 100], dtype="int64")
 
-    actual = neighbours_in_kth_ring(depth=depth, ipix=ipixels, ring=ring)
+    actual = neighbours_disk(depth=depth, ipix=ipixels, ring=ring)
     if ring == 0:
         expected = np.reshape(ipixels, (-1, 1))
     else:
