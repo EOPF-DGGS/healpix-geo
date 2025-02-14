@@ -1,20 +1,7 @@
 import numpy as np
 
 from healpix_geo import healpix_geo
-
-
-def _check_depth(depth):
-    ravel_depth = np.ravel(np.atleast_1d(depth))
-    if any(ravel_depth < 0) or any(ravel_depth > 29):
-        raise ValueError("Depth must be in the [0, 29] closed range")
-
-
-def _check_ipixels(data, depth):
-    npix = 12 * 4 ** (depth)
-    if (data >= npix).any() or (data < 0).any():
-        raise ValueError(
-            f"The input HEALPix cells contains value out of [0, {npix - 1}]"
-        )
+from healpix_geo.utils import _check_depth, _check_ipixels, _check_ring
 
 
 def neighbours_disk(ipix, depth, ring, num_threads=0):
@@ -63,6 +50,7 @@ def neighbours_disk(ipix, depth, ring, num_threads=0):
     ipix = np.atleast_1d(ipix)
     _check_ipixels(data=ipix, depth=depth)
     ipix = ipix.astype(np.uint64)
+    _check_ring(depth, ring)
 
     # Allocation of the array containing the neighbours
     neighbours = np.full(
