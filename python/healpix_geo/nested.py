@@ -1,7 +1,7 @@
 import numpy as np
 
 from healpix_geo import healpix_geo
-from healpix_geo.utils import _check_depth, _check_ipixels
+from healpix_geo.utils import _check_depth, _check_ipixels, _check_ring
 
 
 def neighbours_disk(ipix, depth, ring, num_threads=0):
@@ -50,6 +50,7 @@ def neighbours_disk(ipix, depth, ring, num_threads=0):
     ipix = np.atleast_1d(ipix)
     _check_ipixels(data=ipix, depth=depth)
     ipix = ipix.astype(np.uint64)
+    _check_ring(depth, ring)
 
     # Allocation of the array containing the neighbours
     neighbours = np.full(
