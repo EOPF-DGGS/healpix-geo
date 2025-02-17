@@ -60,3 +60,56 @@ def neighbours_disk(ipix, depth, ring, num_threads=0):
     healpix_geo.nested.neighbours_disk(depth, ipix, ring, neighbours, num_threads)
 
     return neighbours
+
+
+def angular_distances(from_, to_, depth, num_threads=0):
+    """Compute the angular distances
+
+    Parameters
+    ----------
+    from_ : numpy.ndarray
+        The source Healpix cell indexes given as a ``np.uint64`` numpy array. Should be 1D.
+    to_ : numpy.ndarray
+        The destination Healpix cell indexes given as a ``np.uint64`` numpy array.
+        Should be 2D.
+    depth : int
+        The depth of the Healpix cells.
+    num_threads : int, default: 0
+        Specifies the number of threads to use for the computation. Default to 0 means
+        it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
+        or the number of logical CPUs (otherwise)
+
+    Returns
+    -------
+    distances : numpy.ndarray
+        The angular distances in radians.
+
+    Raises
+    ------
+    ValueError
+        When the Healpix cell indexes given have values out of :math:`[0, 4^{depth}[`.
+    """
+    _check_depth(depth)
+
+    from_ = np.atleast_1d(from_)
+    _check_ipixels(data=from_, depth=depth)
+    from_ = from_.astype("uint64")
+
+    mask = to_ != -1
+    masked_to = np.where(mask, to_, 0)
+
+    to_ = np.atleast_1d(masked_to)
+    _check_ipixels(data=to_, depth=depth)
+    to_ = to_.astype("uint64")
+
+    if from_.shape != to_.shape[:-1]:
+        raise ValueError(
+            "The shape of `from_` must be the same as `to_` up until the second-to-last axis."
+        )
+
+    distances = np.full(to_.shape, dtype="float64", fill_value=np.nan)
+    num_threads = np.uint16(num_threads)
+
+    healpix_geo.nested.angular_distances(depth, from_, to_, distances, num_threads)
+
+    return np.where(mask, distances, np.nan)
