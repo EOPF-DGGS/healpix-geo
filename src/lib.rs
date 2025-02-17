@@ -61,7 +61,7 @@ mod nested {
         vec3_of(lon, lat)
     }
 
-    /// Wrapper of `UnitVect3.ang_disk`
+    /// Wrapper of `UnitVect3.ang_dist`
     /// The given array must be of the same size as `ipix`.
     #[pyfunction]
     unsafe fn angular_distances<'a>(
@@ -182,7 +182,7 @@ mod ring {
         vec3_of(lon, lat)
     }
 
-    /// Wrapper of `UnitVect3.ang_disk`
+    /// Wrapper of `UnitVect3.ang_dist`
     /// The given array must be of the same size as `ipix`.
     #[pyfunction]
     unsafe fn angular_distances<'a>(
