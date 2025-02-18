@@ -104,9 +104,8 @@ def angular_distances(from_, to_, depth, num_threads=0):
 
     if from_.shape != to_.shape and from_.shape != to_.shape[:-1]:
         raise ValueError(
-            "The shape of `from_` must be the same as the shape of `to_`"
-            " or at least up until the second-to-last axis:\n"
-            f"{from_.shape} must be equal to {to_.shape} or {to_.shape[:-1]}"
+            "The shape of `from_` must be compatible with the shape of `to_`:\n"
+            f"{to_.shape} or {to_.shape[:-1]} must be equal to {from_.shape}."
         )
 
     if from_.shape == to_.shape:
