@@ -49,7 +49,7 @@ repos:
           - "--extra-keys=metadata.kernelspec"
           - "metadata.language_info.version"
   - repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.12.5
+    rev: v1.29.7
     hooks:
       - id: typos
         exclude: ".*\\.ipynb$"
