@@ -63,7 +63,7 @@ def neighbours_disk(ipix, depth, ring, num_threads=0):
 
 
 def angular_distances(from_, to_, depth, num_threads=0):
-    """Compute the angular distances
+    """Compute the angular distances between cell centers
 
     Parameters
     ----------
