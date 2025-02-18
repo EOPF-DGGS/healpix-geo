@@ -102,14 +102,22 @@ def angular_distances(from_, to_, depth, num_threads=0):
     _check_ipixels(data=to_, depth=depth)
     to_ = to_.astype("uint64")
 
-    if from_.shape != to_.shape[:-1]:
+    if from_.shape != to_.shape and from_.shape != to_.shape[:-1]:
         raise ValueError(
-            "The shape of `from_` must be the same as `to_` up until the second-to-last axis."
+            "The shape of `from_` must be compatible with the shape of `to_`:\n"
+            f"{to_.shape} or {to_.shape[:-1]} must be equal to {from_.shape}."
         )
 
-    distances = np.full(to_.shape, dtype="float64", fill_value=np.nan)
+    if from_.shape == to_.shape:
+        intermediate_shape = to_.shape + (1,)
+    else:
+        intermediate_shape = to_.shape
+
+    distances = np.full(intermediate_shape, dtype="float64", fill_value=np.nan)
     num_threads = np.uint16(num_threads)
 
-    healpix_geo.ring.angular_distances(depth, from_, to_, distances, num_threads)
+    healpix_geo.ring.angular_distances(
+        depth, from_, np.reshape(to_, intermediate_shape), distances, num_threads
+    )
 
-    return np.where(mask, distances, np.nan)
+    return np.where(mask, np.reshape(distances, to_.shape), np.nan)
