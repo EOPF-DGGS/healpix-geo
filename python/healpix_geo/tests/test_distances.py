@@ -64,3 +64,18 @@ def test_distance(depth, indexing_scheme, from_, to_, expected):
     actual = angular_distances(from_, to_, depth)
 
     np.testing.assert_allclose(actual, expected)
+
+
+@pytest.mark.parametrize("indexing_scheme", ["ring", "nested"])
+def test_distance_error(indexing_scheme):
+    if indexing_scheme == "nested":
+        angular_distances = healpix_geo.nested.angular_distances
+    elif indexing_scheme == "ring":
+        angular_distances = healpix_geo.ring.angular_distances
+
+    from_ = np.array([4, 7])
+    to_ = np.array([[2, 3], [4, 6], [5, 4]])
+    depth = 1
+
+    with pytest.raises(ValueError, match="The shape of `from_` must be compatible"):
+        angular_distances(from_, to_, depth)
