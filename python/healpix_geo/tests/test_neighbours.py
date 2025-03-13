@@ -15,12 +15,12 @@ import healpix_geo
         "ring",
     ],
 )
-def test_neighbours_disk(depth, ring, indexing_scheme):
+def test_kth_neighbourhood(depth, ring, indexing_scheme):
     if indexing_scheme == "nested":
-        neighbours_disk = healpix_geo.nested.neighbours_disk
+        kth_neighbourhood = healpix_geo.nested.kth_neighbourhood
         neighbours = cdshealpix.nested.neighbours
     elif indexing_scheme == "ring":
-        neighbours_disk = healpix_geo.ring.neighbours_disk
+        kth_neighbourhood = healpix_geo.ring.kth_neighbourhood
 
         def neighbours(ipix, depth):
             return cdshealpix.to_ring(
@@ -30,7 +30,7 @@ def test_neighbours_disk(depth, ring, indexing_scheme):
 
     ipixels = np.array([50, 100], dtype="int64")
 
-    actual = neighbours_disk(depth=depth, ipix=ipixels, ring=ring)
+    actual = kth_neighbourhood(depth=depth, ipix=ipixels, ring=ring)
     if ring == 0:
         expected = np.reshape(ipixels, (-1, 1))
     else:
