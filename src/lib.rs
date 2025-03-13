@@ -8,10 +8,10 @@ use pyo3::prelude::*;
 mod nested {
     use super::*;
 
-    /// Wrapper of `neighbours_disk`
+    /// Wrapper of `kth_neighbourhood`
     /// The given array must be of size (2 * ring + 1)^2
     #[pyfunction]
-    unsafe fn neighbours_disk<'a>(
+    unsafe fn kth_neighbourhood<'a>(
         _py: Python,
         depth: u8,
         ipix: &Bound<'a, PyArrayDyn<u64>>,
@@ -33,7 +33,10 @@ mod nested {
                     .and(&ipix)
                     .par_for_each(|mut n, &p| {
                         let map = Array1::from_iter(
-                            layer.neighbours_disk(p, ring).into_iter().map(|v| v as i64),
+                            layer
+                                .kth_neighbourhood(p, ring)
+                                .into_iter()
+                                .map(|v| v as i64),
                         );
 
                         n.slice_mut(s![..map.len()]).assign(&map);
@@ -46,7 +49,10 @@ mod nested {
                 .and(&ipix)
                 .for_each(|mut n, &p| {
                     let map = Array1::from_iter(
-                        layer.neighbours_disk(p, ring).into_iter().map(|v| v as i64),
+                        layer
+                            .kth_neighbourhood(p, ring)
+                            .into_iter()
+                            .map(|v| v as i64),
                     );
 
                     n.slice_mut(s![..]).assign(&map);
@@ -121,10 +127,10 @@ mod nested {
 mod ring {
     use super::*;
 
-    /// Wrapper of `neighbours_disk`
+    /// Wrapper of `kth_neighbourhood`
     /// The given array must be of size (2 * ring + 1)^2
     #[pyfunction]
-    unsafe fn neighbours_disk<'a>(
+    unsafe fn kth_neighbourhood<'a>(
         _py: Python,
         depth: u8,
         ipix: &Bound<'a, PyArrayDyn<u64>>,
@@ -148,7 +154,7 @@ mod ring {
                         let p_nested = layer.from_ring(p);
                         let map = Array1::from_iter(
                             layer
-                                .neighbours_disk(p_nested, ring)
+                                .kth_neighbourhood(p_nested, ring)
                                 .into_iter()
                                 .map(|v| layer.to_ring(v) as i64),
                         );
@@ -165,7 +171,7 @@ mod ring {
                     let p_nested = layer.from_ring(p);
                     let map = Array1::from_iter(
                         layer
-                            .neighbours_disk(p_nested, ring)
+                            .kth_neighbourhood(p_nested, ring)
                             .into_iter()
                             .map(|v| layer.to_ring(v) as i64),
                     );

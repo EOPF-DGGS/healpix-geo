@@ -4,11 +4,11 @@ from healpix_geo import healpix_geo
 from healpix_geo.utils import _check_depth, _check_ipixels, _check_ring
 
 
-def neighbours_disk(ipix, depth, ring, num_threads=0):
+def kth_neighbourhood(ipix, depth, ring, num_threads=0):
     """Get the kth ring neighbouring cells of some HEALPix cells at a given depth.
 
     This method returns a :math:`N` x :math:`(2 k + 1)^2` `np.uint64` numpy array containing the neighbours of each cell of the :math:`N` sized `ipix` array.
-    This method is wrapped around the `neighbours_in_kth_ring <https://docs.rs/cdshealpix/0.1.5/cdshealpix/nested/struct.Layer.html#method.neighbours_in_kth_ring>`__
+    This method is wrapped around the `kth_neighbourhood <https://docs.rs/cdshealpix/0.1.5/cdshealpix/nested/struct.Layer.html#method.kth_neighbourhood>`__
     method from the `cdshealpix Rust crate <https://crates.io/crates/cdshealpix>`__.
 
     Parameters
@@ -57,7 +57,7 @@ def neighbours_disk(ipix, depth, ring, num_threads=0):
         (*ipix.shape, (2 * ring + 1) ** 2), dtype=np.int64, fill_value=-1
     )
     num_threads = np.uint16(num_threads)
-    healpix_geo.nested.neighbours_disk(depth, ipix, ring, neighbours, num_threads)
+    healpix_geo.nested.kth_neighbourhood(depth, ipix, ring, neighbours, num_threads)
 
     return neighbours
 
