@@ -140,6 +140,49 @@ mod nested {
 
         Ok(())
     }
+
+    #[pyfunction]
+    unsafe fn siblings<'a>(
+        _py: Python,
+        depth: u8,
+        ipix: &Bound<'a, PyArrayDyn<u64>>,
+        result: &Bound<'a, PyArrayDyn<u64>>,
+        nthreads: u16,
+    ) -> PyResult<()> {
+        use super::healpix::nested::siblings;
+
+        let ipix = ipix.as_array();
+        let mut result = unsafe { result.as_array_mut() };
+        let layer = healpix::nested::get(depth);
+
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(nthreads as usize)
+                .build()
+                .unwrap();
+
+            pool.install(|| {
+                Zip::from(result.rows_mut())
+                    .and(&ipix)
+                    .par_for_each(|mut n, &p| {
+                        let map = Array1::from_iter(siblings(layer, p));
+                        n.slice_mut(s![..map.len()]).assign(&map);
+                    })
+            });
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Zip::from(result.rows_mut())
+                .and(&ipix)
+                .par_for_each(|mut n, &p| {
+                    let map = Array1::from_iter(siblings(layer, p));
+                    n.slice_mut(s![..map.len()]).assign(&map);
+                });
+        }
+
+        Ok(())
+    }
 }
 
 #[pymodule]
