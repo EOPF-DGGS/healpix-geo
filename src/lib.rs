@@ -1,5 +1,7 @@
 use pyo3::prelude::*;
 
+mod healpix;
+
 #[pymodule]
 mod nested {
     use super::*;
@@ -54,7 +56,8 @@ mod nested {
         Ok(())
     }
 
-    fn zoom_to<'a>(
+    #[pyfunction]
+    unsafe fn zoom_to<'a>(
         _py: Python,
         depth: u8,
         ipix: &Bound<'a, PyArrayDyn<u64>>,
@@ -62,43 +65,75 @@ mod nested {
         result: &Bound<'a, PyArrayDyn<u64>>,
         nthreads: u16,
     ) -> PyResult<()> {
-        use cdshealpix::nested::HashParts;
+        use super::healpix::nested::{children, parent};
+        use std::cmp::Ordering;
+
         let ipix = ipix.as_array();
         let mut result = unsafe { result.as_array_mut() };
         let layer = healpix::nested::get(depth);
-        let delta_depth: i16 = new_depth as i16 - depth as i16;
 
         #[cfg(not(target_arch = "wasm32"))]
         {
-            match delta_depth {
-                0 => {
-                    // TODO: copy cell ids
-                }
-                delta_depth if delta_depth < 0 => {
-                    // TODO: compute parent cell ids
-                    let pool = rayon::ThreadPoolBuilder::new()
-                        .num_threads(nthreads as usize)
-                        .build()
-                        .unwrap();
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(nthreads as usize)
+                .build()
+                .unwrap();
+
+            match layer.depth().cmp(&depth) {
+                Ordering::Equal => {
                     pool.install(|| {
                         Zip::from(result.rows_mut())
                             .and(&ipix)
                             .par_for_each(|mut n, &p| {
-                                HashParts { d0h, i, j } = layer.decode_hash(p);
-
-                                let shift = -delta_depth;
-
-                                let i = i >> shift;
-                                let j = j >> shift;
-
-                                let parent = layer.build_hash_from_parts(d0h, i, j);
-
-                                n[0] = parent;
+                                n[0] = p;
                             })
                     });
                 }
-                delta_depth if delta_depth > 0 => {
-                    // TODO: compute child cell ids. Make sure `result` has enough space.
+                Ordering::Less => {
+                    pool.install(|| {
+                        Zip::from(result.rows_mut())
+                            .and(&ipix)
+                            .par_for_each(|mut n, &p| {
+                                let map = Array1::from_iter(children(layer, p, new_depth));
+                                n.slice_mut(s![..map.len()]).assign(&map);
+                            })
+                    });
+                }
+                Ordering::Greater => {
+                    pool.install(|| {
+                        Zip::from(result.rows_mut())
+                            .and(&ipix)
+                            .par_for_each(|mut n, &p| {
+                                n[0] = parent(layer, p, new_depth);
+                            })
+                    });
+                }
+            }
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            match layer.depth().cmp(&depth) {
+                Ordering::Equal => {
+                    Zip::from(result.rows_mut())
+                        .and(&ipix)
+                        .par_for_each(|mut n, &p| {
+                            n[0] = p;
+                        });
+                }
+                Ordering::Less => {
+                    Zip::from(result.rows_mut())
+                        .and(&ipix)
+                        .par_for_each(|mut n, &p| {
+                            let map = Array1::from_iter(children(layer, p, new_depth));
+                            n.slice_mut(s![..map.len()]).assign(&map);
+                        });
+                }
+                Ordering::Greater => {
+                    Zip::from(result.rows_mut())
+                        .and(&ipix)
+                        .par_for_each(|mut n, &p| {
+                            n[0] = parent(layer, p, new_depth);
+                        });
                 }
             }
         }
