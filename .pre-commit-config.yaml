@@ -48,8 +48,8 @@ repos:
         args:
           - "--extra-keys=metadata.kernelspec"
           - "metadata.language_info.version"
-  - repo: https://github.com/crate-ci/typos
-    rev: v1
+  - repo: https://github.com/adhtruong/mirrors-typos
+    rev: v1.31.1
     hooks:
       - id: typos
         exclude: ".*\\.ipynb$"
