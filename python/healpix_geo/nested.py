@@ -60,3 +60,43 @@ def neighbours_disk(ipix, depth, ring, num_threads=0):
     healpix_geo.nested.neighbours_disk(depth, ipix, ring, neighbours, num_threads)
 
     return neighbours
+
+
+def zoom_to(ipix, depth, new_depth, num_threads=0):
+    r"""Change the resolutions the given cell ids
+
+    Parameters
+    ----------
+    ipix : numpy.ndarray
+        The HEALPix cell indexes given as a `np.uint64` numpy array.
+    depth : int
+        The depth of the HEALPix cells.
+    new_depth : int
+        The new depth of the HEALPix cells.
+
+    Returns
+    -------
+    cells : numpy.ndarray
+        A :math:`N` (`depth >= new_depth`) or :math:`N` x :math:`4^{\delta d}` `np.int64` numpy array containing the parents or children of the given cells.
+        If `depth == new_depth`, returns the input pixels
+    """
+    _check_depth(depth)
+    _check_depth(new_depth)
+
+    if depth == new_depth:
+        return ipix
+
+    ipix = np.atleast_1d(ipix)
+    _check_ipixels(data=ipix, depth=depth)
+    ipix = ipix.astype(np.uint64)
+
+    num_threads = np.uint16(num_threads)
+    if depth > new_depth:
+        result = np.full_like(ipix, fill_value=0)
+    else:
+        shape = (*ipix.shape, 4 ** (new_depth - depth))
+        result = np.full(shape, fill_value=0, dtype="uint64")
+
+    healpix_geo.nested.zoom_to(depth, ipix, new_depth, result, num_threads)
+
+    return result
