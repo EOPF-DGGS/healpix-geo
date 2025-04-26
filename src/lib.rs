@@ -13,7 +13,7 @@ mod nested {
     /// Wrapper of `kth_neighbourhood`
     /// The given array must be of size (2 * ring + 1)^2
     #[pyfunction]
-    fn neighbours_disk<'a>(
+    fn kth_neighbourhood<'a>(
         _py: Python,
         depth: u8,
         ipix: &Bound<'a, PyArrayDyn<u64>>,
