@@ -34,3 +34,36 @@ def test_zoom_to(depth, new_depth, indexing_scheme):
     actual = zoom_to(cell_ids, depth, new_depth)
 
     np.testing.assert_equal(actual, expected)
+
+
+@pytest.mark.parametrize(
+    ["cell_ids", "depth", "indexing_scheme"],
+    (
+        pytest.param(
+            np.arange(12 * 4, dtype="uint64"), 1, "nested", id="nested-normal"
+        ),
+        pytest.param(
+            np.arange(12, dtype="uint64"), 0, "nested", id="nested-base cells"
+        ),
+        pytest.param(
+            np.array([0, 4, 6], dtype="uint64"),
+            0,
+            "nested",
+            id="nested-base cells-subset",
+        ),
+    ),
+)
+def test_siblings(cell_ids, depth, indexing_scheme):
+
+    if depth != 0:
+        expected = np.repeat(np.reshape(cell_ids, (-1, 4)), 4, axis=0)
+    else:
+        expected = np.repeat(
+            np.reshape(np.arange(12, dtype="uint64"), (-1, 12)), cell_ids.size, axis=0
+        )
+
+    if indexing_scheme == "nested":
+        siblings = healpix_geo.nested.siblings
+
+    actual = siblings(cell_ids, depth)
+    np.testing.assert_equal(actual, expected)

@@ -101,3 +101,38 @@ def zoom_to(ipix, depth, new_depth, num_threads=0):
     healpix_geo.nested.zoom_to(depth, ipix, new_depth, result, num_threads)
 
     return result
+
+
+def siblings(ipix, depth, num_threads=0):
+    r"""Find the siblings for every cell
+
+    Parameters
+    ----------
+    ipix : numpy.ndarray
+        The HEALPix cell indexes given as a `np.uint64` numpy array.
+    depth : int
+        The depth of the HEALPix cells.
+
+    Returns
+    -------
+    cells : numpy.ndarray
+        A :math:`N` x :math:`4` or :math:`N` x :math:`12` `np.uint64` numpy array containing the siblings of the given cells.
+        If `depth == 0`, the siblings are the base cells.
+    """
+    _check_depth(depth)
+    ipix = np.atleast_1d(ipix)
+    _check_ipixels(data=ipix, depth=depth)
+    ipix = ipix.astype(np.uint64)
+
+    num_threads = np.uint16(num_threads)
+
+    if depth != 0:
+        shape = (*ipix.shape, 4)
+    else:
+        shape = (*ipix.shape, 12)
+
+    result = np.full(shape, fill_value=0, dtype="uint64")
+
+    healpix_geo.nested.siblings(depth, ipix, result, num_threads)
+
+    return result

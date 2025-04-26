@@ -25,7 +25,7 @@ pub mod nested {
         } else {
             let parent = parent(layer, ipix, layer.depth() - 1);
 
-            parent..parent + 4
+            parent << 2..(parent + 1) << 2
         };
 
         range.collect::<Vec<u64>>()
@@ -40,7 +40,9 @@ pub mod nested {
             )
         } else {
             let relative_depth = depth - layer.depth();
-            let range = ipix << (2 * relative_depth)..(ipix + 4) << (2 * relative_depth);
+            let first = ipix << (2 * relative_depth);
+            let last = (ipix + 1) << (2 * relative_depth);
+            let range = first..last;
 
             range.collect::<Vec<u64>>()
         }
