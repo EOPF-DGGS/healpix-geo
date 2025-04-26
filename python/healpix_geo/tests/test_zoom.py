@@ -43,6 +43,12 @@ def test_zoom_to(depth, new_depth, indexing_scheme):
             np.arange(12 * 4, dtype="uint64"), 1, "nested", id="nested-normal"
         ),
         pytest.param(
+            np.array([1, 15, 25, 26, 47], dtype="uint64"),
+            1,
+            "nested",
+            id="nested-normal-subset",
+        ),
+        pytest.param(
             np.arange(12, dtype="uint64"), 0, "nested", id="nested-base cells"
         ),
         pytest.param(
@@ -56,10 +62,11 @@ def test_zoom_to(depth, new_depth, indexing_scheme):
 def test_siblings(cell_ids, depth, indexing_scheme):
 
     if depth != 0:
-        expected = np.repeat(np.reshape(cell_ids, (-1, 4)), 4, axis=0)
+        first = cell_ids // 4 * 4
+        expected = first[:, None] + np.arange(4)
     else:
         expected = np.repeat(
-            np.reshape(np.arange(12, dtype="uint64"), (-1, 12)), cell_ids.size, axis=0
+            np.arange(12, dtype="uint64")[None, ...], cell_ids.size, axis=0
         )
 
     if indexing_scheme == "nested":
