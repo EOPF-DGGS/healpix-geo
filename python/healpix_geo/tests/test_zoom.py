@@ -43,8 +43,8 @@ def test_zoom_to(depth, new_depth, indexing_scheme):
             np.arange(12 * 4, dtype="uint64"), 1, "nested", id="nested-normal"
         ),
         pytest.param(
-            np.array([1, 15, 25, 26, 47], dtype="uint64"),
-            1,
+            np.array([1, 15, 53, 67, 150], dtype="uint64"),
+            2,
             "nested",
             id="nested-normal-subset",
         ),
@@ -52,7 +52,7 @@ def test_zoom_to(depth, new_depth, indexing_scheme):
             np.arange(12, dtype="uint64"), 0, "nested", id="nested-base cells"
         ),
         pytest.param(
-            np.array([0, 4, 6], dtype="uint64"),
+            np.array([0, 4, 6, 11], dtype="uint64"),
             0,
             "nested",
             id="nested-base cells-subset",
