@@ -12,7 +12,7 @@ mod nested {
     /// Wrapper of `neighbours_disk`
     /// The given array must be of size (2 * ring + 1)^2
     #[pyfunction]
-    unsafe fn neighbours_disk<'a>(
+    fn neighbours_disk<'a>(
         _py: Python,
         depth: u8,
         ipix: &Bound<'a, PyArrayDyn<u64>>,
@@ -20,8 +20,8 @@ mod nested {
         neighbours: &Bound<'a, PyArrayDyn<i64>>,
         nthreads: u16,
     ) -> PyResult<()> {
-        let ipix = ipix.as_array();
-        let mut neighbours = neighbours.as_array_mut();
+        let ipix = unsafe { ipix.as_array() };
+        let mut neighbours = unsafe { neighbours.as_array_mut() };
         let layer = healpix::nested::get(depth);
         #[cfg(not(target_arch = "wasm32"))]
         {
@@ -57,7 +57,7 @@ mod nested {
     }
 
     #[pyfunction]
-    unsafe fn zoom_to<'a>(
+    fn zoom_to<'a>(
         _py: Python,
         depth: u8,
         ipix: &Bound<'a, PyArrayDyn<u64>>,
@@ -68,7 +68,7 @@ mod nested {
         use super::healpix::nested::{children, parent};
         use std::cmp::Ordering;
 
-        let ipix = ipix.as_array();
+        let ipix = unsafe { ipix.as_array() };
         let mut result = unsafe { result.as_array_mut() };
         let layer = healpix::nested::get(depth);
 
