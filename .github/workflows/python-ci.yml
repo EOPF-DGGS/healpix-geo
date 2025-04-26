@@ -69,6 +69,8 @@ jobs:
 
       - name: Create rust cache
         uses: Swatinem/rust-cache@v2
+        with:
+          prefix-key: "py${{ matrix.python-version }}"
 
       - name: Help finding installed libraries
         run: |

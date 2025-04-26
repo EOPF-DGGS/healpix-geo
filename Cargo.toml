@@ -9,7 +9,7 @@ name = "healpix_geo"
 crate-type = ["cdylib"]
 
 [dependencies]
-cdshealpix = { version = "0.7.3", git = "https://github.com/keewis/cds-healpix-rust.git", branch = "kth-ring-neighbours" }
+cdshealpix = { version = "0.7.3", git = "https://github.com/cds-astro/cds-healpix-rust.git" }
 ndarray = { version = "0.16.1", features = ["rayon"] }
 numpy = "0.23.0"
 pyo3 = "0.23.3"
