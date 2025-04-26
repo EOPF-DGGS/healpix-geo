@@ -94,7 +94,8 @@ def zoom_to(ipix, depth, new_depth, num_threads=0):
     if depth > new_depth:
         result = np.full_like(ipix, fill_value=0)
     else:
-        shape = (*ipix.shape, 4 ** (new_depth - depth))
+        relative_depth = new_depth - depth
+        shape = (*ipix.shape, 4**relative_depth)
         result = np.full(shape, fill_value=0, dtype="uint64")
 
     healpix_geo.nested.zoom_to(depth, ipix, new_depth, result, num_threads)
