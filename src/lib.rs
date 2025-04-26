@@ -82,11 +82,9 @@ mod nested {
             match depth.cmp(&new_depth) {
                 Ordering::Equal => {
                     pool.install(|| {
-                        Zip::from(result.rows_mut())
-                            .and(&ipix)
-                            .par_for_each(|mut n, &p| {
-                                n[0] = p;
-                            })
+                        Zip::from(&mut result).and(&ipix).par_for_each(|n, &p| {
+                            *n = p;
+                        })
                     });
                 }
                 Ordering::Less => {
@@ -101,11 +99,9 @@ mod nested {
                 }
                 Ordering::Greater => {
                     pool.install(|| {
-                        Zip::from(result.rows_mut())
-                            .and(&ipix)
-                            .par_for_each(|mut n, &p| {
-                                n[0] = parent(layer, p, new_depth);
-                            })
+                        Zip::from(&mut result).and(&ipix).par_for_each(|n, &p| {
+                            *n = parent(layer, p, new_depth);
+                        })
                     });
                 }
             }
@@ -114,11 +110,9 @@ mod nested {
         {
             match depth.cmp(&new_depth) {
                 Ordering::Equal => {
-                    Zip::from(result.rows_mut())
-                        .and(&ipix)
-                        .par_for_each(|mut n, &p| {
-                            n[0] = p;
-                        });
+                    Zip::from(&mut result).and(&ipix).par_for_each(|n, &p| {
+                        *n = p;
+                    });
                 }
                 Ordering::Less => {
                     Zip::from(result.rows_mut())
@@ -129,11 +123,9 @@ mod nested {
                         });
                 }
                 Ordering::Greater => {
-                    Zip::from(result.rows_mut())
-                        .and(&ipix)
-                        .par_for_each(|mut n, &p| {
-                            n[0] = parent(layer, p, new_depth);
-                        });
+                    Zip::from(&mut result).and(&ipix).par_for_each(|n, &p| {
+                        *n = parent(layer, p, new_depth);
+                    });
                 }
             }
         }
