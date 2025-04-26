@@ -79,7 +79,7 @@ mod nested {
                 .build()
                 .unwrap();
 
-            match layer.depth().cmp(&depth) {
+            match depth.cmp(&new_depth) {
                 Ordering::Equal => {
                     pool.install(|| {
                         Zip::from(result.rows_mut())
@@ -112,7 +112,7 @@ mod nested {
         }
         #[cfg(target_arch = "wasm32")]
         {
-            match layer.depth().cmp(&depth) {
+            match depth.cmp(&new_depth) {
                 Ordering::Equal => {
                     Zip::from(result.rows_mut())
                         .and(&ipix)
