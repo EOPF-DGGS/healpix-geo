@@ -191,7 +191,7 @@ mod nested {
     /// Wrapper of `UnitVect3.ang_dist`
     /// The given array must be of the same size as `ipix`.
     #[pyfunction]
-    unsafe fn angular_distances<'a>(
+    fn angular_distances<'a>(
         _py: Python,
         depth: u8,
         from: &Bound<'a, PyArrayDyn<u64>>,
@@ -199,9 +199,9 @@ mod nested {
         distances: &Bound<'a, PyArrayDyn<f64>>,
         nthreads: u16,
     ) -> PyResult<()> {
-        let from = from.as_array();
-        let to = to.as_array();
-        let mut distances = distances.as_array_mut();
+        let from = unsafe { from.as_array() };
+        let to = unsafe { to.as_array() };
+        let mut distances = unsafe { distances.as_array_mut() };
         #[cfg(not(target_arch = "wasm32"))]
         {
             let pool = rayon::ThreadPoolBuilder::new()
@@ -251,7 +251,7 @@ mod ring {
     /// Wrapper of `kth_neighbourhood`
     /// The given array must be of size (2 * ring + 1)^2
     #[pyfunction]
-    unsafe fn kth_neighbourhood<'a>(
+    fn kth_neighbourhood<'a>(
         _py: Python,
         depth: u8,
         ipix: &Bound<'a, PyArrayDyn<u64>>,
@@ -259,8 +259,8 @@ mod ring {
         neighbours: &Bound<'a, PyArrayDyn<i64>>,
         nthreads: u16,
     ) -> PyResult<()> {
-        let ipix = ipix.as_array();
-        let mut neighbours = neighbours.as_array_mut();
+        let ipix = unsafe { ipix.as_array() };
+        let mut neighbours = unsafe { neighbours.as_array_mut() };
         let layer = healpix::nested::get(depth);
         #[cfg(not(target_arch = "wasm32"))]
         {
@@ -312,7 +312,7 @@ mod ring {
     /// Wrapper of `UnitVect3.ang_dist`
     /// The given array must be of the same size as `ipix`.
     #[pyfunction]
-    unsafe fn angular_distances<'a>(
+    fn angular_distances<'a>(
         _py: Python,
         depth: u8,
         from: &Bound<'a, PyArrayDyn<u64>>,
@@ -320,9 +320,9 @@ mod ring {
         distances: &Bound<'a, PyArrayDyn<f64>>,
         nthreads: u16,
     ) -> PyResult<()> {
-        let from = from.as_array();
-        let to = to.as_array();
-        let mut distances = distances.as_array_mut();
+        let from = unsafe { from.as_array() };
+        let to = unsafe { to.as_array() };
+        let mut distances = unsafe { distances.as_array_mut() };
         let nside = cdshealpix::nside(depth);
         #[cfg(not(target_arch = "wasm32"))]
         {
