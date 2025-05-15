@@ -65,7 +65,7 @@ mod select {
         // Find intersection
         let selected_cells_moc = cell_ids_moc.intersection(&polygon_moc);
 
-        // Return as list of cells
+        // Return as array of cells
         Ok(PyArray1::from_iter(
             py,
             selected_cells_moc.flatten_to_fixed_depth_cells(),
