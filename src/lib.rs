@@ -1,10 +1,77 @@
 use cdshealpix as healpix;
 use cdshealpix::sph_geom::coo3d::{vec3_of, UnitVec3, UnitVect3};
+use moc::moc::range::CellSelection;
+use moc::moc::range::RangeMOC;
+use moc::qty::Hpx;
 use ndarray::{s, Array1, Zip};
-use numpy::{PyArrayDyn, PyArrayMethods};
+use numpy::{PyArray1, PyArrayDyn, PyArrayMethods, PyReadonlyArray1, PyReadonlyArray2};
 use pyo3::prelude::*;
 
 mod hierarchy;
+
+fn degrees_to_radians(degrees: f64) -> f64 {
+    degrees * (std::f64::consts::PI / 180.0)
+}
+
+#[pymodule]
+mod select {
+    use super::*;
+
+    /// Find the cells both in the list of provided cells and within a polygon
+
+    /// A cell is considered within the polygon if its center point is within (so not the complete area has to be within).
+    ///
+    /// Parameters
+    /// ----------
+    ///     cell_ids: IDs of the cells to consider.
+    ///     depth: Shared depth of the cells.
+    ///     polygon: 2D array (2 rows, lat/lon), interpreted as a list of lat/lon coordinates that describe the polygon. The last item is assumed to be connected to the first.
+    /// Returns
+    /// -------
+    ///     cells_in_polygon: IDs of the cells both in `cell_ids` and within the `polygon`.
+    #[pyfunction]
+    fn cells_in_polygon<'a>(
+        py: Python<'a>,
+        cell_ids: PyReadonlyArray1<u64>,
+        depth: u8,
+        polygon: PyReadonlyArray2<f64>,
+    ) -> PyResult<Bound<'a, PyArray1<u64>>> {
+        // Verify polygon array has 2 rows
+        if polygon.as_array().shape()[1] != 2 {
+            return Err(pyo3::exceptions::PyValueError::new_err(
+                "Expected shape (n, 2) for polygon",
+            ));
+        }
+
+        // Convert cell ids to MOC
+        let cell_ids_moc: RangeMOC<u64, Hpx<u64>> =
+            RangeMOC::from_fixed_depth_cells(depth, cell_ids.as_slice()?.iter().copied(), None);
+
+        // Rasterize polygon as MOC
+        let polygon_as_vec: Vec<(f64, f64)> = polygon
+            .as_array()
+            .rows()
+            .into_iter()
+            .map(|row| (degrees_to_radians(row[1]), degrees_to_radians(row[0]))) //lon lat
+            .collect();
+        assert!(
+            polygon_as_vec.len() == polygon.as_array().shape()[0],
+            "Not the same items in polygon vector as in provides polygon from python {} vs {}",
+            polygon_as_vec.len(),
+            polygon.as_array().shape()[0]
+        );
+        let polygon_moc = RangeMOC::from_polygon(&polygon_as_vec, false, depth, CellSelection::All);
+
+        // Find intersection
+        let selected_cells_moc = cell_ids_moc.intersection(&polygon_moc);
+
+        // Return as list of cells
+        Ok(PyArray1::from_iter(
+            py,
+            selected_cells_moc.flatten_to_fixed_depth_cells(),
+        ))
+    }
+}
 
 #[pymodule]
 mod nested {
@@ -374,4 +441,7 @@ mod healpix_geo {
 
     #[pymodule_export]
     use super::ring;
+
+    #[pymodule_export]
+    use super::select;
 }
