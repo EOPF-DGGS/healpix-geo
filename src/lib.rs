@@ -56,7 +56,7 @@ mod select {
             .collect();
         assert!(
             polygon_as_vec.len() == polygon.as_array().shape()[0],
-            "Not the same items in polygon vector as in provides polygon from python {} vs {}",
+            "Not the same items in polygon vector as in provided polygon from python {} vs {}",
             polygon_as_vec.len(),
             polygon.as_array().shape()[0]
         );
