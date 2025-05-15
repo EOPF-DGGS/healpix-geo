@@ -18,7 +18,7 @@ mod select {
     use super::*;
 
     /// Find the cells both in the list of provided cells and within a polygon
-
+    ///
     /// A cell is considered within the polygon if its center point is within (so not the complete area has to be within).
     ///
     /// Parameters
