@@ -44,8 +44,14 @@ mod nested {
                     .and(&ipix)
                     .par_for_each(|lon, lat, &p| {
                         let center = layer.center(p);
-                        *lon = center.0;
-                        *lat = ellipsoid_.latitude_geographic_to_authalic(center.1, &coefficients);
+                        *lon = center.0.to_degrees();
+                        if ellipsoid == "sphere" {
+                            *lat = center.0.to_degrees();
+                        } else {
+                            *lat = ellipsoid_
+                                .latitude_geographic_to_authalic(center.1, &coefficients)
+                                .to_degrees();
+                        }
                     })
             });
         }
@@ -56,8 +62,13 @@ mod nested {
                 .and(&ipix)
                 .par_for_each(|lon, lat, &p| {
                     let center = layer.center(p);
-                    *lon = center.0;
-                    *lat = ellipsoid_.latitude_geographic_to_authalic(center.1, &coefficients);
+                    if ellipsoid == "sphere" {
+                        *lat = center.0.to_degrees();
+                    } else {
+                        *lat = ellipsoid_
+                            .latitude_geographic_to_authalic(center.1, &coefficients)
+                            .to_degrees();
+                    }
                 });
         }
         Ok(())
