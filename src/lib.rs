@@ -12,9 +12,8 @@ mod hierarchy;
 mod nested {
     use super::*;
 
-    /// Convert geographic latitude, 𝜙, to authalic, 𝜉
     #[pyfunction]
-    pub fn center<'a>(
+    pub fn healpix_to_lonlat<'a>(
         _py: Python,
         depth: u8,
         ipix: &Bound<'a, PyArrayDyn<u64>>,
