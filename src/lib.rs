@@ -1,7 +1,9 @@
 use cdshealpix as healpix;
 use cdshealpix::sph_geom::coo3d::{vec3_of, UnitVec3, UnitVect3};
+use geodesy::Ellipsoid;
 use ndarray::{s, Array1, Zip};
 use numpy::{PyArrayDyn, PyArrayMethods};
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 mod hierarchy;
@@ -9,6 +11,57 @@ mod hierarchy;
 #[pymodule]
 mod nested {
     use super::*;
+
+    /// Convert geographic latitude, 𝜙, to authalic, 𝜉
+    #[pyfunction]
+    pub fn center<'a>(
+        _py: Python,
+        depth: u8,
+        ipix: &Bound<'a, PyArrayDyn<u64>>,
+        ellipsoid: &str,
+        longitude: &Bound<'a, PyArrayDyn<f64>>,
+        latitude: &Bound<'a, PyArrayDyn<f64>>,
+        nthreads: u16,
+    ) -> PyResult<()> {
+        let ellipsoid_ =
+            Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+        let ipix = unsafe { ipix.as_array() };
+        let mut longitude = unsafe { longitude.as_array_mut() };
+        let mut latitude = unsafe { latitude.as_array_mut() };
+
+        let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+
+        let layer = healpix::nested::get(depth);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(nthreads as usize)
+                .build()
+                .unwrap();
+            pool.install(|| {
+                Zip::from(&mut longitude)
+                    .and(&mut latitude)
+                    .and(&ipix)
+                    .par_for_each(|lon, lat, &p| {
+                        let center = layer.center(p);
+                        *lon = center.0;
+                        *lat = ellipsoid_.latitude_geographic_to_authalic(center.1, &coefficients);
+                    })
+            });
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Zip::from(&mut longitude)
+                .and(&mut latitude)
+                .and(&ipix)
+                .par_for_each(|lon, lat, &p| {
+                    let center = layer.center(p);
+                    *lon = center.0;
+                    *lat = ellipsoid_.latitude_geographic_to_authalic(center.1, &coefficients);
+                });
+        }
+        Ok(())
+    }
 
     /// Wrapper of `kth_neighbourhood`
     /// The given array must be of size (2 * ring + 1)^2
