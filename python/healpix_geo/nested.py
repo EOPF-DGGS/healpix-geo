@@ -15,7 +15,7 @@ def healpix_to_lonlat(ipix, depth, ellipsoid, num_threads=0):
         The HEALPix cell depth given as a `np.uint8` numpy array.
     ellipsoid : str, default: "sphere"
         Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
-        the same result as :py:func:`cdshealpix.ring.healpix_to_lonlat`.
+        the same result as :py:func:`cdshealpix.nested.healpix_to_lonlat`.
     num_threads : int, optional
         Specifies the number of threads to use for the computation. Default to 0 means
         it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
