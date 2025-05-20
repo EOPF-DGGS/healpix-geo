@@ -58,6 +58,61 @@ def healpix_to_lonlat(ipix, depth, ellipsoid, num_threads=0):
     return longitude, latitude
 
 
+def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_threads=0):
+    r"""Get the HEALPix indexes that contains specific points.
+
+    Parameters
+    ----------
+    lon : array-like
+        The longitudes of the input points, in degrees.
+    lat : array-like
+        The latitudes of the input points, in degrees.
+    depth : int or array-like of int
+        The HEALPix cell depth given as a `np.uint8` numpy array.
+    ellipsoid : str, default: "sphere"
+        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
+        the same result as :py:func:`cdshealpix.nested.lonlat_to_healpix`.
+    num_threads : int, optional
+        Specifies the number of threads to use for the computation. Default to 0 means
+        it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
+        or the number of logical CPUs (otherwise)
+
+    Returns
+    -------
+    ipix : `numpy.ndarray`
+        A numpy array containing all the HEALPix cell indexes stored as `np.uint64`.
+
+    Raises
+    ------
+    ValueError
+        When the number of longitudes and latitudes given do not match.
+    ValueError
+        When the name of the ellipsoid is unknown.
+
+    Examples
+    --------
+    >>> from cdshealpix.ring import lonlat_to_healpix
+    >>> import numpy as np
+    >>> lon = np.array([0, 50, 25], dtype="float64")
+    >>> lat = np.array([6, -12, 45], dtype="float64")
+    >>> depth = 3
+    >>> ipix = lonlat_to_healpix(lon, lat, depth, ellipsoid="WGS84")
+    """
+    _check_depth(depth)
+    longitude = np.atleast_1d(longitude).astype("float64")
+    latitude = np.atleast_1d(latitude).astype("float64")
+
+    num_threads = np.uint16(num_threads)
+
+    ipix = np.empty_like(longitude, dtype="uint64")
+
+    healpix_geo.nested.lonlat_to_healpix(
+        depth, longitude, latitude, ellipsoid, ipix, num_threads
+    )
+
+    return ipix
+
+
 def kth_neighbourhood(ipix, depth, ring, num_threads=0):
     """Get the kth ring neighbouring cells of some HEALPix cells at a given depth.
 
