@@ -4,6 +4,24 @@ from healpix_geo import healpix_geo
 from healpix_geo.utils import _check_depth, _check_ipixels, _check_ring
 
 
+def healpix_to_lonlat(ipix, depth, ellipsoid, num_threads=0):
+    _check_depth(depth)
+    ipix = np.atleast_1d(ipix)
+    _check_ipixels(data=ipix, depth=depth)
+    ipix = ipix.astype(np.uint64)
+
+    num_threads = np.uint16(num_threads)
+
+    latitude = np.empty_like(ipix, dtype="float64")
+    longitude = np.empty_like(ipix, dtype="float64")
+
+    healpix_geo.ring.healpix_to_lonlat(
+        depth, ipix, ellipsoid, longitude, latitude, num_threads
+    )
+
+    return longitude, latitude
+
+
 def kth_neighbourhood(ipix, depth, ring, num_threads=0):
     """Get the kth ring neighbouring cells of some HEALPix cells at a given depth.
 

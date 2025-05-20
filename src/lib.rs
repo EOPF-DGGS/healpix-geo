@@ -311,6 +311,67 @@ mod nested {
 mod ring {
     use super::*;
 
+    #[pyfunction]
+    pub fn healpix_to_lonlat<'a>(
+        _py: Python,
+        depth: u8,
+        ipix: &Bound<'a, PyArrayDyn<u64>>,
+        ellipsoid: &str,
+        longitude: &Bound<'a, PyArrayDyn<f64>>,
+        latitude: &Bound<'a, PyArrayDyn<f64>>,
+        nthreads: u16,
+    ) -> PyResult<()> {
+        let ellipsoid_ =
+            Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+        let ipix = unsafe { ipix.as_array() };
+        let mut longitude = unsafe { longitude.as_array_mut() };
+        let mut latitude = unsafe { latitude.as_array_mut() };
+
+        let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+
+        let nside = healpix::nside(depth);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(nthreads as usize)
+                .build()
+                .unwrap();
+            pool.install(|| {
+                Zip::from(&mut longitude)
+                    .and(&mut latitude)
+                    .and(&ipix)
+                    .par_for_each(|lon, lat, &p| {
+                        let center = healpix::ring::center(nside, p);
+                        *lon = center.0.to_degrees();
+                        if ellipsoid == "sphere" {
+                            *lat = center.0.to_degrees();
+                        } else {
+                            *lat = ellipsoid_
+                                .latitude_authalic_to_geographic(center.1, &coefficients)
+                                .to_degrees();
+                        }
+                    })
+            });
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Zip::from(&mut longitude)
+                .and(&mut latitude)
+                .and(&ipix)
+                .par_for_each(|lon, lat, &p| {
+                    let center = healpix::ring::center(nside, p);
+                    if ellipsoid == "sphere" {
+                        *lat = center.0.to_degrees();
+                    } else {
+                        *lat = ellipsoid_
+                            .latitude_authalic_to_geographic(center.1, &coefficients)
+                            .to_degrees();
+                    }
+                });
+        }
+        Ok(())
+    }
+
     /// Wrapper of `kth_neighbourhood`
     /// The given array must be of size (2 * ring + 1)^2
     #[pyfunction]
