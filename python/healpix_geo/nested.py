@@ -5,6 +5,42 @@ from healpix_geo.utils import _check_depth, _check_ipixels, _check_ring
 
 
 def healpix_to_lonlat(ipix, depth, ellipsoid, num_threads=0):
+    r"""Get the longitudes and latitudes of the center of some HEALPix cells.
+
+    Parameters
+    ----------
+    ipix : `numpy.ndarray`
+        The HEALPix cell indexes given as a `np.uint64` numpy array.
+    depth : `numpy.ndarray`
+        The HEALPix cell depth given as a `np.uint8` numpy array.
+    ellipsoid : str, default: "sphere"
+        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
+        the same result as :py:func:`cdshealpix.ring.healpix_to_lonlat`.
+    num_threads : int, optional
+        Specifies the number of threads to use for the computation. Default to 0 means
+        it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
+        or the number of logical CPUs (otherwise)
+
+    Returns
+    -------
+    lon, lat : array-like
+        The coordinates of the center of the HEALPix cells given as a longitude, latitude tuple.
+
+    Raises
+    ------
+    ValueError
+        When the HEALPix cell indexes given have values out of :math:`[0, 4^{29 - depth}[`.
+    ValueError
+        When the name of the ellipsoid is unknown.
+
+    Examples
+    --------
+    >>> from healpix_geo.nested import healpix_to_lonlat
+    >>> import numpy as np
+    >>> cell_ids = np.array([42, 6, 10])
+    >>> depth = 3
+    >>> lon, lat = healpix_to_lonlat(ipix, depth, ellipsoid="WGS84")
+    """
     _check_depth(depth)
     ipix = np.atleast_1d(ipix)
     _check_ipixels(data=ipix, depth=depth)
