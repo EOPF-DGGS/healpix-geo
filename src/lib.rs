@@ -49,7 +49,7 @@ mod nested {
                             *lat = center.0.to_degrees();
                         } else {
                             *lat = ellipsoid_
-                                .latitude_geographic_to_authalic(center.1, &coefficients)
+                                .latitude_authalic_to_geographic(center.1, &coefficients)
                                 .to_degrees();
                         }
                     })
@@ -66,7 +66,7 @@ mod nested {
                         *lat = center.0.to_degrees();
                     } else {
                         *lat = ellipsoid_
-                            .latitude_geographic_to_authalic(center.1, &coefficients)
+                            .latitude_authalic_to_geographic(center.1, &coefficients)
                             .to_degrees();
                     }
                 });
