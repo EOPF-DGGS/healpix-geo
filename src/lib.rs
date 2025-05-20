@@ -73,6 +73,68 @@ mod nested {
         Ok(())
     }
 
+    #[pyfunction]
+    pub fn lonlat_to_healpix<'a>(
+        _py: Python,
+        depth: u8,
+        longitude: &Bound<'a, PyArrayDyn<f64>>,
+        latitude: &Bound<'a, PyArrayDyn<f64>>,
+        ellipsoid: &str,
+        ipix: &Bound<'a, PyArrayDyn<u64>>,
+        nthreads: u16,
+    ) -> PyResult<()> {
+        let ellipsoid_ =
+            Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+        let mut ipix = unsafe { ipix.as_array_mut() };
+        let longitude = unsafe { longitude.as_array() };
+        let latitude = unsafe { latitude.as_array() };
+
+        let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+
+        let layer = healpix::nested::get(depth);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(nthreads as usize)
+                .build()
+                .unwrap();
+            pool.install(|| {
+                Zip::from(&longitude)
+                    .and(&latitude)
+                    .and(&mut ipix)
+                    .par_for_each(|&lon, &lat, p| {
+                        let lon_ = lon.to_radians();
+                        let lat_ = if ellipsoid == "sphere" {
+                            lat.to_radians()
+                        } else {
+                            ellipsoid_
+                                .latitude_geographic_to_authalic(lat, &coefficients)
+                                .to_degrees()
+                        };
+                        *p = layer.hash(lon_, lat_);
+                    })
+            });
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Zip::from(&longitude)
+                .and(&latitude)
+                .and(&mut ipix)
+                .par_for_each(|&lon, &lat, p| {
+                    let lon_ = lon.to_radians();
+                    let lat_ = if ellipsoid == "sphere" {
+                        lat.to_radians()
+                    } else {
+                        ellipsoid_
+                            .latitude_geographic_to_authalic(lat, &coefficients)
+                            .to_degrees()
+                    };
+                    *p = layer.hash(lon_, lat_);
+                })
+        }
+        Ok(())
+    }
+
     /// Wrapper of `kth_neighbourhood`
     /// The given array must be of size (2 * ring + 1)^2
     #[pyfunction]
@@ -368,6 +430,68 @@ mod ring {
                             .to_degrees();
                     }
                 });
+        }
+        Ok(())
+    }
+
+    #[pyfunction]
+    pub fn lonlat_to_healpix<'a>(
+        _py: Python,
+        depth: u8,
+        longitude: &Bound<'a, PyArrayDyn<f64>>,
+        latitude: &Bound<'a, PyArrayDyn<f64>>,
+        ellipsoid: &str,
+        ipix: &Bound<'a, PyArrayDyn<u64>>,
+        nthreads: u16,
+    ) -> PyResult<()> {
+        let ellipsoid_ =
+            Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+        let mut ipix = unsafe { ipix.as_array_mut() };
+        let longitude = unsafe { longitude.as_array() };
+        let latitude = unsafe { latitude.as_array() };
+
+        let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+
+        let nside = healpix::nside(depth);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(nthreads as usize)
+                .build()
+                .unwrap();
+            pool.install(|| {
+                Zip::from(&longitude)
+                    .and(&latitude)
+                    .and(&mut ipix)
+                    .par_for_each(|&lon, &lat, p| {
+                        let lon_ = lon.to_radians();
+                        let lat_ = if ellipsoid == "sphere" {
+                            lat.to_radians()
+                        } else {
+                            ellipsoid_
+                                .latitude_geographic_to_authalic(lat, &coefficients)
+                                .to_degrees()
+                        };
+                        *p = healpix::ring::hash(nside, lon_, lat_);
+                    })
+            });
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Zip::from(&longitude)
+                .and(&latitude)
+                .and(&mut ipix)
+                .par_for_each(|&lon, &lat, p| {
+                    let lon_ = lon.to_radians();
+                    let lat_ = if ellipsoid == "sphere" {
+                        lat.to_radians()
+                    } else {
+                        ellipsoid_
+                            .latitude_geographic_to_authalic(lat, &coefficients)
+                            .to_degrees()
+                    };
+                    *p = healpix::ring::hash(nside, lon_, lat_);
+                })
         }
         Ok(())
     }
