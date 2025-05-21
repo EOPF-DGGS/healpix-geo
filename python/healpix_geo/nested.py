@@ -114,6 +114,43 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
 
 
 def vertices(ipix, depth, ellipsoid, num_threads=0):
+    """Get the longitudes and latitudes of the vertices of some HEALPix cells at a given depth.
+
+    This method returns the 4 vertices of each cell in `ipix`.
+
+    Parameters
+    ----------
+    ipix : `numpy.ndarray`
+        The HEALPix cell indexes given as a `np.uint64` numpy array.
+    depth : int, or `numpy.ndarray`
+        The depth of the HEALPix cells. If given as an array, should have the same shape than ipix
+    ellipsoid : str, default: "sphere"
+        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
+        the same result as :py:func:`cdshealpix.nested.vertices`.
+    num_threads : int, optional
+        Specifies the number of threads to use for the computation. Default to 0 means
+        it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
+        or the number of logical CPUs (otherwise)
+
+    Returns
+    -------
+    longitude, latitude : array-like
+        The sky coordinates of the 4 vertices of the HEALPix cells.
+        `lon` and `lat` are of shape :math:`N` x :math:`4` numpy arrays where N is the number of HEALPix cell given in `ipix`.
+
+    Raises
+    ------
+    ValueError
+        When the HEALPix cell indexes given have values out of :math:`[0, 4^{29 - depth}[`.
+
+    Examples
+    --------
+    >>> from healpix_geo.nested import vertices
+    >>> import numpy as np
+    >>> ipix = np.array([42, 6, 10])
+    >>> depth = 12
+    >>> lon, lat = vertices(ipix, depth, ellipsoid="sphere")
+    """
     _check_depth(depth)
     ipix = np.atleast_1d(ipix)
     _check_ipixels(data=ipix, depth=depth)
