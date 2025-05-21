@@ -10,6 +10,20 @@ def select_cells_in_polygon(
     depth: int,
     polygon: npt.NDArray,
 ) -> npt.NDArray:
+    """
+    Find the cells both in the list of provided cells and within a polygon
+
+    A cell is considered within the polygon if its center point is within (so not the complete area has to be within).
+
+    Parameters
+    ----------
+        cell_ids: IDs of the cells to consider.
+        depth: Shared depth of the cells.
+        polygon: 2D array (2 rows, lon/lat), interpreted as a list of lon/lat coordinates that describe the polygon. The last item is assumed to be connected to the first.
+    Returns
+    -------
+        cells_in_polygon: IDs of the cells both in `cell_ids` and within the `polygon`.
+    """
     return healpix_geo.nested.select_cells_in_polygon(cell_ids, depth, polygon)
 
 
