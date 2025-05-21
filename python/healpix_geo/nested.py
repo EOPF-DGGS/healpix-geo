@@ -1,7 +1,16 @@
 import numpy as np
+import numpy.typing as npt
 
 from healpix_geo import healpix_geo
 from healpix_geo.utils import _check_depth, _check_ipixels, _check_ring
+
+
+def select_cells_in_polygon(
+    cell_ids: npt.NDArray,
+    depth: int,
+    polygon: npt.NDArray,
+) -> npt.NDArray:
+    return healpix_geo.nested.select_cells_in_polygon(cell_ids, depth, polygon)
 
 
 def kth_neighbourhood(ipix, depth, ring, num_threads=0):
@@ -53,9 +62,7 @@ def kth_neighbourhood(ipix, depth, ring, num_threads=0):
     _check_ring(depth, ring)
 
     # Allocation of the array containing the neighbours
-    neighbours = np.full(
-        (*ipix.shape, (2 * ring + 1) ** 2), dtype=np.int64, fill_value=-1
-    )
+    neighbours = np.full((*ipix.shape, (2 * ring + 1) ** 2), dtype=np.int64, fill_value=-1)
     num_threads = np.uint16(num_threads)
     healpix_geo.nested.kth_neighbourhood(depth, ipix, ring, neighbours, num_threads)
 

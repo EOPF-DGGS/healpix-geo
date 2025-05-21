@@ -14,7 +14,7 @@ fn degrees_to_radians(degrees: f64) -> f64 {
 }
 
 #[pymodule]
-mod select {
+mod nested {
     use super::*;
 
     /// Find the cells both in the list of provided cells and within a polygon
@@ -25,12 +25,12 @@ mod select {
     /// ----------
     ///     cell_ids: IDs of the cells to consider.
     ///     depth: Shared depth of the cells.
-    ///     polygon: 2D array (2 rows, lat/lon), interpreted as a list of lat/lon coordinates that describe the polygon. The last item is assumed to be connected to the first.
+    ///     polygon: 2D array (2 rows, lon/lat), interpreted as a list of lon/lat coordinates that describe the polygon. The last item is assumed to be connected to the first.
     /// Returns
     /// -------
     ///     cells_in_polygon: IDs of the cells both in `cell_ids` and within the `polygon`.
     #[pyfunction]
-    fn cells_in_polygon<'a>(
+    fn select_cells_in_polygon<'a>(
         py: Python<'a>,
         cell_ids: PyReadonlyArray1<u64>,
         depth: u8,
@@ -52,7 +52,7 @@ mod select {
             .as_array()
             .rows()
             .into_iter()
-            .map(|row| (degrees_to_radians(row[1]), degrees_to_radians(row[0]))) //lon lat
+            .map(|row| (degrees_to_radians(row[0]), degrees_to_radians(row[1])))
             .collect();
         assert!(
             polygon_as_vec.len() == polygon.as_array().shape()[0],
@@ -71,11 +71,6 @@ mod select {
             selected_cells_moc.flatten_to_fixed_depth_cells(),
         ))
     }
-}
-
-#[pymodule]
-mod nested {
-    use super::*;
 
     /// Wrapper of `kth_neighbourhood`
     /// The given array must be of size (2 * ring + 1)^2
@@ -441,7 +436,4 @@ mod healpix_geo {
 
     #[pymodule_export]
     use super::ring;
-
-    #[pymodule_export]
-    use super::select;
 }

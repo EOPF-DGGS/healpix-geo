@@ -124,23 +124,16 @@ def test_cells_in_polygon():
             2554,
         ],
         dtype="uint64",
-    )  # fmt:off
+    )
 
     polygon = np.array(
         [
-            (-23.6345972634, 80.338953078),  # lat lon
-            (-23.6345972634, 123.569469029),
-            (-0.6681857235, 123.569469030),
-            (-0.6681857235, 80.338953079),
+            (80.338953078, -23.6345972634),  # lon lat
+            (123.569469029, -23.6345972634),
+            (123.569469030, -0.6681857235),
+            (80.338953079, -0.6681857235),
         ],
         dtype="float64",
     )
 
-    selected_cells = healpix_geo.select.cells_in_polygon(cell_ids, 4, polygon)
-    breakpoint()
-    # np.testing.assert_equal(cell_ids, selected_cells)
-
-    # 80.338953078, -23.6345972634
-    # 123.569469029, -23.6345972634
-    # 123.569469030, -0.6681857235
-    # 80.338953079, -0.6681857235
+    healpix_geo.nested.select_cells_in_polygon(cell_ids, 4, polygon)
