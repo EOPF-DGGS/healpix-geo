@@ -1,6 +1,7 @@
 import cdshealpix
 import numpy as np
 import pytest
+from astropy.coordinates import Latitude, Longitude
 
 import healpix_geo
 
@@ -70,3 +71,55 @@ class TestHealpixToGeographic:
         expected_ = np.sign(diff_lat)
         expected = np.where(expected_ == 0, 1, expected_)
         assert np.all(diff_lat == 0) or np.all(actual == expected)
+
+
+class TestGeographicToHealpix:
+    @pytest.mark.parametrize(
+        ["lon", "lat", "depth", "indexing_scheme"],
+        (
+            pytest.param(
+                np.array([-170.0, 10.0, 30.0, 124.0, 174.0]),
+                np.array([-48.0, -30.0, -5.0, 15.0, 30.0]),
+                0,
+                "ring",
+                id="level0-ring",
+            ),
+            pytest.param(
+                np.array([-170.0, 10.0, 30.0, 124.0, 174.0]),
+                np.array([-48.0, -30.0, -5.0, 15.0, 30.0]),
+                0,
+                "nested",
+                id="level0-nested",
+            ),
+            pytest.param(
+                np.array([-70.0, 135.0, 150.0]),
+                np.array([-65.0, 0.0, 65.0]),
+                4,
+                "ring",
+                id="level4-ring",
+            ),
+            pytest.param(
+                np.array([-70.0, 135.0, 150.0]),
+                np.array([-65.0, 0.0, 65.0]),
+                4,
+                "nested",
+                id="level4-nested",
+            ),
+        ),
+    )
+    def test_spherical(self, lon, lat, depth, indexing_scheme):
+        if indexing_scheme == "ring":
+            param_cds = 2**depth
+            hg_lonlat_to_healpix = healpix_geo.ring.lonlat_to_healpix
+            cds_lonlat_to_healpix = cdshealpix.ring.lonlat_to_healpix
+        else:
+            param_cds = depth
+            hg_lonlat_to_healpix = healpix_geo.nested.lonlat_to_healpix
+            cds_lonlat_to_healpix = cdshealpix.nested.lonlat_to_healpix
+
+        actual = hg_lonlat_to_healpix(lon, lat, depth, ellipsoid="sphere")
+        lon_ = Longitude(lon, unit="degree")
+        lat_ = Latitude(lat, unit="degree")
+        expected = cds_lonlat_to_healpix(lon_, lat_, param_cds)
+
+        np.testing.assert_equal(actual, expected)
