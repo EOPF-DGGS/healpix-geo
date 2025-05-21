@@ -113,6 +113,25 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
     return ipix
 
 
+def vertices(ipix, depth, ellipsoid, num_threads=0):
+    _check_depth(depth)
+    ipix = np.atleast_1d(ipix)
+    _check_ipixels(data=ipix, depth=depth)
+    ipix = ipix.astype(np.uint64)
+
+    num_threads = np.uint16(num_threads)
+
+    shape = ipix.shape + (4,)
+    longitude = np.empty(shape=shape, dtype="float64")
+    latitude = np.empty(shape=shape, dtype="float64")
+
+    healpix_geo.nested.vertices(
+        depth, ipix, ellipsoid, longitude, latitude, num_threads
+    )
+
+    return longitude, latitude
+
+
 def kth_neighbourhood(ipix, depth, ring, num_threads=0):
     """Get the kth ring neighbouring cells of some HEALPix cells at a given depth.
 
