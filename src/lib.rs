@@ -45,7 +45,7 @@ mod nested {
                         let center = layer.center(p);
                         *lon = center.0.to_degrees();
                         if ellipsoid == "sphere" {
-                            *lat = center.0.to_degrees();
+                            *lat = center.1.to_degrees();
                         } else {
                             *lat = ellipsoid_
                                 .latitude_authalic_to_geographic(center.1, &coefficients)
@@ -62,7 +62,7 @@ mod nested {
                 .par_for_each(|lon, lat, &p| {
                     let center = layer.center(p);
                     if ellipsoid == "sphere" {
-                        *lat = center.0.to_degrees();
+                        *lat = center.1.to_degrees();
                     } else {
                         *lat = ellipsoid_
                             .latitude_authalic_to_geographic(center.1, &coefficients)
@@ -406,7 +406,7 @@ mod ring {
                         let center = healpix::ring::center(nside, p);
                         *lon = center.0.to_degrees();
                         if ellipsoid == "sphere" {
-                            *lat = center.0.to_degrees();
+                            *lat = center.1.to_degrees();
                         } else {
                             *lat = ellipsoid_
                                 .latitude_authalic_to_geographic(center.1, &coefficients)
@@ -423,7 +423,7 @@ mod ring {
                 .par_for_each(|lon, lat, &p| {
                     let center = healpix::ring::center(nside, p);
                     if ellipsoid == "sphere" {
-                        *lat = center.0.to_degrees();
+                        *lat = center.1.to_degrees();
                     } else {
                         *lat = ellipsoid_
                             .latitude_authalic_to_geographic(center.1, &coefficients)
