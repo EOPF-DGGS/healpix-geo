@@ -173,6 +173,9 @@ mod nested {
 
                         let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
                             vertex_lat
+                                .into_iter()
+                                .map(|l| l.to_degrees())
+                                .collect::<Vec<f64>>()
                         } else {
                             vertex_lat
                                 .into_iter()
@@ -201,6 +204,9 @@ mod nested {
 
                     let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
                         vertex_lat
+                            .into_iter()
+                            .map(|l| l.to_degrees())
+                            .collect::<Vec<f64>>()
                     } else {
                         vertex_lat
                             .into_iter()
@@ -671,6 +677,9 @@ mod ring {
 
                         let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
                             vertex_lat
+                                .into_iter()
+                                .map(|l| l.to_degrees())
+                                .collect::<Vec<f64>>()
                         } else {
                             vertex_lat
                                 .into_iter()
@@ -699,6 +708,9 @@ mod ring {
 
                     let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
                         vertex_lat
+                            .into_iter()
+                            .map(|l| l.to_degrees())
+                            .collect::<Vec<f64>>()
                     } else {
                         vertex_lat
                             .into_iter()
