@@ -168,7 +168,12 @@ mod nested {
                         let vertices = layer.vertices(p);
                         let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) =
                             vertices.into_iter().unzip();
-                        let vertex_lon_ = Array1::from_iter(vertex_lon);
+                        let vertex_lon_ = Array1::from_iter(
+                            vertex_lon
+                                .into_iter()
+                                .map(|l| l.to_degrees() % 360.0)
+                                .collect::<Vec<f64>>(),
+                        );
                         lon.slice_mut(s![..]).assign(&vertex_lon_);
 
                         let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
@@ -199,7 +204,12 @@ mod nested {
                     let vertices = layer.vertices(p);
                     let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) =
                         vertices.into_iter().unzip();
-                    let vertex_lon_ = Array1::from_iter(vertex_lon);
+                    let vertex_lon_ = Array1::from_iter(
+                        vertex_lon
+                            .into_iter()
+                            .map(|l| l.to_degrees() % 360.0)
+                            .collect::<Vec<f64>>(),
+                    );
                     lon.slice_mut(s![..]).assign(&vertex_lon_);
 
                     let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
@@ -584,6 +594,104 @@ mod ring {
         Ok(())
     }
 
+    #[pyfunction]
+    pub fn vertices<'a>(
+        _py: Python,
+        depth: u8,
+        ipix: &Bound<'a, PyArrayDyn<u64>>,
+        ellipsoid: &str,
+        longitude: &Bound<'a, PyArrayDyn<f64>>,
+        latitude: &Bound<'a, PyArrayDyn<f64>>,
+        nthreads: u16,
+    ) -> PyResult<()> {
+        let ellipsoid_ =
+            Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+        let ipix = unsafe { ipix.as_array() };
+        let mut longitude = unsafe { longitude.as_array_mut() };
+        let mut latitude = unsafe { latitude.as_array_mut() };
+
+        let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+
+        let nside = healpix::nside(depth);
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(nthreads as usize)
+                .build()
+                .unwrap();
+            pool.install(|| {
+                Zip::from(longitude.rows_mut())
+                    .and(latitude.rows_mut())
+                    .and(&ipix)
+                    .par_for_each(|mut lon, mut lat, &p| {
+                        let vertices = healpix::ring::vertices(nside, p);
+                        let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) =
+                            vertices.into_iter().unzip();
+                        let vertex_lon_ = Array1::from_iter(
+                            vertex_lon
+                                .into_iter()
+                                .map(|l| l.to_degrees() % 360.0)
+                                .collect::<Vec<f64>>(),
+                        );
+                        lon.slice_mut(s![..]).assign(&vertex_lon_);
+
+                        let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
+                            vertex_lat
+                                .into_iter()
+                                .map(|l| l.to_degrees())
+                                .collect::<Vec<f64>>()
+                        } else {
+                            vertex_lat
+                                .into_iter()
+                                .map(|l| {
+                                    ellipsoid_
+                                        .latitude_authalic_to_geographic(l, &coefficients)
+                                        .to_degrees()
+                                })
+                                .collect()
+                        });
+                        lat.slice_mut(s![..]).assign(&vertex_lat_);
+                    })
+            });
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Zip::from(longitude.rows_mut())
+                .and(latitude.rows_mut())
+                .and(&ipix)
+                .par_for_each(|mut lon, mut lat, &p| {
+                    let vertices = healpix::ring::vertices(nside, p);
+                    let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) =
+                        vertices.into_iter().unzip();
+                    let vertex_lon_ = Array1::from_iter(
+                        vertex_lon
+                            .into_iter()
+                            .map(|l| l.to_degrees() % 360.0)
+                            .collect::<Vec<f64>>(),
+                    );
+                    lon.slice_mut(s![..]).assign(&vertex_lon_);
+
+                    let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
+                        vertex_lat
+                            .into_iter()
+                            .map(|l| l.to_degrees())
+                            .collect::<Vec<f64>>()
+                    } else {
+                        vertex_lat
+                            .into_iter()
+                            .map(|l| {
+                                ellipsoid_
+                                    .latitude_authalic_to_geographic(l, &coefficients)
+                                    .to_degrees()
+                            })
+                            .collect()
+                    });
+                    lat.slice_mut(s![..]).assign(&vertex_lat_);
+                });
+        }
+        Ok(())
+    }
+
     /// Wrapper of `kth_neighbourhood`
     /// The given array must be of size (2 * ring + 1)^2
     #[pyfunction]
@@ -634,94 +742,6 @@ mod ring {
                     );
 
                     n.slice_mut(s![..]).assign(&map);
-                });
-        }
-        Ok(())
-    }
-
-    #[pyfunction]
-    pub fn vertices<'a>(
-        _py: Python,
-        depth: u8,
-        ipix: &Bound<'a, PyArrayDyn<u64>>,
-        ellipsoid: &str,
-        longitude: &Bound<'a, PyArrayDyn<f64>>,
-        latitude: &Bound<'a, PyArrayDyn<f64>>,
-        nthreads: u16,
-    ) -> PyResult<()> {
-        let ellipsoid_ =
-            Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
-        let ipix = unsafe { ipix.as_array() };
-        let mut longitude = unsafe { longitude.as_array_mut() };
-        let mut latitude = unsafe { latitude.as_array_mut() };
-
-        let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
-
-        let nside = healpix::nside(depth);
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            let pool = rayon::ThreadPoolBuilder::new()
-                .num_threads(nthreads as usize)
-                .build()
-                .unwrap();
-            pool.install(|| {
-                Zip::from(longitude.rows_mut())
-                    .and(latitude.rows_mut())
-                    .and(&ipix)
-                    .par_for_each(|mut lon, mut lat, &p| {
-                        let vertices = healpix::ring::vertices(nside, p);
-                        let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) =
-                            vertices.into_iter().unzip();
-                        let vertex_lon_ = Array1::from_iter(vertex_lon);
-                        lon.slice_mut(s![..]).assign(&vertex_lon_);
-
-                        let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
-                            vertex_lat
-                                .into_iter()
-                                .map(|l| l.to_degrees())
-                                .collect::<Vec<f64>>()
-                        } else {
-                            vertex_lat
-                                .into_iter()
-                                .map(|l| {
-                                    ellipsoid_
-                                        .latitude_authalic_to_geographic(l, &coefficients)
-                                        .to_degrees()
-                                })
-                                .collect()
-                        });
-                        lat.slice_mut(s![..]).assign(&vertex_lat_);
-                    })
-            });
-        }
-        #[cfg(target_arch = "wasm32")]
-        {
-            Zip::from(longitude.rows_mut())
-                .and(latitude.rows_mut())
-                .and(&ipix)
-                .par_for_each(|mut lon, mut lat, &p| {
-                    let vertices = healpix::ring::vertices(nside, p);
-                    let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) =
-                        vertices.into_iter().unzip();
-                    let vertex_lon_ = Array1::from_iter(vertex_lon);
-                    lon.slice_mut(s![..]).assign(&vertex_lon_);
-
-                    let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
-                        vertex_lat
-                            .into_iter()
-                            .map(|l| l.to_degrees())
-                            .collect::<Vec<f64>>()
-                    } else {
-                        vertex_lat
-                            .into_iter()
-                            .map(|l| {
-                                ellipsoid_
-                                    .latitude_authalic_to_geographic(l, &coefficients)
-                                    .to_degrees()
-                            })
-                            .collect()
-                    });
-                    lat.slice_mut(s![..]).assign(&vertex_lat_);
                 });
         }
         Ok(())
