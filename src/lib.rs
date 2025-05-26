@@ -5,6 +5,7 @@ use numpy::{PyArrayDyn, PyArrayMethods};
 use pyo3::prelude::*;
 
 mod hierarchy;
+mod index;
 
 #[pymodule]
 mod nested {
