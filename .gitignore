@@ -42,6 +42,9 @@ htmlcov/
 nosetests.xml
 coverage.xml
 
+# linter caches
+.prettier_cache/
+
 # Translations
 *.mo
 
@@ -70,3 +73,6 @@ docs/_build/
 
 # Pyenv
 .python-version
+
+# jupyter
+.ipynb_checkpoints/
