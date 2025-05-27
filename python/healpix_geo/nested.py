@@ -3,6 +3,8 @@ import numpy as np
 from healpix_geo import healpix_geo
 from healpix_geo.utils import _check_depth, _check_ipixels, _check_ring
 
+RangeMOCIndex = healpix_geo.nested.RangeMOCIndex
+
 
 def kth_neighbourhood(ipix, depth, ring, num_threads=0):
     """Get the kth ring neighbouring cells of some HEALPix cells at a given depth.
