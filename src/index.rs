@@ -1,6 +1,8 @@
 use moc::moc::range::RangeMOC;
 use moc::qty::Hpx;
+use std::cmp::PartialEq;
 
+#[derive(PartialEq, Debug)]
 pub struct RangeMOCIndex {
     moc: RangeMOC<u64, Hpx<u64>>,
 }
@@ -21,6 +23,12 @@ impl RangeMOCIndex {
     pub fn union(&self, other: RangeMOCIndex) -> Self {
         RangeMOCIndex {
             moc: self.moc.union(&other.moc),
+        }
+    }
+
+    pub fn intersection(&self, other: RangeMOCIndex) -> Self {
+        RangeMOCIndex {
+            moc: self.moc.intersection(&other.moc),
         }
     }
 }
@@ -51,17 +59,37 @@ mod tests {
     #[test]
     fn test_union() {
         let depth: u8 = 4;
-        let index1 = RangeMOCIndex::from_cell_ids(depth, 0..6 * 4u64.pow(depth as u32));
+        let n_cells_per_base_cell: u64 = 4u64.pow(depth as u32);
+
+        let index1 = RangeMOCIndex::from_cell_ids(depth, 0..6 * n_cells_per_base_cell);
         let index2 = RangeMOCIndex::from_cell_ids(
             depth,
-            6 * 4u64.pow(depth as u32)..12 * 4u64.pow(depth as u32),
+            6 * n_cells_per_base_cell..12 * n_cells_per_base_cell,
         );
 
-        let union = index1.union(index2);
+        let actual = index1.union(index2);
+        let expected = RangeMOCIndex::from_cell_ids(depth, 0..12 * n_cells_per_base_cell);
 
-        let expected_size = 12 * 4u64.pow(depth as u32);
+        assert_eq!(actual, expected);
+    }
 
-        assert_eq!(union.moc.depth_max(), depth);
-        assert_eq!(union.moc.n_depth_max_cells(), expected_size);
+    #[test]
+    fn test_intersection() {
+        let depth: u8 = 3;
+        let n_cells_per_base_cell: u64 = 4u64.pow(depth as u32);
+        let cell_ids1 = 2 * n_cells_per_base_cell..4 * n_cells_per_base_cell;
+        let cell_ids2 = 3 * n_cells_per_base_cell..5 * n_cells_per_base_cell;
+
+        let index1 = RangeMOCIndex::from_cell_ids(depth, cell_ids1);
+        let index2 = RangeMOCIndex::from_cell_ids(depth, cell_ids2);
+
+        let actual = index1.intersection(index2);
+
+        let expected = RangeMOCIndex::from_cell_ids(
+            depth,
+            2 * n_cells_per_base_cell..3 * n_cells_per_base_cell,
+        );
+
+        assert_eq!(actual, expected);
     }
 }
