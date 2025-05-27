@@ -9,6 +9,8 @@ mod index;
 
 #[pymodule]
 mod nested {
+    #[pymodule_export]
+    use super::index::RangeMOCIndex;
     use super::*;
 
     /// Wrapper of `kth_neighbourhood`
