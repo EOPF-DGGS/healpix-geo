@@ -59,6 +59,16 @@ impl RangeMOCIndex {
         self.moc.len() as u64 * 2 * u64::BITS as u64 / 8
     }
 
+    #[getter]
+    fn size(&self) -> u64 {
+        self.moc.n_depth_max_cells()
+    }
+
+    #[getter]
+    fn depth(&self) -> u8 {
+        self.moc.depth_max()
+    }
+
     fn cell_ids<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PyArray1<u64>>> {
         let cell_ids = Array1::from_iter(self.moc.flatten_to_fixed_depth_cells());
 
