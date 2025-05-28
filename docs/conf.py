@@ -6,6 +6,9 @@ author = "grid4earth project"
 
 copyright = f"{year}, {author}"
 
+# root toctree document
+root_doc = "index"
+
 # -- General configuration ---------------------------------------------------
 
 extensions = []
