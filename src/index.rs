@@ -119,7 +119,9 @@ impl RangeMOCIndex {
                     })
                 }
             }
-            OffsetIndexKind::IndexArray(array) => Ok(self.clone()),
+            OffsetIndexKind::IndexArray(array) => Err(PyNotImplementedError::new_err(
+                "Subsetting using an array is not supported, yet. Please use a slice instead.",
+            )),
         }
     }
 }
