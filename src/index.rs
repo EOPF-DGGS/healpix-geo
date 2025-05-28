@@ -1,16 +1,40 @@
-use ndarray::Array1;
+use ndarray::{Array1, Slice};
 use numpy::{PyArray1, PyArrayDyn, PyArrayMethods};
+use pyo3::exceptions::PyNotImplementedError;
 use pyo3::prelude::*;
-use pyo3::types::PyType;
+use pyo3::types::{PySlice, PyType};
 
 use moc::moc::range::RangeMOC;
+use moc::moc::RangeMOCIntoIterator;
 use moc::qty::Hpx;
 use std::cmp::PartialEq;
+
+trait AsSlice {
+    fn as_slice(&self) -> PyResult<Slice>;
+}
+
+impl<'a> AsSlice for Bound<'a, PySlice> {
+    fn as_slice(&self) -> PyResult<Slice> {
+        let start = self.getattr("start")?.extract::<isize>()?;
+        let stop = self.getattr("stop")?.extract::<isize>()?;
+        let step = self.getattr("step")?.extract::<isize>()?;
+
+        Ok(Slice::new(start, Some(stop), step))
+    }
+}
+
+#[derive(FromPyObject)]
+enum OffsetIndexKind<'a> {
+    #[pyo3(transparent, annotation = "slice")]
+    Slice(Bound<'a, PySlice>),
+    #[pyo3(transparent, annotation = "numpy.ndarray")]
+    IndexArray(Bound<'a, PyArrayDyn<u64>>),
+}
 
 /// range-based index of healpix cell ids
 ///
 /// Only works with cell ids following the "nested" scheme.
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 #[pyclass]
 pub struct RangeMOCIndex {
     moc: RangeMOC<u64, Hpx<u64>>,
@@ -73,5 +97,29 @@ impl RangeMOCIndex {
         let cell_ids = Array1::from_iter(self.moc.flatten_to_fixed_depth_cells());
 
         Ok(PyArray1::from_owned_array(py, cell_ids))
+    }
+
+    fn isel<'a>(&self, py: Python<'a>, index: OffsetIndexKind<'a>) -> PyResult<Self> {
+        match index {
+            OffsetIndexKind::Slice(raw_slice) => {
+                let slice = raw_slice.as_slice()?;
+
+                if slice.step != 1 {
+                    Err(PyNotImplementedError::new_err(
+                        "Slicing with a step is not supported for moc indexes.",
+                    ))
+                } else {
+                    let borrowed = match slice.end {
+                        None => self.moc.select(slice.start as usize..),
+                        Some(end) => self.moc.select(slice.start as usize..end as usize),
+                    };
+                    Ok(RangeMOCIndex {
+                        // figure out how to create a new RangeMOC from the borrowed one while cloning the ranges
+                        moc: RangeMOC::new(self.moc.depth_max(), borrowed.into_range_moc_iter()),
+                    })
+                }
+            }
+            OffsetIndexKind::IndexArray(array) => Ok(self.clone()),
+        }
     }
 }
