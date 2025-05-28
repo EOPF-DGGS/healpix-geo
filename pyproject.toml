@@ -20,6 +20,10 @@ tests = [
 ]
 docs = [
   "pydata-sphinx-theme",
+  "myst-parser",
+  "jupyter-sphinx",
+  "matplotlib",
+  "sphinx-autobuild",
 ]
 
 [tool.maturin]
