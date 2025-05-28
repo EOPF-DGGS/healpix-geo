@@ -14,6 +14,7 @@ root_doc = "index"
 # enabled extensions
 extensions = [
     "myst_parser",
+    "jupyter_sphinx",
 ]
 
 templates_path = ["_templates"]
