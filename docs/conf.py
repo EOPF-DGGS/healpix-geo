@@ -11,11 +11,15 @@ root_doc = "index"
 
 # -- General configuration ---------------------------------------------------
 
-extensions = []
+# enabled extensions
+extensions = [
+    "myst_parser",
+]
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+# -- myst-parser -------------------------------------------------------------
 
 # -- Options for HTML output -------------------------------------------------
 
