@@ -111,7 +111,7 @@ geographic_arc = Arc(
     theta2=np.rad2deg(geographic_latitude),
 )
 ax.add_patch(geographic_arc)
-ax.text(0.4 * a, 0.02 * a, r"$\phi$")
+ax.annotate(r"$\phi$", xy=(0, 0), xytext=(0 + 0.4 * a, 0 + 0.02 * a))
 
 # geocentric latitude
 v = np.linspace(0, 1, 200)
@@ -128,7 +128,7 @@ geocentric_arc = Arc(
     theta2=np.rad2deg(geocentric_latitude),
 )
 ax.add_patch(geocentric_arc)
-ax.text(0.19 * a, 0.04 * a, r"$\theta$")
+ax.annotate(r"$\theta$", xy=(0, 0), xytext=(0 + 0.19 * a, 0 + 0.02 * a))
 
 # reduced latitude
 circle = Arc(
@@ -158,7 +158,7 @@ reduced_arc = Arc(
     theta2=np.rad2deg(parametric_latitude),
 )
 ax.add_patch(reduced_arc)
-ax.text(0.07 * a, 0.02 * a, r"$\beta$")
+ax.annotate(r"$\beta$", xy=(0, 0), xytext=(0 + 0.07 * a, 0 + 0.02 * a))
 
 # authalic latitude
 r_a = authalic_radius(a, e)
