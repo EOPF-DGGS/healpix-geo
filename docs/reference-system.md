@@ -180,6 +180,17 @@ ax.scatter(x_a, y_a, zorder=4)
 ax.annotate(r"$P_\xi$", xy=(x_a, y_a), xytext=(x_a - 0.015 * a, y_a - 0.045 * a))
 
 ax.plot([0, x_a], [0, y_a], color="black", linewidth=1)
+ax.annotate(
+    r"$r_\xi$",
+    xy=(
+        0.5 * r_a * np.cos(authalic_latitude),
+        0.5 * r_a * np.sin(authalic_latitude),
+    ),
+    xytext=(
+        0.7 * r_a * np.cos(authalic_latitude) + 0.015 * a,
+        0.7 * r_a * np.sin(authalic_latitude) - 0.015 * a,
+    ),
+)
 
 authalic_circle = Arc(
     (0, 0),
