@@ -85,6 +85,7 @@ ax.scatter(x_p, y_p, zorder=4)
 
 ax.annotate("$P$", xy=(x_p, y_p), xytext=(x_p + 0.015 * a, y_p - 0.05 * b))
 ax.annotate("$P_0$", xy=(x_p0, y_p0), xytext=(x_p0 + 0.015 * a, y_p0))
+ax.annotate("$h$", xy=(x_p0, y_p0), xytext=(x_p0 + 0.05 * a, y_p0 + 0.05 * a))
 
 # tangent at P_0
 t = np.linspace(-0.05, 0.05, 100)
