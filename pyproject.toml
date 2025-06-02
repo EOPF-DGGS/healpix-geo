@@ -19,6 +19,7 @@ tests = [
   "pytest",
 ]
 docs = [
+  "sphinx",
   "pydata-sphinx-theme",
   "myst-parser",
   "jupyter-sphinx",
