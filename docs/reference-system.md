@@ -132,7 +132,7 @@ ax.add_patch(geocentric_arc)
 ax.annotate(r"$\theta$", xy=(0, 0), xytext=(0 + 0.19 * a, 0 + 0.02 * a))
 
 # reduced latitude
-circle = Arc(
+semi_major_circle = Arc(
     (0, 0),
     width=2 * a,
     height=2 * a,
@@ -141,7 +141,7 @@ circle = Arc(
     theta2=90,
     linestyle="--",
 )
-ax.add_patch(circle)
+ax.add_patch(semi_major_circle)
 ax.vlines(x=0, ymin=b, ymax=a, color="black", linestyle="--", linewidth=1)
 x_r0 = x_p0
 y_r0 = np.sqrt(a**2 - x_p0**2)
@@ -171,6 +171,17 @@ ax.scatter(x_a, y_a, zorder=4)
 ax.annotate(r"$P_\xi$", xy=(x_a, y_a), xytext=(x_a + 0.015 * a, y_a))
 
 ax.plot([0, x_a], [0, y_a], color="black", linewidth=1)
+
+authalic_circle = Arc(
+    (0, 0),
+    width=2 * r_a,
+    height=2 * r_a,
+    angle=0,
+    theta1=0,
+    theta2=90,
+    linestyle="--",
+)
+ax.add_patch(authalic_circle)
 
 ax.axis("equal")
 ax.axis("off")
