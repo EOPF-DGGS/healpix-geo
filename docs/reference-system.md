@@ -167,6 +167,15 @@ authalic_latitude = convert(geographic_latitude, e)
 x_a = 0 + r_a * np.cos(authalic_latitude)
 y_a = 0 + r_a * np.sin(authalic_latitude)
 
+authalic_arc = Arc(
+    (0, 0),
+    width=0.7 * a,
+    height=0.7 * a,
+    theta1=0,
+    theta2=np.rad2deg(authalic_latitude),
+)
+ax.add_patch(authalic_arc)
+
 ax.scatter(x_a, y_a, zorder=4)
 ax.annotate(r"$P_\xi$", xy=(x_a, y_a), xytext=(x_a + 0.015 * a, y_a))
 
@@ -182,6 +191,7 @@ authalic_circle = Arc(
     linestyle="--",
 )
 ax.add_patch(authalic_circle)
+ax.annotate(r"$\xi$", xy=(0, 0), xytext=(0 + 0.29 * a, 0 + 0.02 * a))
 
 ax.axis("equal")
 ax.axis("off")
