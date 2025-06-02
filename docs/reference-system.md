@@ -71,12 +71,12 @@ ax.vlines(x=0, ymin=-b, ymax=b, color="black", linewidth=1)
 ax.annotate("a", xy=(0.5 * a, 0), xytext=(0.5 * a, -0.05 * b))
 ax.annotate("b", xy=(0, 0.5 * b), xytext=(-0.04 * a, 0.5 * b))
 
-angle_p = np.deg2rad(50)
-m_x, m_y = normal_at(angle_p, a, b)
+parametric_latitude = np.deg2rad(50)
+m_x, m_y = normal_at(parametric_latitude, a, b)
 
 # points
-h_p = 0.05
-x_p0, y_p0 = angle_to_xy(angle_p, a, b)
+h_p = 0.05 * a
+x_p0, y_p0 = angle_to_xy(parametric_latitude, a, b)
 x_p = x_p0 + h_p * m_x
 y_p = y_p0 + h_p * m_y
 
@@ -102,7 +102,7 @@ ax.plot(x_geographic, y_geographic, linewidth=1, color="black")
 t_x = -y_p / m_y
 x_g0 = x_p + m_x * t_x
 y_g0 = y_p + m_y * t_x
-geographic_latitude = np.arctan(a / b * np.tan(angle_p))
+geographic_latitude = np.arctan(a / b * np.tan(parametric_latitude))
 geographic_arc = Arc(
     (x_g0, y_g0),
     width=0.25 * a,
@@ -151,7 +151,11 @@ ax.vlines(x=x_r0, ymin=0, ymax=y_r0, color="black", linestyle="--", linewidth=1)
 ax.plot([0, x_r0], [0, y_r0], color="black", linewidth=1)
 
 reduced_arc = Arc(
-    (0, 0), width=0.3 * a, height=0.3 * a, theta1=0, theta2=np.rad2deg(angle_p)
+    (0, 0),
+    width=0.3 * a,
+    height=0.3 * a,
+    theta1=0,
+    theta2=np.rad2deg(parametric_latitude),
 )
 ax.add_patch(reduced_arc)
 ax.text(0.07 * a, 0.02 * a, r"$\beta$")
