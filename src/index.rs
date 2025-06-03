@@ -98,9 +98,9 @@ impl Subset for RangeMOC<u64, Hpx<u64>> {
             self.moc_ranges()
                 .iter()
                 .filter_map(|range: &Range<u64>| {
-                    let range_size = ((range.end - range.start) >> shift) as usize + 1;
+                    let range_size = ((range.end - range.start) >> shift) as usize;
 
-                    if start > range_size {
+                    if start >= range_size {
                         // range entirely before slice
                         start -= range_size;
                         stop -= range_size;
@@ -112,7 +112,12 @@ impl Subset for RangeMOC<u64, Hpx<u64>> {
                         let new_end = if stop >= range_size {
                             range.end
                         } else {
-                            range.start + (((stop - start) as u64) << shift)
+                            range.start + ((stop as u64) << shift)
+                        };
+
+                        let new_range = Range {
+                            start: new_start,
+                            end: new_end,
                         };
 
                         if start >= range_size {
@@ -127,10 +132,7 @@ impl Subset for RangeMOC<u64, Hpx<u64>> {
                             stop = 0;
                         }
 
-                        Some(Range {
-                            start: new_start,
-                            end: new_end,
-                        })
+                        Some(new_range)
                     } else {
                         // slice exhausted
                         None
