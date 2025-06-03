@@ -82,3 +82,23 @@ class TestRangeMOCIndex:
 
         isinstance(actual, healpix_geo.nested.RangeMOCIndex)
         np.testing.assert_equal(actual.cell_ids(), expected)
+
+    @pytest.mark.parametrize(
+        ["level", "cell_ids"],
+        (
+            (0, np.arange(12, dtype="uint64")),
+            (1, np.array([0, 1, 2, 4, 5, 11, 12, 13, 25, 26, 27], dtype="uint64")),
+            (4, np.arange(1 * 4**4, 2 * 4**4, dtype="uint64")),
+        ),
+    )
+    @pytest.mark.parametrize(
+        "indexer", [slice(None), slice(None, 4), slice(2, None), slice(3, 7)]
+    )
+    def test_isel(self, level, cell_ids, indexer):
+        expected = cell_ids[indexer]
+
+        index = healpix_geo.nested.RangeMOCIndex.from_cell_ids(level, cell_ids)
+
+        actual = index.isel(indexer)
+
+        np.testing.assert_equal(actual.cell_ids(), expected)
