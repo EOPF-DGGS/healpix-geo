@@ -55,7 +55,7 @@ class TestHealpixToGeographic:
             cds_healpix_to_lonlat = cdshealpix.nested.healpix_to_lonlat
 
         actual_lon, actual_lat = hg_healpix_to_lonlat(
-            cell_ids, depth, ellipsoid="sphere"
+            cell_ids, depth, ellipsoid=ellipsoid
         )
         expected_lon_, expected_lat_ = cds_healpix_to_lonlat(cell_ids, param_cds)
         expected_lon = np.asarray(expected_lon_.to("degree"))
