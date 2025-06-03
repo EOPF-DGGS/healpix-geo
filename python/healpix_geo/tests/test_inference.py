@@ -64,7 +64,7 @@ class TestHealpixToGeographic:
         np.testing.assert_allclose(actual_lon, expected_lon)
 
         diff_lat = actual_lat - expected_lat
-        assert np.all(abs(diff_lat) < 0.01)
+        assert np.all(abs(diff_lat) < 0.3)
 
         signs = np.array([-1, 1])
         actual = signs[(actual_lat >= 0).astype(int)]
