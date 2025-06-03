@@ -1,7 +1,30 @@
 import numpy as np
+import numpy.typing as npt
 
 from healpix_geo import healpix_geo
 from healpix_geo.utils import _check_depth, _check_ipixels, _check_ring
+
+
+def select_cells_in_polygon(
+    cell_ids: npt.NDArray,
+    depth: int,
+    polygon: npt.NDArray,
+) -> npt.NDArray:
+    """
+    Find the cells both in the list of provided cells and within a polygon
+
+    A cell is considered within the polygon if its center point is within (so not the complete area has to be within).
+
+    Parameters
+    ----------
+        cell_ids: IDs of the cells to consider.
+        depth: Shared depth of the cells.
+        polygon: 2D array (2 rows, lon/lat), interpreted as a list of lon/lat coordinates that describe the polygon. The last item is assumed to be connected to the first.
+    Returns
+    -------
+        cells_in_polygon: IDs of the cells both in `cell_ids` and within the `polygon`.
+    """
+    return healpix_geo.nested.select_cells_in_polygon(cell_ids, depth, polygon)
 
 
 def kth_neighbourhood(ipix, depth, ring, num_threads=0):
@@ -53,9 +76,7 @@ def kth_neighbourhood(ipix, depth, ring, num_threads=0):
     _check_ring(depth, ring)
 
     # Allocation of the array containing the neighbours
-    neighbours = np.full(
-        (*ipix.shape, (2 * ring + 1) ** 2), dtype=np.int64, fill_value=-1
-    )
+    neighbours = np.full((*ipix.shape, (2 * ring + 1) ** 2), dtype=np.int64, fill_value=-1)
     num_threads = np.uint16(num_threads)
     healpix_geo.nested.kth_neighbourhood(depth, ipix, ring, neighbours, num_threads)
 
