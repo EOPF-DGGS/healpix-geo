@@ -2,7 +2,7 @@ use ndarray::Array1;
 use numpy::{PyArray1, PyArrayDyn, PyArrayMethods};
 use pyo3::exceptions::{PyNotImplementedError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::types::{PySlice, PyType};
+use pyo3::types::{PySlice, PyTuple, PyType};
 
 use moc::elemset::range::MocRanges;
 use moc::moc::range::RangeMOC;
@@ -51,15 +51,15 @@ impl ConcreteSlice {
     }
 }
 
-trait AsSlice {
-    fn as_slice(&self) -> PyResult<ConcreteSlice>;
+trait AsConcreteSlice {
+    fn as_concrete_slice(&self) -> PyResult<ConcreteSlice>;
 }
 
-impl AsSlice for Bound<'_, PySlice> {
-    fn as_slice(&self) -> PyResult<ConcreteSlice> {
-        let start = self.getattr("start")?.extract::<Option<usize>>()?;
-        let stop = self.getattr("stop")?.extract::<Option<usize>>()?;
-        let step = self.getattr("step")?.extract::<Option<usize>>()?;
+impl AsConcreteSlice for Bound<'_, PyTuple> {
+    fn as_concrete_slice(&self) -> PyResult<ConcreteSlice> {
+        let start = self.get_item(0)?.extract::<Option<usize>>()?;
+        let stop = self.get_item(1)?.extract::<Option<usize>>()?;
+        let step = self.get_item(2)?.extract::<Option<usize>>()?;
 
         ConcreteSlice::new(start, stop, step)
     }
@@ -217,8 +217,8 @@ impl RangeMOCIndex {
                 let concrete_slice = slice
                     .getattr("indices")?
                     .call1((self.size(),))?
-                    .extract::<Bound<'a, PySlice>>()?
-                    .as_slice()?;
+                    .extract::<Bound<'a, PyTuple>>()?
+                    .as_concrete_slice()?;
 
                 let subset = self.moc.slice(&concrete_slice)?;
 
