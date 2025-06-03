@@ -108,8 +108,7 @@ mod nested {
                             lat.to_radians()
                         } else {
                             ellipsoid_
-                                .latitude_geographic_to_authalic(lat, &coefficients)
-                                .to_degrees()
+                                .latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
                         };
                         *p = layer.hash(lon_, lat_);
                     })
@@ -125,9 +124,7 @@ mod nested {
                     let lat_ = if ellipsoid == "sphere" {
                         lat.to_radians()
                     } else {
-                        ellipsoid_
-                            .latitude_geographic_to_authalic(lat, &coefficients)
-                            .to_degrees()
+                        ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
                     };
                     *p = layer.hash(lon_, lat_);
                 })

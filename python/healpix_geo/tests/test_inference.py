@@ -124,6 +124,31 @@ class TestGeographicToHealpix:
 
         np.testing.assert_equal(actual, expected)
 
+    @pytest.mark.parametrize("ellipsoid", ["unitsphere", "sphere", "WGS84", "bessel"])
+    @pytest.mark.parametrize("depth", [0, 1, 9])
+    @pytest.mark.parametrize("indexing_scheme", ["ring", "nested"])
+    def test_ellipsoidal(self, ellipsoid, depth, indexing_scheme):
+        lat = np.linspace(-90, 90, 50)
+        lon = np.full_like(lat, fill_value=45.0)
+
+        if indexing_scheme == "ring":
+            param_cds = 2**depth
+            hg = healpix_geo.ring.lonlat_to_healpix
+            cds = cdshealpix.ring.lonlat_to_healpix
+        else:
+            param_cds = depth
+            hg = healpix_geo.nested.lonlat_to_healpix
+            cds = cdshealpix.nested.lonlat_to_healpix
+
+        actual = hg(lon, lat, depth, ellipsoid=ellipsoid)
+
+        lon_ = Longitude(lon, unit="degree")
+        lat_ = Latitude(lat, unit="degree")
+        expected = cds(lon_, lat_, param_cds)
+
+        assert actual.dtype == "uint64"
+        assert expected.dtype == "uint64"
+
 
 class TestVertices:
     @pytest.mark.parametrize(
