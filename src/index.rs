@@ -100,7 +100,7 @@ impl Subset for RangeMOC<u64, Hpx<u64>> {
                 .filter_map(|range: &Range<u64>| {
                     let range_size = ((range.end - range.start) >> shift) as usize + 1;
 
-                    if start - range_size > 0 {
+                    if start > range_size {
                         // range entirely before slice
                         start -= range_size;
                         stop -= range_size;
