@@ -149,6 +149,8 @@ class TestGeographicToHealpix:
         assert actual.dtype == "uint64"
         assert expected.dtype == "uint64"
 
+        # TODO: this is currently a smoke check, try more thorough checks
+
 
 class TestVertices:
     @pytest.mark.parametrize(
