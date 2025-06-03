@@ -564,8 +564,7 @@ mod ring {
                             lat.to_radians()
                         } else {
                             ellipsoid_
-                                .latitude_geographic_to_authalic(lat, &coefficients)
-                                .to_degrees()
+                                .latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
                         };
                         *p = healpix::ring::hash(nside, lon_, lat_);
                     })
@@ -581,9 +580,7 @@ mod ring {
                     let lat_ = if ellipsoid == "sphere" {
                         lat.to_radians()
                     } else {
-                        ellipsoid_
-                            .latitude_geographic_to_authalic(lat, &coefficients)
-                            .to_degrees()
+                        ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
                     };
                     *p = healpix::ring::hash(nside, lon_, lat_);
                 })
