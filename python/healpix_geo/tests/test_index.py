@@ -86,9 +86,17 @@ class TestRangeMOCIndex:
     @pytest.mark.parametrize(
         ["level", "cell_ids"],
         (
-            (0, np.arange(12, dtype="uint64")),
-            (1, np.array([0, 1, 2, 4, 5, 11, 12, 13, 25, 26, 27], dtype="uint64")),
-            (4, np.arange(1 * 4**4, 2 * 4**4, dtype="uint64")),
+            pytest.param(0, np.arange(12, dtype="uint64"), id="base cells"),
+            pytest.param(
+                1,
+                np.array([0, 1, 2, 4, 5, 11, 12, 13, 25, 26, 27], dtype="uint64"),
+                id="list of level 1 cells",
+            ),
+            pytest.param(
+                4,
+                np.arange(1 * 4**4, 2 * 4**4, dtype="uint64"),
+                id="single level 4 base cell",
+            ),
         ),
     )
     @pytest.mark.parametrize(
