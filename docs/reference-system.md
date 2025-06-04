@@ -114,6 +114,17 @@ geographic_arc = Arc(
 ax.add_patch(geographic_arc)
 ax.annotate(r"$\phi$", xy=(0, 0), xytext=(0 + 0.4 * a, 0 + 0.02 * a))
 
+rectangular_on_tangent1 = Arc(
+    (x_p0, y_p0), width=0.08 * a, height=0.08 * a, theta1=np.rad2deg(geographic_latitude), theta2=np.rad2deg(geographic_latitude) + 90,
+    linewidth=0.5
+)
+rectangular_on_tangent2 = Arc(
+    (x_p0, y_p0), width=0.095 * a, height=0.095 * a, theta1=np.rad2deg(geographic_latitude), theta2=np.rad2deg(geographic_latitude) + 90,
+    linewidth=0.5
+)
+ax.add_patch(rectangular_on_tangent1)
+ax.add_patch(rectangular_on_tangent2)
+
 # geocentric latitude
 v = np.linspace(0, 1, 200)
 x_geocentric = 0 + x_p0 * v
