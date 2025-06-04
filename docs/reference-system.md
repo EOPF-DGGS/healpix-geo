@@ -229,18 +229,18 @@ In coordinate systems based on a ellipsoid of revolution, geographic coordinates
 ```{figure} ellipsoidal_latitudes.png
 The relation between the geographic latitude and the various auxiliary latitudes.
 
-The point $P$ has the coordinates $(\lambda, \phi, h)$ ($\lambda$ is ignored in the following because it remains constant for all latitudes). Setting the height to $0$ results in $P_0$, which is used to derive all auxiliary latitudes.
+The point $P$ has the coordinates $(\lambda, \phi, h)$ (only the latitude is shown). Setting the height to $0$ results in $P_0$, which is used to derive all auxiliary latitudes.
 ```
 
-In addition to the geographic latitude (also called the geodetic, astronomic, or common latitude), there are a range of auxiliary latitudes, including:>
+In addition to the geographic latitude (also called the geodetic, astronomic, or common latitude), there are a range of auxiliary latitudes[^1], including:
 
 - the parametric (or reduced) latitude {math}`\beta`, which is the result of stretching the semi-minor axis {math}`b` to the length of the semi-major axis {math}`a`, resulting in a sphere. This stretching displaces {math}`P_0` to {math}`P_\beta`. The conversion is
   ```{math}
-  \tan{\beta} = \frac{b}{a}\tan{\phi}
+  \tan{\beta} = \frac{b}{a}\tan{\phi} = (1 - f)\tan{\phi} = \sqrt{1 - e^2}\tan{\phi}
   ```
 - the geocentric latitude {math}`\theta`, which is the spherical latitude for the local radius at {math}`P_0` (the distance between the center and {math}`P_0`). The conversion is
   ```{math}
-  \tan{\theta} = \frac{b^2}{a^2} \tan{\phi}
+  \tan{\theta} = \frac{b^2}{a^2} \tan{\phi} = (1 - e^2)\tan{\phi}
   ```
 - the authalic latitude {math}`\xi`, which is the result of stretching {math}`b` and compressing {math}`a` such that the resulting sphere (the "authalic sphere") has the same surface area as the ellipsoid. In the process, {math}`P_0` is displaced to {math}`P_\xi` to keep the surface area of faces on the ellipsoid the same as on the authalic sphere.
 
@@ -250,6 +250,10 @@ In addition to the geographic latitude (also called the geodetic, astronomic, or
   q(\phi) &= \frac{(1-e^2)\sin{\phi}}{1 - e^2\sin^2{\phi}} - \frac{1-e^2}{2e} \ln{\left(\frac{1-e\sin{\phi}}{1 + e\sin{\phi}}\right)} \\
   \sin{\xi} &= \frac{q(\phi)}{q(\frac{\phi}{2})}
   ```
+
+  And the inverse has to be computed iteratively or through a series expansion.
+
+Note that $\beta$ and $\xi$ are latitudes for auxiliary spheres.
 
 ```{jupyter-execute}
 ---
@@ -287,3 +291,5 @@ html = rich.jupyter._render_segments(segments)
 text = console._render_buffer(segments)
 rich.jupyter.JupyterRenderable(html, text)
 ```
+
+[^1]: https://doi.org/10.3133/pp1395
