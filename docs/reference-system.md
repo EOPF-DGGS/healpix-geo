@@ -10,6 +10,10 @@ Geographic data can be expressed in different coordinate systems:
 ## ellipsoidal coordinates
 
 ```{jupyter-execute}
+---
+hide-code: true
+hide-output: true
+---
 import matplotlib.pyplot as plt
 from matplotlib.patches import Arc, Ellipse
 import numpy as np
