@@ -237,3 +237,40 @@ In addition to the geographic latitude (also called the geodetic, astronomic, or
 - the parametric (or reduced) latitude {math}`\beta`, which is the result of stretching the semi-minor axis {math}`b` to the length of the semi-major axis {math}`a`, resulting in a sphere. This stretching displaces {math}`P_0` to {math}`P_\beta`.
 - the geocentric latitude {math}`\theta`, which is the spherical latitude for the local radius at {math}`P_0` (the distance between the center and {math}`P_0`).
 - the authalic latitude {math}`\xi`, which is the result of stretching {math}`b` and compressing {math}`a` such that the resulting sphere (the "authalic sphere") has the same surface area as the ellipsoid. In the process, {math}`P_0` is displaced to {math}`P_\xi` to keep the surface area of faces on the ellipsoid the same as on the authalic sphere.
+
+```{jupyter-execute}
+---
+hide-code: true
+---
+from rich.table import Table
+import rich.jupyter
+from rich.console import Console
+
+a = 6378137
+f_ = 298.257223563
+f = 1 / f_
+e = np.sqrt(2 * f - f**2)
+
+b = a * (1 - f)
+
+geographic_latitude = 45.0
+parametric_latitude = float(np.rad2deg(np.arctan(b / a * np.tan(np.deg2rad(geographic_latitude)))))
+geocentric_latitude = float(np.rad2deg(np.arctan(b**2 / a**2 * np.tan(np.deg2rad(geographic_latitude)))))
+authalic_latitude = float(np.rad2deg(convert(np.deg2rad(geographic_latitude), e)))
+
+table = Table(caption="ellipsoidal latitudes")
+table.add_column("Latitude")
+table.add_column("Value", justify="right")
+table.add_column("x - ϕ", justify="right")
+table.add_row(r"Geographic (ϕ)", f"{geographic_latitude:.8f}", f"{geographic_latitude - geographic_latitude:.8f}")
+table.add_row(r"Parametric (β)", f"{parametric_latitude:.8f}", f"{parametric_latitude - geographic_latitude:.8f}")
+table.add_row(r"Geocentric (θ)", f"{geocentric_latitude:.8f}", f"{geocentric_latitude - geographic_latitude:.8f}")
+table.add_row(r"Authalic (ξ)", f"{authalic_latitude:.8f}", f"{authalic_latitude - geographic_latitude:.8f}")
+
+# rich.jupyter.print(table)
+console = Console()
+segments = console.render(table)
+html = rich.jupyter._render_segments(segments)
+text = console._render_buffer(segments)
+rich.jupyter.JupyterRenderable(html, text)
+```
