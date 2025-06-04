@@ -238,15 +238,15 @@ The point $P$ has the coordinates $(\lambda, \phi, h)$ (only the latitude is sho
 
 In addition to the geographic latitude (also called the geodetic, astronomic, or common latitude), there are a range of auxiliary latitudes[^1], including:
 
-- the parametric (or reduced) latitude {math}`\beta`, which is the result of stretching the semi-minor axis {math}`b` to the length of the semi-major axis {math}`a`, resulting in a sphere. This stretching displaces {math}`P_0` to {math}`P_\beta`. The conversion is
+- the parametric (or reduced) latitude $\beta$, which is the result of stretching the semi-minor axis $b$ to the length of the semi-major axis $a$, resulting in a sphere. This stretching displaces $P_0$ to $P_\beta$. The conversion is
   ```{math}
   \tan{\beta} = \frac{b}{a}\tan{\phi} = (1 - f)\tan{\phi} = \sqrt{1 - e^2}\tan{\phi}
   ```
-- the geocentric latitude {math}`\theta`, which is the spherical latitude for the local radius at {math}`P_0` (the distance between the center and {math}`P_0`). The conversion is
+- the geocentric latitude $\theta$, which is the spherical latitude for the local radius at $P_0$ (the distance between the center and $P_0$). The conversion is
   ```{math}
   \tan{\theta} = \frac{b^2}{a^2} \tan{\phi} = (1 - e^2)\tan{\phi}
   ```
-- the authalic latitude {math}`\xi`, which is the result of stretching {math}`b` and compressing {math}`a` such that the resulting sphere (the "authalic sphere") has the same surface area as the ellipsoid. In the process, {math}`P_0` is displaced to {math}`P_\xi` to keep the surface area of faces on the ellipsoid the same as on the authalic sphere.
+- the authalic latitude $\xi$, which is the result of stretching $b$ and compressing $a$ such that the resulting sphere (the "authalic sphere") has the same surface area as the ellipsoid. In the process, $P_0$ is displaced to $P_\xi$ to keep the surface area of faces on the authalic sphere the same as on the ellipsoid.
 
   The conversion is
 
