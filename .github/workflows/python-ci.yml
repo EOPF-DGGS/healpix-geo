@@ -17,7 +17,7 @@ jobs:
     name: detect ci trigger
     runs-on: ubuntu-latest
     if: |
-      github.repository == 'keewis/healpix-geo'
+      github.repository == 'EOPF-DGGS/healpix-geo'
       && (github.event_name == 'push' || github.event_name == 'pull_request')
     outputs:
       triggered: ${{ steps.detect-trigger.outputs.trigger-found }}
