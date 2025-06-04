@@ -7,7 +7,7 @@ Geographic data can be expressed in different coordinate systems:
 - Ellipsoidal
 - Projected
 
-## ellipsoidal coordinates
+## Ellipsoidal coordinates
 
 ```{jupyter-execute}
 ---
@@ -223,3 +223,17 @@ ax.axis("equal")
 ax.axis("off");
 fig.savefig("ellipsoidal_latitudes.png", dpi=600, bbox_inches="tight")
 ```
+
+In coordinate systems based on a ellipsoid of revolution, geographic coordinates of points are expressed as tuples of longitude, latitude, and height above ellipsoid: {math}`(\lambda, \phi, h)`. This is much like the spherical coordinate system, except that the local normal on the ellipsoid in general does not pass through the intersection of the rotational axis and the equatorial plane (the ellipsoid's center).
+
+```{figure} ellipsoidal_latitudes.png
+The relation between the geographic latitude and the various auxiliary latitudes.
+
+The point $P$ has the coordinates $(\lambda, \phi, h)$ ($\lambda$ is ignored in the following because it remains constant for all latitudes). Setting the height to $0$ results in $P_0$, which is used to derive all auxiliary latitudes.
+```
+
+In addition to the geographic latitude (also called the geodetic, astronomic, or common latitude), there are a range of auxiliary latitudes, including:
+
+- the parametric (or reduced) latitude {math}`\beta`, which is the result of stretching the semi-minor axis {math}`b` to the length of the semi-major axis {math}`a`, resulting in a sphere. This stretching displaces {math}`P_0` to {math}`P_\beta`.
+- the geocentric latitude {math}`\theta`, which is the spherical latitude for the local radius at {math}`P_0` (the distance between the center and {math}`P_0`).
+- the authalic latitude {math}`\xi`, which is the result of stretching {math}`b` and compressing {math}`a` such that the resulting sphere (the "authalic sphere") has the same surface area as the ellipsoid. In the process, {math}`P_0` is displaced to {math}`P_\xi` to keep the surface area of faces on the ellipsoid the same as on the authalic sphere.
