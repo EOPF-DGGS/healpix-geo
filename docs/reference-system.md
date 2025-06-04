@@ -216,6 +216,6 @@ ax.add_patch(authalic_circle)
 ax.annotate(r"$\xi$", xy=(0, 0), xytext=(0 + 0.29 * a, 0 + 0.02 * a))
 
 ax.axis("equal")
-ax.axis("off")
-(r_a, np.rad2deg(authalic_latitude), np.rad2deg(geographic_latitude))
+ax.axis("off");
+fig.savefig("ellipsoidal_latitudes.png", dpi=600, bbox_inches="tight")
 ```
