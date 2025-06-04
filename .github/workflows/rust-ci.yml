@@ -17,6 +17,7 @@ jobs:
     if: |
       github.repository == 'EOPF-DGGS/healpix-geo'
       && (github.event_name == 'push' || github.event_name == 'pull_request')
+      && false
     outputs:
       triggered: ${{ steps.detect-trigger.outputs.trigger-found }}
     steps:
