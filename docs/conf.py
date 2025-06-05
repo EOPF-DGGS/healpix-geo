@@ -1,3 +1,10 @@
+# -- Library configuration ---------------------------------------------------
+
+import matplotlib
+
+# ignore matplotlib warnings
+matplotlib.set_loglevel("critical")
+
 # -- Project information -----------------------------------------------------
 
 project = "healpix-geo"
