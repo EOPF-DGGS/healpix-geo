@@ -279,7 +279,7 @@ parametric_latitude = float(np.rad2deg(np.arctan(b / a * np.tan(np.deg2rad(geogr
 geocentric_latitude = float(np.rad2deg(np.arctan(b**2 / a**2 * np.tan(np.deg2rad(geographic_latitude)))))
 authalic_latitude = float(np.rad2deg(convert(np.deg2rad(geographic_latitude), e)))
 
-table = Table(caption="ellipsoidal latitudes")
+table = Table(caption=f"ellipsoidal latitudes for WGS84\n(a = {a:01f}, f_inv = {f:03f})")
 table.add_column("Latitude")
 table.add_column("Value", justify="right")
 table.add_column("x - ϕ", justify="right")
