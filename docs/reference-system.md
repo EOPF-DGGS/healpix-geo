@@ -252,7 +252,7 @@ In addition to the geographic latitude (also called the geodetic, astronomic, or
 
   ```{math}
   q(\phi) &= \frac{(1-e^2)\sin{\phi}}{1 - e^2\sin^2{\phi}} - \frac{1-e^2}{2e} \ln{\left(\frac{1-e\sin{\phi}}{1 + e\sin{\phi}}\right)} \\
-  \sin{\xi} &= \frac{q(\phi)}{q(\frac{\phi}{2})}
+  \sin{\xi} &= \frac{q(\phi)}{q(\frac{\pi}{2})}
   ```
 
   And the inverse has to be computed iteratively or through a series expansion.
