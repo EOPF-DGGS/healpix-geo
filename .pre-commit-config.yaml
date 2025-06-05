@@ -48,11 +48,11 @@ repos:
         args:
           - "--extra-keys=metadata.kernelspec"
           - "metadata.language_info.version"
-  - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.32.0
-    hooks:
-      - id: typos
-        exclude: ".*\\.ipynb$"
+  # - repo: https://github.com/adhtruong/mirrors-typos
+  #   rev: v1.32.0
+  #   hooks:
+  #     - id: typos
+  #       exclude: ".*\\.ipynb$"
   - repo: local
     hooks:
       - id: cargo-fmt

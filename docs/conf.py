@@ -1,0 +1,37 @@
+# -- Library configuration ---------------------------------------------------
+
+import matplotlib
+
+# ignore matplotlib warnings
+matplotlib.set_loglevel("critical")
+
+# -- Project information -----------------------------------------------------
+
+project = "healpix-geo"
+year = "2025"
+author = "grid4earth project"
+
+copyright = f"{year}, {author}"
+
+# root toctree document
+root_doc = "index"
+
+# -- General configuration ---------------------------------------------------
+
+# enabled extensions
+extensions = [
+    "myst_parser",
+    "jupyter_sphinx",
+]
+
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+# -- myst-parser -------------------------------------------------------------
+
+myst_enable_extensions = ["dollarmath"]
+
+# -- Options for HTML output -------------------------------------------------
+
+html_theme = "pydata_sphinx_theme"
+html_static_path = ["_static"]

@@ -18,6 +18,15 @@ dynamic = ["version"]
 tests = [
   "pytest",
 ]
+docs = [
+  "sphinx",
+  "pydata-sphinx-theme",
+  "myst-parser",
+  "jupyter-sphinx",
+  "matplotlib",
+  "sphinx-autobuild",
+  "rich",
+]
 
 [tool.maturin]
 python-source = "python"
