@@ -296,4 +296,8 @@ text = console._render_buffer(segments)
 rich.jupyter.JupyterRenderable(html, text)
 ```
 
+Karney, 2023[^2], describes conversion formulas that reduce the numerical round-off errors.
+
 [^1]: https://doi.org/10.3133/pp1395
+
+[^2]: https://doi.org/10.48550/arXiv.2212.05818
