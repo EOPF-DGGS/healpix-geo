@@ -4,6 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "healpix-geo"
+license = "Apache-2.0"
 requires-python = ">=3.10"
 classifiers = [
   "Programming Language :: Rust",
