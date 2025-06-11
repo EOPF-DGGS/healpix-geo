@@ -265,7 +265,7 @@ impl RangeMOCIndex {
             .getattr("nested")?
             .getattr("RangeMOCIndex")?
             .getattr("create_empty")?;
-        let args = ();
+        let args = (self.moc.depth_max(),);
         let state = self.__getstate__(py)?;
 
         Ok((
