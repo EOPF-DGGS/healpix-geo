@@ -113,10 +113,15 @@ class TestRangeMOCIndex:
 
         np.testing.assert_equal(actual.cell_ids(), expected)
 
-    def test_pickle_roundtrip(self):
-        level = 2
-        cell_ids = np.arange(12 * 4**level, dtype="uint64")
-        index = healpix_geo.nested.RangeMOCIndex.from_cell_ids(level, cell_ids)
+    @pytest.mark.parametrize(
+        ["depth", "cell_ids"],
+        (
+            (2, np.arange(1 * 4**2, 3 * 4**2, dtype="uint64")),
+            (5, np.arange(12 * 4**5, dtype="uint64")),
+        ),
+    )
+    def test_pickle_roundtrip(self, depth, cell_ids):
+        index = healpix_geo.nested.RangeMOCIndex.from_cell_ids(depth, cell_ids)
 
         pickled = pickle.dumps(index)
         assert isinstance(pickled, bytes)
