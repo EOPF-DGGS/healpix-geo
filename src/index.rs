@@ -1,11 +1,16 @@
 use ndarray::Array1;
 use numpy::{PyArray1, PyArrayDyn, PyArrayMethods};
-use pyo3::exceptions::{PyNotImplementedError, PyValueError};
+use pyo3::exceptions::{PyNotImplementedError, PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::types::{PySlice, PyTuple, PyType};
+use pyo3::types::{PyBytes, PySlice, PyTuple, PyType};
 
+use moc::deser::json::from_json_aladin;
 use moc::elemset::range::MocRanges;
+use moc::moc::cell::CellMOC;
 use moc::moc::range::RangeMOC;
+use moc::moc::{
+    CellMOCIntoIterator, CellMOCIterator, HasMaxDepth, RangeMOCIntoIterator, RangeMOCIterator,
+};
 use moc::qty::Hpx;
 use std::cmp::PartialEq;
 use std::ops::Range;
@@ -166,6 +171,15 @@ impl RangeMOCIndex {
     }
 
     #[classmethod]
+    fn create_empty(_cls: &Bound<'_, PyType>, depth: u8) -> PyResult<Self> {
+        let index = RangeMOCIndex {
+            moc: RangeMOC::new_empty(depth),
+        };
+
+        Ok(index)
+    }
+
+    #[classmethod]
     fn from_cell_ids<'a>(
         _cls: &Bound<'a, PyType>,
         _py: Python,
@@ -205,6 +219,58 @@ impl RangeMOCIndex {
     #[getter]
     fn depth(&self) -> u8 {
         self.moc.depth_max()
+    }
+
+    pub fn __setstate__(&mut self, state: &[u8]) -> PyResult<()> {
+        // Deserialize the data contained in the PyBytes object
+        // and update the struct with the deserialized values.
+        // serde+bincode version:
+        // *self = deserialize(state).map_err(|err| PyRuntimeError::new_err(err.to_string()))?;
+
+        let cell_moc: CellMOC<u64, Hpx<u64>> = from_json_aladin(
+            std::str::from_utf8(state).map_err(|err| PyRuntimeError::new_err(err.to_string()))?,
+        )
+        .map_err(|err| PyRuntimeError::new_err(err.to_string()))?;
+        let reconstructed = RangeMOC::from_cells(
+            cell_moc.depth_max(),
+            cell_moc
+                .into_cell_moc_iter()
+                .map(|c| -> (u8, u64) { (c.depth, c.idx) }),
+            None,
+        );
+        *self = RangeMOCIndex { moc: reconstructed };
+
+        Ok(())
+    }
+
+    pub fn __getstate__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
+        // Serialize the struct and return a PyBytes object
+        // containing the serialized data.
+        let mut serialized: Vec<u8> = Default::default();
+        self.moc
+            .clone()
+            .into_range_moc_iter()
+            .cells()
+            .to_json_aladin(None, &mut serialized)
+            .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+        // let serialized = serialize(&self).map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+        let bytes = PyBytes::new(py, &serialized);
+        Ok(bytes)
+    }
+
+    pub fn __reduce__(&self, py: Python) -> PyResult<(PyObject, PyObject, PyObject)> {
+        let create = py
+            .import("healpix_geo")?
+            .getattr("RangeMOCIndex")?
+            .getattr("create_empty")?;
+        let args = ();
+        let state = self.__getstate__(py)?;
+
+        Ok((
+            create.into_pyobject(py)?.unbind().into_any(),
+            args.into_pyobject(py)?.unbind().into_any(),
+            state.into_pyobject(py)?.unbind().into_any(),
+        ))
     }
 
     fn cell_ids<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PyArray1<u64>>> {
