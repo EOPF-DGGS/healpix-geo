@@ -160,6 +160,15 @@ pub struct RangeMOCIndex {
     moc: RangeMOC<u64, Hpx<u64>>,
 }
 
+#[pyfunction]
+pub fn create_empty(py: Python, depth: u8) -> PyResult<Bound<'_, PyAny>> {
+    py.import("healpix_geo")?
+        .getattr("nested")?
+        .getattr("RangeMOCIndex")?
+        .getattr("create_empty")?
+        .call1((depth,))
+}
+
 #[pymethods]
 impl RangeMOCIndex {
     #[classmethod]
@@ -263,7 +272,7 @@ impl RangeMOCIndex {
         let create = py
             .import("healpix_geo")?
             .getattr("nested")?
-            .getattr("RangeMOCIndex")?
+            .getattr("healpix_geo")?
             .getattr("create_empty")?;
         let args = (self.moc.depth_max(),);
         let state = self.__getstate__(py)?;
