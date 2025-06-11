@@ -1,3 +1,5 @@
+import pickle
+
 import numpy as np
 import pytest
 
@@ -80,7 +82,7 @@ class TestRangeMOCIndex:
 
         actual = index1.intersection(index2)
 
-        isinstance(actual, healpix_geo.nested.RangeMOCIndex)
+        assert isinstance(actual, healpix_geo.nested.RangeMOCIndex)
         np.testing.assert_equal(actual.cell_ids(), expected)
 
     @pytest.mark.parametrize(
@@ -110,3 +112,14 @@ class TestRangeMOCIndex:
         actual = index.isel(indexer)
 
         np.testing.assert_equal(actual.cell_ids(), expected)
+
+    def test_pickle_roundtrip(self):
+        level = 2
+        cell_ids = np.arange(12 * 4**level, dtype="uint64")
+        index = healpix_geo.nested.RangeMOCIndex.from_cell_ids(level, cell_ids)
+
+        pickled = pickle.dumps(index)
+        unpickled = pickle.loads(pickled)
+
+        assert isinstance(unpickled, healpix_geo.nested.RangeMOCIndex)
+        np.testing.assert_equal(unpickled.cell_ids(), index.cell_ids())
