@@ -119,7 +119,9 @@ class TestRangeMOCIndex:
         index = healpix_geo.nested.RangeMOCIndex.from_cell_ids(level, cell_ids)
 
         pickled = pickle.dumps(index)
+        assert isinstance(pickled, bytes)
         unpickled = pickle.loads(pickled)
 
         assert isinstance(unpickled, healpix_geo.nested.RangeMOCIndex)
+        assert index.depth == unpickled.depth
         np.testing.assert_equal(unpickled.cell_ids(), index.cell_ids())
