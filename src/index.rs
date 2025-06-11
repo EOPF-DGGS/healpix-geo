@@ -155,6 +155,7 @@ impl Subset for RangeMOC<u64, Hpx<u64>> {
 /// Only works with cell ids following the "nested" scheme.
 #[derive(PartialEq, Debug, Clone)]
 #[pyclass]
+#[pyo3(module = "healpix_geo.nested")]
 pub struct RangeMOCIndex {
     moc: RangeMOC<u64, Hpx<u64>>,
 }
@@ -261,6 +262,7 @@ impl RangeMOCIndex {
     pub fn __reduce__(&self, py: Python) -> PyResult<(PyObject, PyObject, PyObject)> {
         let create = py
             .import("healpix_geo")?
+            .getattr("nested")?
             .getattr("RangeMOCIndex")?
             .getattr("create_empty")?;
         let args = ();
