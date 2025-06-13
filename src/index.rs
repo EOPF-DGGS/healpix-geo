@@ -335,8 +335,19 @@ impl RangeMOCIndex {
         Ok(PyArray1::from_owned_array(py, cell_ids))
     }
 
-    fn isel<'a>(&self, _py: Python<'a>, index: OffsetIndexKind<'a>) -> PyResult<Self> {
-        match index {
+    /// Subset the index using positions
+    ///
+    /// Parameters
+    /// ----------
+    /// indexer : slice of int
+    ///     The integer positions. Currently only supports slices.
+    ///
+    /// Returns
+    /// -------
+    /// subset : RangeMOCIndex
+    ///     The resulting subset.
+    fn isel<'a>(&self, _py: Python<'a>, indexer: OffsetIndexKind<'a>) -> PyResult<Self> {
+        match indexer {
             OffsetIndexKind::Slice(slice) => {
                 let concrete_slice = slice
                     .getattr("indices")?
