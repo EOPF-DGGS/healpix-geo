@@ -1,7 +1,7 @@
 :orphan:
 
 .. autosummary::
-   :toctree:
+   :toctree: generated/
 
    healpix_geo.nested.RangeMOCIndex.create_empty
    healpix_geo.nested.RangeMOCIndex.from_cell_ids
