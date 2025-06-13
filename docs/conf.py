@@ -40,3 +40,4 @@ napoleon_use_rtype = False
 
 html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
+html_css_files = ["css/custom.css"]
