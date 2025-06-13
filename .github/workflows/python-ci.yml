@@ -35,7 +35,9 @@ jobs:
     name: ${{ matrix.os }} py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     needs: detect-ci-trigger
-    if: needs.detect-ci-trigger.outputs.triggered == 'false'
+    if: |
+      needs.detect-ci-trigger.outputs.triggered == 'false'
+      && !contains(github.event.pull_request.labels.*.name, 'skip-ci')
     env:
       FORCE_COLOR: 3
     defaults:
