@@ -6,6 +6,7 @@ Geo-specific algorithms for healpix.
 ---
 maxdepth: 2
 caption: Contents:
+hidden: true
 ---
-reference-system
+api
 ```
