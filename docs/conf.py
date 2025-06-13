@@ -13,12 +13,26 @@ root_doc = "index"
 
 # enabled extensions
 extensions = [
+    "sphinx.ext.autosummary",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
     "myst_parser",
     "jupyter_sphinx",
 ]
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+# -- autosummary / autodoc ---------------------------------------------------
+
+autosummary_generate = True
+autodoc_typehints = "none"
+
+# -- napoleon ----------------------------------------------------------------
+
+napoleon_numpy_docstring = True
+napoleon_use_param = False
+napoleon_use_rtype = False
 
 # -- myst-parser -------------------------------------------------------------
 
