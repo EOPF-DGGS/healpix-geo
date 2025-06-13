@@ -217,12 +217,36 @@ impl RangeMOCIndex {
         Ok(index)
     }
 
+    /// Compute the set union of two indexes
+    ///
+    /// Parameters
+    /// ----------
+    /// other : RangeMOCIndex
+    ///     The other index. May have a different depth, in which case the
+    ///     result will use the maximum depth between both indexes.
+    ///
+    /// Returns
+    /// -------
+    /// result : RangeMOCIndex
+    ///     The union of the two indexes.
     fn union(&self, other: &RangeMOCIndex) -> Self {
         RangeMOCIndex {
             moc: self.moc.union(&other.moc),
         }
     }
 
+    /// Compute the set intersection of two indexes
+    ///
+    /// Parameters
+    /// ----------
+    /// other : RangeMOCIndex
+    ///     The other index. May have a different depth, in which case the
+    ///     result will use the maximum depth between both indexes.
+    ///
+    /// Returns
+    /// -------
+    /// result : RangeMOCIndex
+    ///     The intersection of the two indexes.
     fn intersection(&self, other: &RangeMOCIndex) -> Self {
         RangeMOCIndex {
             moc: self.moc.intersection(&other.moc),
