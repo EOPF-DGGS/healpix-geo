@@ -152,6 +152,8 @@ impl Subset for RangeMOC<u64, Hpx<u64>> {
 
 /// range-based index of healpix cell ids
 ///
+/// The idea is to compress cell ids at depth 29 based on run-length encoding (RLE).
+///
 /// Only works with cell ids following the "nested" scheme.
 #[derive(PartialEq, Debug, Clone)]
 #[pyclass]
