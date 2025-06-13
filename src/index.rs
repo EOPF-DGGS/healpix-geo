@@ -323,6 +323,12 @@ impl RangeMOCIndex {
         ))
     }
 
+    /// Retrieve the cell ids from the index.
+    ///
+    /// Returns
+    /// -------
+    /// cell_ids : numpy.ndarray
+    ///     The cell ids contained by the index.
     fn cell_ids<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PyArray1<u64>>> {
         let cell_ids = Array1::from_iter(self.moc.flatten_to_fixed_depth_cells());
 
