@@ -8,6 +8,7 @@
    healpix_geo.nested.RangeMOCIndex.full_domain
 
    healpix_geo.nested.RangeMOCIndex.cell_ids
+   healpix_geo.nested.RangeMOCIndex.isel
    healpix_geo.nested.RangeMOCIndex.intersection
    healpix_geo.nested.RangeMOCIndex.union
 
