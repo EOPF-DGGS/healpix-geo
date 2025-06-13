@@ -253,16 +253,19 @@ impl RangeMOCIndex {
         }
     }
 
+    /// The size of the ranges in bytes, minus any overhead.
     #[getter]
     fn nbytes(&self) -> u64 {
         self.moc.len() as u64 * 2 * u64::BITS as u64 / 8
     }
 
+    /// The number of items in the index.
     #[getter]
     fn size(&self) -> u64 {
         self.moc.n_depth_max_cells()
     }
 
+    /// The depth of the index.
     #[getter]
     fn depth(&self) -> u8 {
         self.moc.depth_max()
