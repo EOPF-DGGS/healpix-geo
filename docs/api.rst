@@ -1,6 +1,9 @@
 API reference
 =============
 
+Calculation functions
+~~~~~~~~~~~~~~~~~~~~~
+
 Nested
 ------
 
@@ -12,11 +15,6 @@ Nested
    healpix_geo.nested.zoom_to
    healpix_geo.nested.siblings
 
-.. autosummary::
-   :toctree: generated/
-
-   healpix_geo.nested.RangeMOCIndex
-
 Ring
 ----
 .. autosummary::
@@ -24,3 +22,10 @@ Ring
 
    healpix_geo.ring.kth_neighbourhood
    healpix_geo.ring.angular_distances
+
+Indexes
+~~~~~~~
+.. autosummary::
+   :toctree: generated/
+
+   healpix_geo.nested.RangeMOCIndex
