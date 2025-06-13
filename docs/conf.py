@@ -1,3 +1,10 @@
+# -- Library configuration ---------------------------------------------------
+
+import matplotlib
+
+# ignore matplotlib warnings
+matplotlib.set_loglevel("critical")
+
 # -- Project information -----------------------------------------------------
 
 project = "healpix-geo"
@@ -35,6 +42,8 @@ napoleon_use_param = False
 napoleon_use_rtype = False
 
 # -- myst-parser -------------------------------------------------------------
+
+myst_enable_extensions = ["dollarmath"]
 
 # -- Options for HTML output -------------------------------------------------
 
