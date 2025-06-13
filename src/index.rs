@@ -162,6 +162,14 @@ pub struct RangeMOCIndex {
 
 #[pymethods]
 impl RangeMOCIndex {
+    /// Create a full domain index
+    ///
+    /// This is a short-cut for creating an index for the entire sphere.
+    ///
+    /// Parameters
+    /// ----------
+    /// depth : int
+    ///     The cell depth.
     #[classmethod]
     fn full_domain(_cls: &Bound<'_, PyType>, depth: u8) -> PyResult<Self> {
         let index = RangeMOCIndex {
@@ -171,6 +179,12 @@ impl RangeMOCIndex {
         Ok(index)
     }
 
+    /// Create an empty index
+    ///
+    /// Parameters
+    /// ----------
+    /// depth : int
+    ///     The cell depth.
     #[classmethod]
     fn create_empty(_cls: &Bound<'_, PyType>, depth: u8) -> PyResult<Self> {
         let index = RangeMOCIndex {
@@ -180,6 +194,14 @@ impl RangeMOCIndex {
         Ok(index)
     }
 
+    /// Create an index from given cell ids.
+    ///
+    /// Parameters
+    /// ----------
+    /// depth : int
+    ///     The cell depth.
+    /// cell_ids : numpy.ndarray
+    ///     The cells to construct the the index from.
     #[classmethod]
     fn from_cell_ids<'a>(
         _cls: &Bound<'a, PyType>,
