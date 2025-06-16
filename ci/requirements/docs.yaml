@@ -14,6 +14,3 @@ dependencies:
   - pandas
   - pyresample
   - cdshealpix
-  - pip
-  - pip:
-      - -e ../..
