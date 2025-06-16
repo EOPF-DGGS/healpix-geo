@@ -300,4 +300,4 @@ Karney, 2023[^2], describes conversion formulas that reduce the numerical round-
 
 [^1]: https://doi.org/10.3133/pp1395
 
-[^2]: https://doi.org/10.48550/arXiv.2212.05818
+[^2]: https://doi.org/10.1080/00396265.2023.2217604
