@@ -34,7 +34,7 @@ build:
         --prefix "$CONDA_PREFIX_"
         maturin develop
     pre_build:
-      - python -c 'import matplotlib.pyplot'
+      - python -c "import matplotlib.pyplot"
 
 conda:
   environment: ci/requirements/docs.yaml
