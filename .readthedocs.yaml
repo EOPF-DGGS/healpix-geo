@@ -16,7 +16,7 @@ build:
     create_environment:
       - export CONDA_PREFIX_="$CONDA_ENVS_PATH/$CONDA_DEFAULT_ENV";
         unset CONDA_DEFAULT_ENV;
-        mamba create --quiet --prefix "$CONDA_PREFIX_" python=3.13 c-compiler
+        mamba create --quiet --prefix "$CONDA_PREFIX_" python=3.13
       - export CONDA_PREFIX_="$CONDA_ENVS_PATH/$CONDA_DEFAULT_ENV";
         unset CONDA_DEFAULT_ENV;
         mamba env update --quiet --prefix "$CONDA_PREFIX_" --file ci/requirements/environment.yaml
