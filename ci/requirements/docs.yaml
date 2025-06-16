@@ -9,7 +9,7 @@ dependencies:
   - jupyter-sphinx
   - matplotlib
   - sphinx-autobuild
-  - rich
+  - rich-with-jupyter
   - pip
   - pip:
       - -e ../..
