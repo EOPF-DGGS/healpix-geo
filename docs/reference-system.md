@@ -263,6 +263,7 @@ Note that $\beta$ and $\xi$ are latitudes for auxiliary spheres.
 ---
 hide-code: true
 ---
+%load_ext rich
 from rich.table import Table
 import rich.jupyter
 from rich.console import Console
