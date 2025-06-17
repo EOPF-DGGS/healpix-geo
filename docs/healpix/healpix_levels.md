@@ -29,8 +29,10 @@ TODO: compare cds-healpix and healpy cell geometries and sizes
 ```{jupyter-execute}
 ---
 hide-code: true
+hide-output: true
 ---
 import math
+import pathlib
 import re
 
 from IPython.display import HTML
@@ -140,5 +142,14 @@ formatted_table = tabulate.tabulate(
 col_re = re.compile(r"-(?=\|)")
 table = col_re.sub(":", formatted_table)
 
-HTML(markdown.markdown(table, extensions=["tables"]))
+path = pathlib.Path("healpix/healpix_levels_table.md")
+path.write_text(table)
 ```
+
+````{table} Healpix Level Overview
+:label: tbl:healpix-levels
+
+```{include} healpix_levels_table.md
+```
+
+````
