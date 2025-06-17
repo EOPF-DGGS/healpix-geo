@@ -33,7 +33,8 @@ hide-code: true
 import math
 import re
 
-from IPython.display import Markdown
+from IPython.display import HTML
+import markdown
 import tabulate
 import astropy.units as u
 import cdshealpix as cds
@@ -137,5 +138,7 @@ formatted_table = tabulate.tabulate(
 )
 
 col_re = re.compile(r"-(?=\|)")
-Markdown(col_re.sub(":", formatted_table))
+table = col_re.sub(":", formatted_table)
+
+HTML(markdown.markdown(table, extensions=["tables"]))
 ```
