@@ -56,16 +56,18 @@ earth_a_sq = math.pi * 4 * (radius * radius)
 # print(earth_a , earth_a_sq)
 # print(earth_a / 12)
 
+
 def polygons_for_ipix(cell_ids, depth):
     lon, lat = cds.nested.vertices(cell_ids, depth, step=3)
     lon = lon.wrap_at(180 * u.deg)
     polygons = []
     for i, cell_id in enumerate(cell_ids):
         paired_2d = np.column_stack((lon.deg[i], lat.deg[i]))
-        points = [ Point(x, y) for (x, y) in paired_2d ]
+        points = [Point(x, y) for (x, y) in paired_2d]
         poly = Polygon(points)
-        polygons.append({'geometry': poly, 'ipix': cell_id})
+        polygons.append({"geometry": poly, "ipix": cell_id})
     return gpd.GeoDataFrame(polygons, crs=4326)
+
 
 zone_col = []
 
@@ -75,10 +77,8 @@ for l in range(0, 30):
     g = polygons_for_ipix([1], l)
     p = g.geometry[0].centroid
 
-
-
-    laea_crs_def = f'+proj=laea +lat_0={p.y} +lon_0={p.y} +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs'
-    heal_crs_def = '+proj=healpix'
+    laea_crs_def = f"+proj=laea +lat_0={p.y} +lon_0={p.y} +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs"
+    heal_crs_def = "+proj=healpix"
 
     laea_proj = g.to_crs(laea_crs_def)
 
@@ -87,7 +87,7 @@ for l in range(0, 30):
     coords = list(g.geometry[0].exterior.coords)[:-1]
     coords.reverse()
 
-    sph_poly = spherical.SphPolygon(np.deg2rad( np.array(coords)), radius=6371)
+    sph_poly = spherical.SphPolygon(np.deg2rad(np.array(coords)), radius=6371)
 
     sphere_area_km2 = sph_poly.area()
     sphere_area_m2 = sphere_area_km2 * 1000000
@@ -101,28 +101,36 @@ for l in range(0, 30):
     subdivided_area_km2 = earth_a / max_cells
     subdivided_area_m2 = subdivided_area_km2 * 1000000
 
-    zone_col.append({'level': l,
-                     'num_cells': max_cells,
-                     # 'heal_projected_area_m2' : np.round(heal_projected_area_m2, 5),
-                     'laea_projected_area_m2' : np.round(laea_projected_area_m2, 5),
-                     'sphere_area_m2' : np.round(sphere_area_m2, 5),
-                     'subdivided_area_m2' : np.round(subdivided_area_m2, 5),
-
-                     # 'heal_projected_area_km2': np.round(heal_projected_area_km2, 5),
-                     'laea_projected_area_km2': np.round(laea_projected_area_km2, 5),
-                     'sphere_area_km2': np.round(sphere_area_km2, 5),
-                     'subdivided_area_km2': np.round(subdivided_area_km2, 5),
-
-                     'edge_length': np.sqrt(subdivided_area_m2),
-                    })
+    zone_col.append(
+        {
+            "level": l,
+            "num_cells": max_cells,
+            # 'heal_projected_area_m2' : np.round(heal_projected_area_m2, 5),
+            "laea_projected_area_m2": np.round(laea_projected_area_m2, 5),
+            "sphere_area_m2": np.round(sphere_area_m2, 5),
+            "subdivided_area_m2": np.round(subdivided_area_m2, 5),
+            # 'heal_projected_area_km2': np.round(heal_projected_area_km2, 5),
+            "laea_projected_area_km2": np.round(laea_projected_area_km2, 5),
+            "sphere_area_km2": np.round(sphere_area_km2, 5),
+            "subdivided_area_km2": np.round(subdivided_area_km2, 5),
+            "edge_length": np.sqrt(subdivided_area_m2),
+        }
+    )
 
 
 level_info = (
     pd.DataFrame(zone_col)
     .set_index("level")
     .get(["num_cells", "subdivided_area_m2", "edge_length"])
-    .rename(columns={"num_cells": "# cells", "subdivided_area_m2": "area [m²]", "edge_length": "edge length [m]"})
-    .style.format(precision=4).set_properties(**{"text-align": "right"})
+    .rename(
+        columns={
+            "num_cells": "# cells",
+            "subdivided_area_m2": "area [m²]",
+            "edge_length": "edge length [m]",
+        }
+    )
+    .style.format(precision=4)
+    .set_properties(**{"text-align": "right"})
 )
 level_info
 ```
