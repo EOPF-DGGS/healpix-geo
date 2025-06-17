@@ -31,7 +31,10 @@ TODO: compare cds-healpix and healpy cell geometries and sizes
 hide-code: true
 ---
 import math
+import re
 
+from IPython.display import Markdown
+import tabulate
 import astropy.units as u
 import cdshealpix as cds
 import geopandas as gpd
@@ -118,19 +121,21 @@ for l in range(0, 30):
     )
 
 
-level_info = (
-    pd.DataFrame(zone_col)
-    .set_index("level")
-    .get(["num_cells", "subdivided_area_m2", "edge_length"])
-    .rename(
-        columns={
-            "num_cells": "# cells",
-            "subdivided_area_m2": "area [m²]",
-            "edge_length": "edge length [m]",
-        }
-    )
-    .style.format(precision=4)
-    .set_properties(**{"text-align": "right"})
+level_info = pd.DataFrame(zone_col).get(
+    ["level", "num_cells", "subdivided_area_m2", "edge_length"]
 )
-level_info
+formatted_table = tabulate.tabulate(
+    level_info.to_dict("records"),
+    headers={
+        "level": "level",
+        "num_cells": "# cells",
+        "subdivided_area_m2": "area [m²]",
+        "edge_length": "edge length [m]",
+    },
+    tablefmt="github",
+    floatfmt=".4f",
+)
+
+col_re = re.compile(r"-(?=\|)")
+Markdown(col_re.sub(":", formatted_table))
 ```
