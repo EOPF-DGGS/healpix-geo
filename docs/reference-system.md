@@ -29,11 +29,13 @@ e = np.sqrt(2 * f - f**2)
 
 b = a * (1 - f)
 
+
 def angle_to_xy(angle, a, b):
     x = a * np.cos(angle)
     y = b * np.sin(angle)
 
     return x, y
+
 
 def normal_at(angle_p, a, b):
     x_p, y_p = angle_to_xy(angle_p, a, b)
@@ -43,6 +45,7 @@ def normal_at(angle_p, a, b):
 
     return m_x, m_y
 
+
 def q(ϕ, e):
     # from USGS Professional Paper 1395, "Map projections – A working manual" by John P. Snyder
     return (1 - e**2) * (
@@ -50,9 +53,11 @@ def q(ϕ, e):
         - (1 / (2 * e)) * np.log((1 - e * np.sin(ϕ)) / (1 + e * np.sin(ϕ)))
     )
 
+
 def authalic_radius(a, e):
     q_p = q(np.pi / 2, e)
     return a * np.sqrt(q_p / 2)
+
 
 def convert(geographic, e):
     q_ = q(geographic, e)
@@ -65,12 +70,7 @@ def convert(geographic, e):
 fig, ax = plt.subplots(figsize=(12, 12))
 # ellipse
 ellipse = Ellipse(
-    (0, 0),
-    width=2 * a,
-    height=2 * b,
-    edgecolor="black",
-    linewidth=1,
-    facecolor="none"
+    (0, 0), width=2 * a, height=2 * b, edgecolor="black", linewidth=1, facecolor="none"
 )
 ax.add_patch(ellipse)
 
@@ -123,12 +123,20 @@ ax.add_patch(geographic_arc)
 ax.annotate(r"$\phi$", xy=(0, 0), xytext=(0 + 0.4 * a, 0 + 0.02 * a))
 
 rectangular_on_tangent1 = Arc(
-    (x_p0, y_p0), width=0.08 * a, height=0.08 * a, theta1=np.rad2deg(geographic_latitude), theta2=np.rad2deg(geographic_latitude) + 90,
-    linewidth=0.5
+    (x_p0, y_p0),
+    width=0.08 * a,
+    height=0.08 * a,
+    theta1=np.rad2deg(geographic_latitude),
+    theta2=np.rad2deg(geographic_latitude) + 90,
+    linewidth=0.5,
 )
 rectangular_on_tangent2 = Arc(
-    (x_p0, y_p0), width=0.095 * a, height=0.095 * a, theta1=np.rad2deg(geographic_latitude), theta2=np.rad2deg(geographic_latitude) + 90,
-    linewidth=0.5
+    (x_p0, y_p0),
+    width=0.095 * a,
+    height=0.095 * a,
+    theta1=np.rad2deg(geographic_latitude),
+    theta2=np.rad2deg(geographic_latitude) + 90,
+    linewidth=0.5,
 )
 ax.add_patch(rectangular_on_tangent1)
 ax.add_patch(rectangular_on_tangent2)
@@ -224,7 +232,7 @@ ax.add_patch(authalic_circle)
 ax.annotate(r"$\xi$", xy=(0, 0), xytext=(0 + 0.29 * a, 0 + 0.02 * a))
 
 ax.axis("equal")
-ax.axis("off");
+ax.axis("off")
 fig.savefig("ellipsoidal_latitudes.png", dpi=600, bbox_inches="tight")
 ```
 
@@ -276,18 +284,40 @@ e = np.sqrt(2 * f - f**2)
 b = a * (1 - f)
 
 geographic_latitude = 45.0
-parametric_latitude = float(np.rad2deg(np.arctan(b / a * np.tan(np.deg2rad(geographic_latitude)))))
-geocentric_latitude = float(np.rad2deg(np.arctan(b**2 / a**2 * np.tan(np.deg2rad(geographic_latitude)))))
+parametric_latitude = float(
+    np.rad2deg(np.arctan(b / a * np.tan(np.deg2rad(geographic_latitude))))
+)
+geocentric_latitude = float(
+    np.rad2deg(np.arctan(b**2 / a**2 * np.tan(np.deg2rad(geographic_latitude))))
+)
 authalic_latitude = float(np.rad2deg(convert(np.deg2rad(geographic_latitude), e)))
 
-table = Table(caption=f"ellipsoidal latitudes for WGS84\n(a = {a:01f}, f_inv = {f:03f})")
+table = Table(
+    caption=f"ellipsoidal latitudes for WGS84\n(a = {a:01f}, f_inv = {f:03f})"
+)
 table.add_column("Latitude")
 table.add_column("Value", justify="right")
 table.add_column("x - ϕ", justify="right")
-table.add_row(r"Geographic (ϕ)", f"{geographic_latitude:.8f}", f"{geographic_latitude - geographic_latitude:.8f}")
-table.add_row(r"Parametric (β)", f"{parametric_latitude:.8f}", f"{parametric_latitude - geographic_latitude:.8f}")
-table.add_row(r"Geocentric (θ)", f"{geocentric_latitude:.8f}", f"{geocentric_latitude - geographic_latitude:.8f}")
-table.add_row(r"Authalic (ξ)", f"{authalic_latitude:.8f}", f"{authalic_latitude - geographic_latitude:.8f}")
+table.add_row(
+    r"Geographic (ϕ)",
+    f"{geographic_latitude:.8f}",
+    f"{geographic_latitude - geographic_latitude:.8f}",
+)
+table.add_row(
+    r"Parametric (β)",
+    f"{parametric_latitude:.8f}",
+    f"{parametric_latitude - geographic_latitude:.8f}",
+)
+table.add_row(
+    r"Geocentric (θ)",
+    f"{geocentric_latitude:.8f}",
+    f"{geocentric_latitude - geographic_latitude:.8f}",
+)
+table.add_row(
+    r"Authalic (ξ)",
+    f"{authalic_latitude:.8f}",
+    f"{authalic_latitude - geographic_latitude:.8f}",
+)
 
 # rich.jupyter.print(table)
 console = Console()
