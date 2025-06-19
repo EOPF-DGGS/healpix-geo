@@ -217,3 +217,7 @@ def main():
 
     path = pathlib.Path(sys.argv[1])
     fig.savefig(path, dpi=600, bbox_inches="tight")
+
+
+if __name__ == "__main__":
+    main()
