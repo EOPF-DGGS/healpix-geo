@@ -48,22 +48,22 @@ def generate_table():
     df = pd.DataFrame(
         [
             (
-                r"Geographic (ϕ)",
+                r"Geographic ($\phi$)",
                 geographic_latitude,
                 geographic_latitude - geographic_latitude,
             ),
             (
-                r"Parametric (β)",
+                r"Parametric ($\beta$)",
                 parametric_latitude,
                 parametric_latitude - geographic_latitude,
             ),
             (
-                r"Geocentric (θ)",
+                r"Geocentric ($\theta$)",
                 geocentric_latitude,
                 geocentric_latitude - geographic_latitude,
             ),
             (
-                r"Authalic (ξ)",
+                r"Authalic ($\xi$)",
                 authalic_latitude,
                 authalic_latitude - geographic_latitude,
             ),
@@ -79,7 +79,11 @@ def main():
 
     formatted_table = tabulate.tabulate(
         latitudes.to_dict("records"),
-        headers={"Latitude": "Latitude", "Value": "Value [°]", "Diff": "x - ϕ"},
+        headers={
+            "Latitude": "Latitude",
+            "Value": "Value [°]",
+            "Diff": r"$x - \phi$ [°]",
+        },
         tablefmt="github",
         floatfmt=".8f",
     )
