@@ -43,6 +43,8 @@ napoleon_use_rtype = False
 
 # -- myst-parser -------------------------------------------------------------
 
+myst_enable_extensions = ["dollarmath"]
+
 # -- Options for HTML output -------------------------------------------------
 
 html_theme = "pydata_sphinx_theme"
