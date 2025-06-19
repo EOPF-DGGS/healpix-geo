@@ -1,5 +1,12 @@
 # Hierarchical Equal-Area isoLatitude Pixelisation (HEALPix)
 
+```{toctree}
+---
+hidden: true
+---
+levels
+```
+
 HEALPix was originally defined for use in astronomy by [Gorski et al., 2005]. It has several important properties:
 
 - equal-area: all cells of the same refinement level have exactly the same area

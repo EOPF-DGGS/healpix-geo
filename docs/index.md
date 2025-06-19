@@ -9,6 +9,5 @@ caption: Contents:
 hidden: true
 ---
 healpix/index
-healpix/healpix_levels
 api
 ```
