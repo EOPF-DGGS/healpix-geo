@@ -5,6 +5,16 @@ import matplotlib
 # ignore matplotlib warnings
 matplotlib.set_loglevel("critical")
 
+# -- Generate tables ---------------------------------------------------------
+
+import subprocess
+
+process = subprocess.Popen(
+    ["python", "generate_table.py"],
+    cwd="healpix",
+)
+process.wait()
+
 # -- Project information -----------------------------------------------------
 
 project = "healpix-geo"
