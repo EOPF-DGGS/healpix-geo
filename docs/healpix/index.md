@@ -8,10 +8,10 @@ HEALPix was originally defined for use in astronomy by [Gorski et al., 2005]. It
 
 The latter two properties allow defining the two main indexing schemes:
 
-- `ring`, which assigns identifiers along the iso-latitude rings. Thus, cells on the same latitude ring have identifiers that are "close" numerically.
-- `nested`, which assigns identifiers such that sibling cells are "close" numerically.
+- `ring`, which assigns identifiers along the iso-latitude rings. Thus, cells on the same latitude ring have identifiers that are "close" numerically (and thus in memory for sorted data).
+- `nested`, which assigns identifiers such that sibling cells are close to each other.
 
-To know what cell a identifier refers to, we thus need two additional parameters: the refinement level (the depth in the hierarchy) and the indexing scheme.
+To know what cell a identifier refers to, we need two additional parameters: the refinement level (the depth in the hierarchy) and the indexing scheme.
 
 Based on `nested`, there are two more schemes that also encode the refinement level in the cell id:
 
