@@ -21,6 +21,7 @@ script_root = pathlib.Path("scripts").absolute()
 docs_root = pathlib.Path.cwd()
 scripts = [
     ("generate_healpix_levels_table.py", "healpix/healpix_levels_table.md"),
+    ("generate_latitude_diff_table.py", "latitude_diff_table.md"),
 ]
 for name, outpath in scripts:
     run_script(script_root.joinpath(name), docs_root.joinpath(outpath))
