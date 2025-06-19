@@ -25,4 +25,8 @@ Based on `nested`, there are two more schemes that also encode the refinement le
 - `nunique`, which represents all cells in the hierarchy breadth-first, i.e. cells of a refinement level are close numerically.
 - `zunique`, which represents all cells in the hierarchy depth-first, i.e. descendant cells of a given cell are close numerically.
 
+## Extensions
+
+- [HEALPix Extension to Ellipsoids](ellipsoidal-extension.md): Apply HEALPix to ellipsoidal Earth models via an area-preserving mapping to an authalic sphere.
+
 [Gorski et al., 2005]: https://doi.org/10.1086/427976
