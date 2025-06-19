@@ -146,7 +146,7 @@ path = pathlib.Path("healpix/healpix_levels_table.md")
 path.write_text(table)
 ```
 
-````{table} Healpix Level Overview
+````{table} Healpix Level Overview ($R = 6371km$)
 :label: tbl:healpix-levels
 
 ```{include} healpix_levels_table.md
