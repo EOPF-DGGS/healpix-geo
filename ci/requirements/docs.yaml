@@ -11,6 +11,7 @@ dependencies:
   - sphinx-autobuild
   - geopandas
   - tabulate
+  - markdown
   - pandas
   - pyresample
   - cdshealpix
