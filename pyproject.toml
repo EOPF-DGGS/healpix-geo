@@ -25,7 +25,8 @@ docs = [
   "jupyter-sphinx",
   "matplotlib",
   "sphinx-autobuild",
-  "rich",
+  "markdown",
+  "tabulate",
 ]
 
 [tool.maturin]

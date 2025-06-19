@@ -5,6 +5,30 @@ import matplotlib
 # ignore matplotlib warnings
 matplotlib.set_loglevel("critical")
 
+# -- Generate tables ---------------------------------------------------------
+
+import pathlib
+import subprocess
+
+
+def run_script(name, cwd):
+    path = pathlib.Path(cwd)
+    if not path.is_dir():
+        raise ValueError(f"Path {cwd} does not exist")
+
+    process = subprocess.Popen(
+        ["python", name],
+        cwd=cwd,
+    )
+    process.wait()
+
+
+scripts = [
+    ("generate_table.py", "healpix"),
+]
+for name, cwd in scripts:
+    run_script(name, cwd)
+
 # -- Project information -----------------------------------------------------
 
 project = "healpix-geo"
@@ -49,6 +73,7 @@ myst_enable_extensions = ["dollarmath"]
 
 html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
+html_css_files = ["css/custom.css"]
 html_theme_options = {
     "icon_links": [
         {
