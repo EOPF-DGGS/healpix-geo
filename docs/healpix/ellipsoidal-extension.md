@@ -2,7 +2,9 @@
 
 This page outlines an extension of the HEALPix pixelation scheme to ellipsoidal Earth models using an **authalic transformation**-a mapping to a sphere that preserves surface area.
 
-![Ellipsoidal to Authalic Mapping](../healpix/ellipsoid_schema.png)
+```{figure} ellipsoid_schema.png
+Ellipsoidal to Authalic Mapping
+```
 
 ## Why Extend HEALPix?
 
