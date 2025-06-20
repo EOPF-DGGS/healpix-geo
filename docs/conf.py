@@ -12,9 +12,9 @@ import subprocess
 
 
 def run_script(name, outpath):
-    status = subprocess.run(["python", name, outpath])
+    status = subprocess.run(["python", name, outpath], stderr=subprocess.PIPE)
     if status.returncode != 0:
-        raise RuntimeError(f"script {name} failed to run")
+        raise RuntimeError(f"script {name} failed to run:\n{status.stderr.decode()}")
 
 
 script_root = pathlib.Path("scripts").absolute()

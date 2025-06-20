@@ -1,3 +1,4 @@
+import io
 import pathlib
 import site
 import sys
@@ -8,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from conversions import authalic_radius, convert
 from matplotlib.patches import Arc, Ellipse
+from script_utils import differing_contents
 
 a = 1
 f_ = 3
@@ -215,8 +217,13 @@ def main():
     if len(sys.argv) != 2:
         raise ValueError("invalid number of arguments")
 
+    buffer = io.BytesIO()
+    fig.savefig(buffer, dpi=600, bbox_inches="tight")
+    contents = buffer.getvalue()
+
     path = pathlib.Path(sys.argv[1])
-    fig.savefig(path, dpi=600, bbox_inches="tight")
+    if not path.exists() or differing_contents(contents, path.read_bytes()):
+        path.write_bytes(contents)
 
 
 if __name__ == "__main__":
