@@ -5,6 +5,7 @@
 hidden: true
 ---
 levels
+ellipsoidal-extension
 ```
 
 HEALPix was originally defined for use in astronomy by [Gorski et al., 2005]. It has several important properties:
