@@ -8,6 +8,7 @@ maxdepth: 2
 caption: Contents:
 hidden: true
 ---
+reference-system
 healpix/index
 api
 ```

@@ -1,6 +1,7 @@
 import math
 import pathlib
 import re
+import sys
 
 import astropy.units as u
 import cdshealpix as cds
@@ -111,7 +112,9 @@ def main():
     col_re = re.compile(r"-(?=\|)")
     table = col_re.sub(":", formatted_table)
 
-    path = pathlib.Path("healpix_levels_table.md")
+    if len(sys.argv) != 2:
+        raise ValueError("invalid number of arguments, expected exactly 1")
+    path = pathlib.Path(sys.argv[1])
     if not path.exists() or path.read_text() != table:
         path.write_text(table)
 

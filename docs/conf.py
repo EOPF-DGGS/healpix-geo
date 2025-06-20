@@ -11,23 +11,21 @@ import pathlib
 import subprocess
 
 
-def run_script(name, cwd):
-    path = pathlib.Path(cwd)
-    if not path.is_dir():
-        raise ValueError(f"Path {cwd} does not exist")
-
-    process = subprocess.Popen(
-        ["python", name],
-        cwd=cwd,
-    )
-    process.wait()
+def run_script(name, outpath):
+    status = subprocess.run(["python", name, outpath])
+    if status.returncode != 0:
+        raise RuntimeError(f"script {name} failed to run")
 
 
+script_root = pathlib.Path("scripts").absolute()
+docs_root = pathlib.Path.cwd()
 scripts = [
-    ("generate_table.py", "healpix"),
+    ("generate_healpix_levels_table.py", "healpix/healpix_levels_table.md"),
+    ("generate_latitude_diff_table.py", "latitude_diff_table.md"),
+    ("generate_latitude_graphic.py", "ellipsoidal_latitudes.png"),
 ]
-for name, cwd in scripts:
-    run_script(name, cwd)
+for name, outpath in scripts:
+    run_script(script_root.joinpath(name), docs_root.joinpath(outpath))
 
 # -- Project information -----------------------------------------------------
 
