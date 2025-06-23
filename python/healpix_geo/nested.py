@@ -3,6 +3,12 @@ import numpy as np
 from healpix_geo import healpix_geo
 from healpix_geo.utils import _check_depth, _check_ipixels, _check_ring
 
+RangeMOCIndex = healpix_geo.nested.RangeMOCIndex
+
+
+def create_empty(depth):
+    return RangeMOCIndex.create_empty(depth)
+
 
 def healpix_to_lonlat(ipix, depth, ellipsoid, num_threads=0):
     r"""Get the longitudes and latitudes of the center of some HEALPix cells.

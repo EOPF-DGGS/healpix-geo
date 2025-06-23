@@ -7,9 +7,12 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 mod hierarchy;
+mod index;
 
 #[pymodule]
 mod nested {
+    #[pymodule_export]
+    use super::index::RangeMOCIndex;
     use super::*;
 
     #[pyfunction]
@@ -361,7 +364,7 @@ mod nested {
     }
 
     #[pyfunction]
-    unsafe fn siblings<'a>(
+    fn siblings<'a>(
         _py: Python,
         depth: u8,
         ipix: &Bound<'a, PyArrayDyn<u64>>,
@@ -370,7 +373,7 @@ mod nested {
     ) -> PyResult<()> {
         use super::hierarchy::nested::siblings;
 
-        let ipix = ipix.as_array();
+        let ipix = unsafe { ipix.as_array() };
         let mut result = unsafe { result.as_array_mut() };
         let layer = healpix::nested::get(depth);
 

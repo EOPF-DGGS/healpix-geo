@@ -29,6 +29,17 @@ venv/
 .installed.cfg
 *.egg
 
+# linter / formatter cache
+/.prettier_cache/
+/.ruff_cache/
+
+# jupyter
+.ipynb_checkpoints/
+
+# docs
+/docs/_build/
+/docs/generated/
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
@@ -41,6 +52,9 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+
+# linter caches
+.prettier_cache/
 
 # Translations
 *.mo
@@ -70,3 +84,6 @@ docs/_build/
 
 # Pyenv
 .python-version
+
+# jupyter
+.ipynb_checkpoints/
