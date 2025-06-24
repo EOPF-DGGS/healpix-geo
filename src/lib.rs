@@ -9,6 +9,160 @@ use pyo3::prelude::*;
 mod hierarchy;
 mod index;
 
+
+
+#[pymodule]
+mod coordinates {
+    use super::*;
+
+    #[pyfunction]
+    pub fn latitude_authalic_to_geographic<'a>(
+        _py: Python,
+        ellipsoid: &str,
+        authalic_lat: &Bound<'a, PyArrayDyn<f64>>, // input array
+        geographic_lat: &Bound<'a, PyArrayDyn<f64>>, // output array (in-place)
+        nthreads: u16,
+    ) -> PyResult<()> {
+        let authalic_lat = unsafe { authalic_lat.as_array() };
+        let mut geographic_lat = unsafe { geographic_lat.as_array_mut() };
+    
+        if ellipsoid == "sphere" {
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                let pool = rayon::ThreadPoolBuilder::new()
+                    .num_threads(nthreads as usize)
+                    .build()
+                    .unwrap();
+    
+                pool.install(|| {
+                    Zip::from(authalic_lat)
+                        .and(&mut geographic_lat)
+                        .par_for_each(|&xi, phi| {
+                            *phi = xi.to_degrees();
+                        });
+                });
+            }
+    
+            #[cfg(target_arch = "wasm32")]
+            {
+                Zip::from(authalic_lat)
+                    .and(&mut geographic_lat)
+                    .for_each(|&xi, phi| {
+                        *phi = xi.to_degrees();
+                    });
+            }
+        } else {
+            let ellipsoid_ = Ellipsoid::named(ellipsoid)
+                .map_err(|e| PyValueError::new_err(e.to_string()))?;
+
+            let coefficients = ellipsoid_
+                .coefficients_for_authalic_latitude_computations();
+
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                let pool = rayon::ThreadPoolBuilder::new()
+                    .num_threads(nthreads as usize)
+                    .build()
+                    .unwrap();
+        
+                pool.install(|| {
+                    Zip::from(&authalic_lat)
+                        .and(&mut geographic_lat)
+                        .par_for_each(|&xi, phi| {
+                            *phi = ellipsoid_
+                                .latitude_authalic_to_geographic(xi, &coefficients)
+                                .to_degrees();
+                        });
+                });
+            }
+            #[cfg(target_arch = "wasm32")]
+            {
+                Zip::from(&authalic_lat)
+                    .and(&mut geographic_lat)
+                    .for_each(|&xi, phi| {
+                        *phi = ellipsoid_
+                            .latitude_authalic_to_geographic(xi, &coefficients)
+                            .to_degrees();
+                    });
+            }
+        }
+        Ok(())
+    }
+
+    #[pyfunction]
+    pub fn latitude_geographic_to_authalic<'a>(
+        _py: Python,
+        ellipsoid: &str,
+        geographic_lat: &Bound<'a, PyArrayDyn<f64>>, // input array (in-place)
+        authalic_lat: &Bound<'a, PyArrayDyn<f64>>, // output array
+        nthreads: u16,
+    ) -> PyResult<()> {
+        let geographic_lat = unsafe { geographic_lat.as_array() };
+        let mut authalic_lat = unsafe { authalic_lat.as_array_mut() };
+
+        if ellipsoid == "sphere" {
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                let pool = rayon::ThreadPoolBuilder::new()
+                    .num_threads(nthreads as usize)
+                    .build()
+                    .unwrap();
+    
+                pool.install(|| {
+                    Zip::from(geographic_lat)
+                        .and(&mut authalic_lat)
+                        .par_for_each(|&phi, xi| {
+                            *xi = phi.to_radians();
+                        });
+                });
+            }
+    
+            #[cfg(target_arch = "wasm32")]
+            {
+                Zip::from(geographic_lat)
+                    .and(&mut authalic_lat)
+                    .for_each(|&phi, xi| {
+                        *xi = phi.to_radians();
+                    });
+            }
+        } else {
+            let ellipsoid_ = Ellipsoid::named(ellipsoid)
+                .map_err(|e| PyValueError::new_err(e.to_string()))?;
+
+            let coefficients = ellipsoid_
+                .coefficients_for_authalic_latitude_computations();
+
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                let pool = rayon::ThreadPoolBuilder::new()
+                    .num_threads(nthreads as usize)
+                    .build()
+                    .unwrap();
+        
+                pool.install(|| {
+                    Zip::from(&geographic_lat)
+                        .and(&mut authalic_lat)
+                        .par_for_each(|&phi, xi| {
+                            *xi = ellipsoid_
+                                .latitude_geographic_to_authalic(phi.to_radians(), &coefficients);
+                        });
+                });
+            }
+            #[cfg(target_arch = "wasm32")]
+            {
+                Zip::from(&geographic_lat)
+                    .and(&mut authalic_lat)
+                    .for_each(|&phi, xi| {
+                        *xi = ellipsoid_
+                            .latitude_geographic_to_authalic(phi.to_radians(), &coefficients);
+                    });
+            }
+        }
+        Ok(())
+    }
+}
+
+
 #[pymodule]
 mod nested {
     #[pymodule_export]
@@ -810,6 +964,9 @@ mod ring {
 
 #[pymodule]
 mod healpix_geo {
+    #[pymodule_export]
+    use super::coordinates;
+
     #[pymodule_export]
     use super::nested;
 
