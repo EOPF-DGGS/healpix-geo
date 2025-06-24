@@ -9,8 +9,6 @@ use pyo3::prelude::*;
 mod hierarchy;
 mod index;
 
-
-
 #[pymodule]
 mod coordinates {
     use super::*;
@@ -25,7 +23,7 @@ mod coordinates {
     ) -> PyResult<()> {
         let authalic_lat = unsafe { authalic_lat.as_array() };
         let mut geographic_lat = unsafe { geographic_lat.as_array_mut() };
-    
+
         if ellipsoid == "sphere" {
             #[cfg(not(target_arch = "wasm32"))]
             {
@@ -33,7 +31,7 @@ mod coordinates {
                     .num_threads(nthreads as usize)
                     .build()
                     .unwrap();
-    
+
                 pool.install(|| {
                     Zip::from(authalic_lat)
                         .and(&mut geographic_lat)
@@ -42,7 +40,7 @@ mod coordinates {
                         });
                 });
             }
-    
+
             #[cfg(target_arch = "wasm32")]
             {
                 Zip::from(authalic_lat)
@@ -52,11 +50,10 @@ mod coordinates {
                     });
             }
         } else {
-            let ellipsoid_ = Ellipsoid::named(ellipsoid)
-                .map_err(|e| PyValueError::new_err(e.to_string()))?;
+            let ellipsoid_ =
+                Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
 
-            let coefficients = ellipsoid_
-                .coefficients_for_authalic_latitude_computations();
+            let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
 
             #[cfg(not(target_arch = "wasm32"))]
             {
@@ -64,7 +61,7 @@ mod coordinates {
                     .num_threads(nthreads as usize)
                     .build()
                     .unwrap();
-        
+
                 pool.install(|| {
                     Zip::from(&authalic_lat)
                         .and(&mut geographic_lat)
@@ -94,7 +91,7 @@ mod coordinates {
         _py: Python,
         ellipsoid: &str,
         geographic_lat: &Bound<'a, PyArrayDyn<f64>>, // input array (in-place)
-        authalic_lat: &Bound<'a, PyArrayDyn<f64>>, // output array
+        authalic_lat: &Bound<'a, PyArrayDyn<f64>>,   // output array
         nthreads: u16,
     ) -> PyResult<()> {
         let geographic_lat = unsafe { geographic_lat.as_array() };
@@ -107,7 +104,7 @@ mod coordinates {
                     .num_threads(nthreads as usize)
                     .build()
                     .unwrap();
-    
+
                 pool.install(|| {
                     Zip::from(geographic_lat)
                         .and(&mut authalic_lat)
@@ -116,7 +113,7 @@ mod coordinates {
                         });
                 });
             }
-    
+
             #[cfg(target_arch = "wasm32")]
             {
                 Zip::from(geographic_lat)
@@ -126,11 +123,10 @@ mod coordinates {
                     });
             }
         } else {
-            let ellipsoid_ = Ellipsoid::named(ellipsoid)
-                .map_err(|e| PyValueError::new_err(e.to_string()))?;
+            let ellipsoid_ =
+                Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
 
-            let coefficients = ellipsoid_
-                .coefficients_for_authalic_latitude_computations();
+            let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
 
             #[cfg(not(target_arch = "wasm32"))]
             {
@@ -138,7 +134,7 @@ mod coordinates {
                     .num_threads(nthreads as usize)
                     .build()
                     .unwrap();
-        
+
                 pool.install(|| {
                     Zip::from(&geographic_lat)
                         .and(&mut authalic_lat)
@@ -161,7 +157,6 @@ mod coordinates {
         Ok(())
     }
 }
-
 
 #[pymodule]
 mod nested {

@@ -32,13 +32,16 @@ def latitude_authalic_to_geographic(authalic_lat, ellipsoid, num_threads=0):
     --------
     >>> from healpix_geo.coordinates import latitude_authalic_to_geographic
     >>> import numpy as np
-    >>> authalic_lat = np.linspace(-np.pi/2, np.pi/2, 5)
+    >>> authalic_lat = np.linspace(-np.pi / 2, np.pi / 2, 5)
     >>> geographic_lat = latitude_authalic_to_geographic(authalic_lat, "WGS84")
     >>> geographic_lat
     array([-90.        , -45.12829693,   0.        ,  45.12829693,   90.        ])
     >>> geographic_lat - np.rad2deg(authalic_lat)
     array([ 0.        , -0.12829693,  0.        ,  0.12829693,  0.        ])
-    >>> np.allclose(latitude_authalic_to_geographic(authalic_lat, "sphere"), np.rad2deg(authalic_lat))
+    >>> np.allclose(
+    ...     latitude_authalic_to_geographic(authalic_lat, "sphere"),
+    ...     np.rad2deg(authalic_lat),
+    ... )
     True
     """
     num_threads = np.uint16(num_threads)
@@ -87,7 +90,10 @@ def latitude_geographic_to_authalic(geographic_lat, ellipsoid, num_threads=0):
     array([-1.57079633, -0.78315896,  0.        ,  0.78315896,  1.57079633])
     >>> geographic_lat - np.rad2deg(authalic_lat)
     array([ 0.        , -0.12829713,  0.        ,  0.12829713,  0.        ])
-    >>> np.allclose(latitude_geographic_to_authalic(geographic_lat, "sphere"), np.deg2rad(geographic_lat))
+    >>> np.allclose(
+    ...     latitude_geographic_to_authalic(geographic_lat, "sphere"),
+    ...     np.deg2rad(geographic_lat),
+    ... )
     True
     """
     num_threads = np.uint16(num_threads)
