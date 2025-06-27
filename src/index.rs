@@ -163,36 +163,39 @@ impl Subset for RangeMOC<u64, Hpx<u64>> {
             .iter()
             .map(|range| ((range.end - range.start) >> shift) as usize)
             .scan(0, |acc, x| {
-                let res = Some(*acc);
+                let cur = *acc;
                 *acc += x;
-                res
+                Some((cur, *acc))
             })
-            .collect::<Vec<usize>>();
+            .collect::<Vec<(usize, usize)>>();
         let slice_starts = self
             .moc_ranges()
             .iter()
             .map(|range| range.start)
             .collect::<Vec<u64>>();
 
-        let cell_ids: PyResult<Vec<u64>> = array
+        let cell_ids: Vec<u64> = array
             .iter()
             .map(|&index| {
                 let position = index as usize;
-                let slice_index = slice_offsets.iter().find(|&&x| position >= x);
-                match slice_index {
-                    None => Err(PyValueError::new_err(format!("{} is out of bounds", index))),
-                    Some(&local_index) => {
-                        let selected = slice_starts[local_index]
-                            + ((index - (slice_offsets[local_index] as u64)) << shift);
-                        Ok(selected)
-                    }
+                if index >= self.n_depth_max_cells() {
+                    Err(PyValueError::new_err(format!("{} is out of bounds", index)))
+                } else {
+                    let slice_index = slice_offsets
+                        .iter()
+                        .position(|x| position >= x.0 && position < x.1)
+                        .unwrap_or(slice_offsets.len() - 1);
+                    let slice_start = slice_starts[slice_index] >> shift;
+                    let selected = slice_start + (index - (slice_offsets[slice_index].0 as u64));
+
+                    Ok(selected)
                 }
             })
-            .collect();
+            .collect::<PyResult<Vec<u64>>>()?;
 
         Ok(RangeMOC::from_fixed_depth_cells(
             self.depth_max(),
-            cell_ids?.into_iter(),
+            cell_ids.into_iter(),
             None,
         ))
     }
