@@ -102,7 +102,15 @@ class TestRangeMOCIndex:
         ),
     )
     @pytest.mark.parametrize(
-        "indexer", [slice(None), slice(None, 4), slice(2, None), slice(3, 7)]
+        "indexer",
+        [
+            slice(None),
+            slice(None, 4),
+            slice(2, None),
+            slice(3, 7),
+            np.arange(5, dtype="uint64"),
+            np.array([1, 2, 4, 6, 8], dtype="uint64"),
+        ],
     )
     def test_isel(self, level, cell_ids, indexer):
         expected = cell_ids[indexer]

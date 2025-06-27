@@ -1,6 +1,6 @@
 use ndarray::Array1;
 use numpy::{PyArray1, PyArrayDyn, PyArrayMethods};
-use pyo3::exceptions::{PyNotImplementedError, PyRuntimeError, PyValueError};
+use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PySlice, PyTuple, PyType};
 
@@ -82,6 +82,10 @@ trait Subset {
     fn slice(&self, slice: &ConcreteSlice) -> PyResult<Self>
     where
         Self: Sized;
+
+    fn subset(&self, indexer: &Bound<'_, PyArrayDyn<u64>>) -> PyResult<Self>
+    where
+        Self: Sized;
 }
 
 impl Subset for RangeMOC<u64, Hpx<u64>> {
@@ -147,6 +151,53 @@ impl Subset for RangeMOC<u64, Hpx<u64>> {
         );
 
         Ok(RangeMOC::new(self.depth_max(), ranges))
+    }
+
+    fn subset(&self, array: &Bound<'_, PyArrayDyn<u64>>) -> PyResult<RangeMOC<u64, Hpx<u64>>> {
+        let array = unsafe { array.as_array() };
+        let delta_depth = 29 - self.depth_max();
+        let shift = delta_depth << 1;
+
+        let slice_offsets = self
+            .moc_ranges()
+            .iter()
+            .map(|range| ((range.end - range.start) >> shift) as usize)
+            .scan(0, |acc, x| {
+                let cur = *acc;
+                *acc += x;
+                Some((cur, *acc))
+            })
+            .collect::<Vec<(usize, usize)>>();
+        let slice_starts = self
+            .moc_ranges()
+            .iter()
+            .map(|range| range.start)
+            .collect::<Vec<u64>>();
+
+        let cell_ids: Vec<u64> = array
+            .iter()
+            .map(|&index| {
+                let position = index as usize;
+                if index >= self.n_depth_max_cells() {
+                    Err(PyValueError::new_err("{index} is out of bounds"))
+                } else {
+                    let slice_index = slice_offsets
+                        .iter()
+                        .position(|x| position >= x.0 && position < x.1)
+                        .unwrap_or(slice_offsets.len() - 1);
+                    let slice_start = slice_starts[slice_index] >> shift;
+                    let selected = slice_start + (index - (slice_offsets[slice_index].0 as u64));
+
+                    Ok(selected)
+                }
+            })
+            .collect::<PyResult<Vec<u64>>>()?;
+
+        Ok(RangeMOC::from_fixed_depth_cells(
+            self.depth_max(),
+            cell_ids.into_iter(),
+            None,
+        ))
     }
 }
 
@@ -361,9 +412,11 @@ impl RangeMOCIndex {
 
                 Ok(RangeMOCIndex { moc: subset })
             }
-            OffsetIndexKind::IndexArray(_array) => Err(PyNotImplementedError::new_err(
-                "Subsetting using an array is not supported, yet. Please use a slice instead.",
-            )),
+            OffsetIndexKind::IndexArray(_array) => {
+                let subset = self.moc.subset(&_array)?;
+
+                Ok(RangeMOCIndex { moc: subset })
+            }
         }
     }
 }
