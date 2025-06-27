@@ -179,7 +179,7 @@ impl Subset for RangeMOC<u64, Hpx<u64>> {
             .map(|&index| {
                 let position = index as usize;
                 if index >= self.n_depth_max_cells() {
-                    Err(PyValueError::new_err(format!("{} is out of bounds", index)))
+                    Err(PyValueError::new_err("{index} is out of bounds"))
                 } else {
                     let slice_index = slice_offsets
                         .iter()
