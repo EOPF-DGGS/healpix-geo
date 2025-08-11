@@ -122,6 +122,59 @@ class TestRangeMOCIndex:
         np.testing.assert_equal(actual.cell_ids(), expected)
 
     @pytest.mark.parametrize(
+        ["level", "cell_ids"],
+        (
+            pytest.param(0, np.arange(12, dtype="uint64"), id="base cells"),
+            pytest.param(
+                1,
+                np.array([0, 1, 2, 4, 5, 11, 12, 13, 25, 26, 27], dtype="uint64"),
+                id="list of level 1 cells",
+            ),
+            pytest.param(
+                4,
+                np.arange(1 * 4**4, 2 * 4**4, dtype="uint64"),
+                id="single level 4 base cell",
+            ),
+        ),
+    )
+    @pytest.mark.parametrize(
+        "indexer",
+        [
+            slice(None),
+            slice(None, 4),
+            slice(2, None),
+            slice(2, 11),
+            np.arange(5, dtype="uint64"),
+            np.array([0, 1, 7, 8, 9], dtype="uint64"),
+        ],
+    )
+    def test_sel(self, level, cell_ids, indexer):
+        if level != 0:
+            if isinstance(indexer, slice):
+                indexer = slice(
+                    4**level + indexer.start,
+                    4**level + indexer.stop,
+                    indexer.step,
+                )
+                range_ = np.arange(
+                    indexer.start, indexer.stop, indexer.step, dtype="uint64"
+                )
+                condition = np.isin(cell_ids, range_)
+                expected_cell_ids = cell_ids[condition]
+                expected_indices = np.flatnonzero(condition)
+            else:
+                indexer = 4**level + indexer
+                condition = np.isin(cell_ids, indexer)
+                expected_cell_ids = indexer
+                expected_indices = np.flatnonzero(condition)
+        index = healpix_geo.nested.RangeMOCIndex.from_cell_ids(level, cell_ids)
+
+        actual_moc, actual_indices = index.sel(indexer)
+
+        np.testing.assert_equal(actual_moc.cell_ids(), expected_cell_ids)
+        np.testing.assert_equal(actual_indices, expected_indices)
+
+    @pytest.mark.parametrize(
         ["depth", "cell_ids"],
         (
             (2, np.arange(1 * 4**2, 3 * 4**2, dtype="uint64")),
