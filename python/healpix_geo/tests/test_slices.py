@@ -99,3 +99,18 @@ class TestSlice:
 
         assert d[slice1] == 1
         assert d[slice2] == 2
+
+    @pytest.mark.parametrize(
+        ["vals", "expected"],
+        (
+            ((0, 4), True),
+            ((1, 4), False),
+            ((0, 4, 1), False),
+        ),
+    )
+    def test_compare(self, vals, expected):
+        slice_ = slices.Slice(0, 4)
+        other = slices.Slice(*vals)
+
+        actual = slice_ == other
+        assert actual == expected
