@@ -1,8 +1,10 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyRange, PySlice, PySliceMethods, PyTuple, PyType};
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 
 /// More powerful version of the built-in slice
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, PartialOrd, Debug, Clone)]
 #[pyclass]
 #[pyo3(module = "healpix_geo.slices", frozen)]
 pub struct Slice {
@@ -17,13 +19,16 @@ pub struct Slice {
 /// Slice with concrete values
 ///
 /// Note: no `None` values allowed.
-#[derive(PartialEq, Debug, Clone)]
+#[derive(PartialEq, PartialOrd, Debug, Clone)]
 #[pyclass]
-#[pyo3(module = "healpix_geo.slices")]
+#[pyo3(module = "healpix_geo.slices", frozen)]
 pub struct ConcreteSlice {
-    pub start: isize,
-    pub stop: isize,
-    pub step: isize,
+    #[pyo3(get)]
+    start: isize,
+    #[pyo3(get)]
+    stop: isize,
+    #[pyo3(get)]
+    step: isize,
 }
 
 trait AsSlice {
@@ -65,6 +70,7 @@ impl Slice {
         format!("Slice({start}, {stop}, {step})")
     }
 
+    /// Create a Slice from a builtin slice object
     #[classmethod]
     fn from_pyslice<'a>(
         _cls: &Bound<'a, PyType>,
@@ -74,24 +80,44 @@ impl Slice {
         slice.as_slice()
     }
 
-    fn as_pyslice<'a>(&self, py: Python<'a>, size: isize) -> Bound<'a, PySlice> {
-        let start = self.start.unwrap_or(0);
-        let stop = self.stop.unwrap_or(size);
-        let step = self.start.unwrap_or(size);
+    /// Convert to a builtin slice object
+    ///
+    /// Note: requires the size as input (the underlying `PySlice` object does
+    /// not support `None` arguments)
+    fn as_pyslice<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PySlice>> {
+        let builtins = py.import("builtins")?;
 
-        PySlice::new(py, start, stop, step)
+        let result = builtins
+            .getattr("slice")?
+            .call1((self.start, self.stop, self.step))?;
+
+        result.extract::<Bound<'a, PySlice>>()
     }
 
+    /// Construct concrete indices
     fn indices(&self, py: Python<'_>, size: isize) -> PyResult<(isize, isize, isize)> {
-        let indices = self.as_pyslice(py, size).indices(size)?;
+        let indices = self.as_pyslice(py)?.indices(size)?;
 
         Ok((indices.start, indices.stop, indices.step))
     }
 
+    /// Convert to a concrete slice
+    ///
+    /// This means: no negative start / stop, except if step is negative, in
+    /// which case stop may be -1
     fn as_concrete(&self, py: Python<'_>, size: isize) -> PyResult<ConcreteSlice> {
         let (start, stop, step) = self.indices(py, size)?;
 
         Ok(ConcreteSlice { start, stop, step })
+    }
+
+    fn __hash__(&self) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        self.start.hash(&mut hasher);
+        self.stop.hash(&mut hasher);
+        self.step.hash(&mut hasher);
+
+        hasher.finish()
     }
 }
 
@@ -104,13 +130,24 @@ impl ConcreteSlice {
         )
     }
 
+    /// Compute the size of the slice
     fn size(&self, py: Python<'_>) -> PyResult<usize> {
         let range = PyRange::new_with_step(py, self.start, self.stop, self.step)?;
 
         range.len()
     }
 
+    /// Extract the elements of the slice
     fn indices<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PyTuple>> {
         PyTuple::new(py, vec![self.start, self.stop, self.step])
+    }
+
+    fn __hash__(&self) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        self.start.hash(&mut hasher);
+        self.stop.hash(&mut hasher);
+        self.step.hash(&mut hasher);
+
+        hasher.finish()
     }
 }
