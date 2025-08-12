@@ -8,6 +8,7 @@ use pyo3::prelude::*;
 
 mod hierarchy;
 mod index;
+mod slice_objects;
 
 #[pymodule]
 mod nested {
@@ -809,10 +810,19 @@ mod ring {
 }
 
 #[pymodule]
+mod slices {
+    #[pymodule_export]
+    use crate::slice_objects::{ConcreteSlice, Slice};
+}
+
+#[pymodule]
 mod healpix_geo {
     #[pymodule_export]
     use super::nested;
 
     #[pymodule_export]
     use super::ring;
+
+    #[pymodule_export]
+    use super::slices;
 }
