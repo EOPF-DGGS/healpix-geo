@@ -71,7 +71,7 @@ impl AsConcreteSlice for Bound<'_, PyTuple> {
 }
 
 #[derive(FromPyObject)]
-enum OffsetIndexKind<'a> {
+enum IndexKind<'a> {
     #[pyo3(transparent, annotation = "slice")]
     Slice(Bound<'a, PySlice>),
     #[pyo3(transparent, annotation = "numpy.ndarray")]
@@ -399,9 +399,9 @@ impl RangeMOCIndex {
     /// -------
     /// subset : RangeMOCIndex
     ///     The resulting subset.
-    fn isel<'a>(&self, _py: Python<'a>, indexer: OffsetIndexKind<'a>) -> PyResult<Self> {
+    fn isel<'a>(&self, _py: Python<'a>, indexer: IndexKind<'a>) -> PyResult<Self> {
         match indexer {
-            OffsetIndexKind::Slice(slice) => {
+            IndexKind::Slice(slice) => {
                 let concrete_slice = slice
                     .getattr("indices")?
                     .call1((self.size(),))?
@@ -412,7 +412,7 @@ impl RangeMOCIndex {
 
                 Ok(RangeMOCIndex { moc: subset })
             }
-            OffsetIndexKind::IndexArray(_array) => {
+            IndexKind::IndexArray(_array) => {
                 let subset = self.moc.subset(&_array)?;
 
                 Ok(RangeMOCIndex { moc: subset })
