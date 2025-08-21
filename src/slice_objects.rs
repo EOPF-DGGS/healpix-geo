@@ -149,6 +149,50 @@ impl PositionalSlice {
     }
 }
 
+impl ConcreteSlice {
+    pub fn join_slices(slices: Vec<Self>) -> Result<Self, String> {
+        if slices.is_empty() {
+            Err("Empty list".to_string())
+        } else if slices.len() == 1 {
+            Ok(slices[0].clone())
+        } else if !slices
+            .windows(2)
+            .map(|window| {
+                let a = window.first().unwrap();
+                let b = window.last().unwrap();
+
+                a.step == b.step
+            })
+            .reduce(|a, b| a & b)
+            .unwrap()
+        {
+            Err("Step sizes are not equal".to_string())
+        } else if !slices
+            .windows(2)
+            .map(|window| {
+                let a = window.first().unwrap();
+                let b = window.last().unwrap();
+                a.stop == b.start
+            })
+            .reduce(|a, b| a & b)
+            .unwrap()
+        {
+            println!("slices: {:?}", slices);
+
+            Err("Slices are not contiguous".to_string())
+        } else {
+            let first = slices.first().unwrap();
+            let last = slices.last().unwrap();
+
+            Ok(ConcreteSlice {
+                start: first.start,
+                stop: last.stop,
+                step: first.step,
+            })
+        }
+    }
+}
+
 #[pymethods]
 impl ConcreteSlice {
     fn __repr__(&self) -> String {
@@ -168,6 +212,15 @@ impl ConcreteSlice {
     /// Extract the elements of the slice
     pub fn indices<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PyTuple>> {
         PyTuple::new(py, vec![self.start, self.stop, self.step])
+    }
+
+    #[classmethod]
+    pub fn join<'a>(
+        _cls: &Bound<'a, PyType>,
+        _py: Python<'a>,
+        slices: Vec<Self>,
+    ) -> PyResult<Self> {
+        Self::join_slices(slices).map_err(PyValueError::new_err)
     }
 
     fn __hash__(&self) -> u64 {
