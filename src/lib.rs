@@ -812,7 +812,7 @@ mod ring {
 #[pymodule]
 mod slices {
     #[pymodule_export]
-    use crate::slice_objects::{ConcreteSlice, Slice};
+    use crate::slice_objects::{ConcreteSlice, PositionalSlice};
 }
 
 #[pymodule]

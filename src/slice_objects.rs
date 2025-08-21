@@ -1,19 +1,33 @@
+use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::{PyRange, PySlice, PySliceMethods, PyTuple, PyType};
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
 /// More powerful version of the built-in slice
+///
+/// For use with cell ids only.
+#[derive(PartialEq, PartialOrd, Debug, Clone)]
+pub struct CellIdSlice {
+    pub start: Option<u64>,
+    pub stop: Option<u64>,
+    pub step: Option<u64>,
+    pub level: u8,
+}
+
+/// More powerful version of the built-in slice
+///
+/// For positional indexing.
 #[derive(PartialEq, PartialOrd, Debug, Clone)]
 #[pyclass]
-#[pyo3(module = "healpix_geo.slices", frozen)]
-pub struct Slice {
+#[pyo3(module = "healpix_geo.slices", name = "Slice", frozen)]
+pub struct PositionalSlice {
     #[pyo3(get)]
-    start: Option<isize>,
+    pub start: Option<isize>,
     #[pyo3(get)]
-    stop: Option<isize>,
+    pub stop: Option<isize>,
     #[pyo3(get)]
-    step: Option<isize>,
+    pub step: Option<isize>,
 }
 
 /// Slice with concrete values
@@ -21,36 +35,50 @@ pub struct Slice {
 /// Note: no `None` values allowed.
 #[derive(PartialEq, PartialOrd, Debug, Clone)]
 #[pyclass]
-#[pyo3(module = "healpix_geo.slices", frozen)]
+#[pyo3(module = "healpix_geo.slices", name = "ConcreteSlice", frozen)]
 pub struct ConcreteSlice {
     #[pyo3(get)]
-    start: isize,
+    pub start: isize,
     #[pyo3(get)]
-    stop: isize,
+    pub stop: isize,
     #[pyo3(get)]
-    step: isize,
+    pub step: isize,
 }
 
-trait AsSlice {
-    fn as_slice(&self) -> PyResult<Slice>;
+pub trait AsSlice {
+    fn as_positional_slice(&self) -> PyResult<PositionalSlice>;
+    fn as_label_slice(&self, level: u8) -> PyResult<CellIdSlice>;
 }
 
 impl AsSlice for Bound<'_, PySlice> {
-    fn as_slice(&self) -> PyResult<Slice> {
+    fn as_positional_slice(&self) -> PyResult<PositionalSlice> {
         let start = self.getattr("start")?.extract::<Option<isize>>()?;
         let stop = self.getattr("stop")?.extract::<Option<isize>>()?;
         let step = self.getattr("step")?.extract::<Option<isize>>()?;
 
-        Ok(Slice { start, stop, step })
+        Ok(PositionalSlice { start, stop, step })
+    }
+
+    fn as_label_slice(&self, level: u8) -> PyResult<CellIdSlice> {
+        let start = self.getattr("start")?.extract::<Option<u64>>()?;
+        let stop = self.getattr("stop")?.extract::<Option<u64>>()?;
+        let step = self.getattr("step")?.extract::<Option<u64>>()?;
+
+        Ok(CellIdSlice {
+            start,
+            stop,
+            step,
+            level,
+        })
     }
 }
 
 #[pymethods]
-impl Slice {
+impl PositionalSlice {
     #[new]
     #[pyo3(signature = (start, stop, step=None, /))]
     fn new(start: Option<isize>, stop: Option<isize>, step: Option<isize>) -> Self {
-        Slice { start, stop, step }
+        PositionalSlice { start, stop, step }
     }
 
     fn __repr__(&self) -> String {
@@ -67,24 +95,24 @@ impl Slice {
             Some(val) => val.to_string(),
         };
 
-        format!("Slice({start}, {stop}, {step})")
+        format!("PositionalSlice({start}, {stop}, {step})")
     }
 
-    /// Create a Slice from a builtin slice object
+    /// Create a PositionalSlice from a builtin slice object
     #[classmethod]
     fn from_pyslice<'a>(
         _cls: &Bound<'a, PyType>,
         _py: Python<'a>,
         slice: &Bound<'a, PySlice>,
-    ) -> PyResult<Slice> {
-        slice.as_slice()
+    ) -> PyResult<PositionalSlice> {
+        slice.as_positional_slice()
     }
 
     /// Convert to a builtin slice object
     ///
     /// Note: requires the size as input (the underlying `PySlice` object does
     /// not support `None` arguments)
-    fn as_pyslice<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PySlice>> {
+    pub fn as_pyslice<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PySlice>> {
         let builtins = py.import("builtins")?;
 
         let result = builtins
@@ -95,7 +123,7 @@ impl Slice {
     }
 
     /// Construct concrete indices
-    fn indices(&self, py: Python<'_>, size: isize) -> PyResult<(isize, isize, isize)> {
+    pub fn indices(&self, py: Python<'_>, size: isize) -> PyResult<(isize, isize, isize)> {
         let indices = self.as_pyslice(py)?.indices(size)?;
 
         Ok((indices.start, indices.stop, indices.step))
@@ -105,7 +133,7 @@ impl Slice {
     ///
     /// This means: no negative start / stop, except if step is negative, in
     /// which case stop may be -1
-    fn as_concrete(&self, py: Python<'_>, size: isize) -> PyResult<ConcreteSlice> {
+    pub fn as_concrete(&self, py: Python<'_>, size: isize) -> PyResult<ConcreteSlice> {
         let (start, stop, step) = self.indices(py, size)?;
 
         Ok(ConcreteSlice { start, stop, step })
@@ -131,14 +159,14 @@ impl ConcreteSlice {
     }
 
     /// Compute the size of the slice
-    fn size(&self, py: Python<'_>) -> PyResult<usize> {
+    pub fn size(&self, py: Python<'_>) -> PyResult<usize> {
         let range = PyRange::new_with_step(py, self.start, self.stop, self.step)?;
 
         range.len()
     }
 
     /// Extract the elements of the slice
-    fn indices<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PyTuple>> {
+    pub fn indices<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PyTuple>> {
         PyTuple::new(py, vec![self.start, self.stop, self.step])
     }
 
