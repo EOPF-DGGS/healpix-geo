@@ -95,7 +95,7 @@ impl PositionalSlice {
             Some(val) => val.to_string(),
         };
 
-        format!("PositionalSlice({start}, {stop}, {step})")
+        format!("Slice({start}, {stop}, {step})")
     }
 
     /// Create a PositionalSlice from a builtin slice object
