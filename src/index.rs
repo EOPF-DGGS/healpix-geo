@@ -1,8 +1,11 @@
 use ndarray::Array1;
 use numpy::{PyArray1, PyArrayDyn, PyArrayMethods};
-use pyo3::exceptions::{PyRuntimeError, PyValueError};
+use pyo3::exceptions::{PyNotImplementedError, PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::types::{PyBytes, PySlice, PyTuple, PyType};
+use pyo3::type_object::PyTypeInfo;
+use pyo3::types::{PyBytes, PySlice, PyType};
+
+use rayon::iter::ParallelIterator;
 
 use moc::deser::json::from_json_aladin;
 use moc::elemset::range::MocRanges;
@@ -12,70 +15,53 @@ use moc::moc::{
     CellMOCIntoIterator, CellMOCIterator, HasMaxDepth, RangeMOCIntoIterator, RangeMOCIterator,
 };
 use moc::qty::Hpx;
+use moc::ranges::SNORanges;
 use std::cmp::PartialEq;
 use std::ops::Range;
 
-struct ConcreteSlice {
-    pub start: usize,
-    pub stop: usize,
-    pub step: usize,
-}
-
-impl ConcreteSlice {
-    pub fn new(
-        start: Option<usize>,
-        stop: Option<usize>,
-        step: Option<usize>,
-    ) -> PyResult<ConcreteSlice> {
-        let start_ = match start {
-            Some(v) => Ok(v),
-            None => Err(PyValueError::new_err(
-                "Concrete slice expected, found start as None",
-            )),
-        }?;
-
-        let stop_ = match stop {
-            Some(v) => Ok(v),
-            None => Err(PyValueError::new_err(
-                "Concrete slice expected, found stop as None",
-            )),
-        }?;
-
-        let step_ = match step {
-            Some(v) => Ok(v),
-            None => Err(PyValueError::new_err(
-                "Concrete slice expected, found step as None",
-            )),
-        }?;
-
-        Ok(ConcreteSlice {
-            start: start_,
-            stop: stop_,
-            step: step_,
-        })
-    }
-}
-
-trait AsConcreteSlice {
-    fn as_concrete_slice(&self) -> PyResult<ConcreteSlice>;
-}
-
-impl AsConcreteSlice for Bound<'_, PyTuple> {
-    fn as_concrete_slice(&self) -> PyResult<ConcreteSlice> {
-        let start = self.get_item(0)?.extract::<Option<usize>>()?;
-        let stop = self.get_item(1)?.extract::<Option<usize>>()?;
-        let step = self.get_item(2)?.extract::<Option<usize>>()?;
-
-        ConcreteSlice::new(start, stop, step)
-    }
-}
+use crate::slice_objects::{AsSlice, CellIdSlice, ConcreteSlice};
 
 #[derive(FromPyObject)]
 enum IndexKind<'a> {
     #[pyo3(transparent, annotation = "slice")]
     Slice(Bound<'a, PySlice>),
     #[pyo3(transparent, annotation = "numpy.ndarray")]
-    IndexArray(Bound<'a, PyArrayDyn<u64>>),
+    Array(Bound<'a, PyArrayDyn<u64>>),
+}
+
+trait Overlap {
+    fn overlap(&self, range: &Range<u64>, offset: usize) -> Option<(ConcreteSlice, Range<u64>)>;
+}
+
+impl Overlap for CellIdSlice {
+    fn overlap(&self, range: &Range<u64>, offset: usize) -> Option<(ConcreteSlice, Range<u64>)> {
+        let relative_depth = 29 - self.level;
+
+        let range_start = range.start >> (relative_depth << 1);
+        let range_end = range.end >> (relative_depth << 1);
+
+        let start = self.start.unwrap_or(range_start);
+        let stop = self.stop.unwrap_or(range_end - 1);
+        let step = self.step.unwrap_or(1);
+
+        if (start < range_end) && (stop >= range_start) {
+            let pos_slice = ConcreteSlice {
+                start: start.saturating_sub(range_start) as isize + offset as isize,
+                stop: (stop + 1).min(range_end).saturating_sub(range_start) as isize
+                    + offset as isize,
+                step: step as isize,
+            };
+
+            let new_range = Range {
+                start: start.max(range_start) << (relative_depth << 1),
+                end: (stop + 1).min(range_end) << (relative_depth << 1),
+            };
+
+            Some((pos_slice, new_range))
+        } else {
+            None
+        }
+    }
 }
 
 trait Subset {
@@ -107,7 +93,7 @@ impl Subset for RangeMOC<u64, Hpx<u64>> {
             self.moc_ranges()
                 .iter()
                 .filter_map(|range: &Range<u64>| {
-                    let range_size = ((range.end - range.start) >> shift) as usize;
+                    let range_size = ((range.end - range.start) >> shift) as isize;
 
                     if start >= range_size {
                         // range entirely before slice
@@ -211,6 +197,19 @@ impl Subset for RangeMOC<u64, Hpx<u64>> {
 #[pyo3(module = "healpix_geo.nested")]
 pub struct RangeMOCIndex {
     moc: RangeMOC<u64, Hpx<u64>>,
+}
+
+impl RangeMOCIndex {
+    fn range_sizes(&self, depth: u8) -> Vec<usize> {
+        let relative_depth = 29 - depth;
+
+        self.moc
+            .moc_ranges()
+            .0
+            .par_iter()
+            .map(|r| ((r.end - r.start) >> (relative_depth << 1)) as usize)
+            .collect()
+    }
 }
 
 #[pymethods]
@@ -399,23 +398,99 @@ impl RangeMOCIndex {
     /// -------
     /// subset : RangeMOCIndex
     ///     The resulting subset.
-    fn isel<'a>(&self, _py: Python<'a>, indexer: IndexKind<'a>) -> PyResult<Self> {
+    fn isel<'a>(&self, py: Python<'a>, indexer: IndexKind<'a>) -> PyResult<Self> {
         match indexer {
             IndexKind::Slice(slice) => {
                 let concrete_slice = slice
-                    .getattr("indices")?
-                    .call1((self.size(),))?
-                    .extract::<Bound<'a, PyTuple>>()?
-                    .as_concrete_slice()?;
+                    .as_positional_slice()?
+                    .as_concrete(py, self.size() as isize)?;
 
                 let subset = self.moc.slice(&concrete_slice)?;
 
                 Ok(RangeMOCIndex { moc: subset })
             }
-            IndexKind::IndexArray(_array) => {
+            IndexKind::Array(_array) => {
                 let subset = self.moc.subset(&_array)?;
 
                 Ok(RangeMOCIndex { moc: subset })
+            }
+        }
+    }
+
+    /// Subset the index using positions
+    ///
+    /// Parameters
+    /// ----------
+    /// indexer : slice of int or array-like of uint64
+    ///     The cell ids or ranges of cell ids to find.
+    ///
+    /// Returns
+    /// -------
+    /// subset : RangeMOCIndex
+    ///     The resulting subset.
+    /// indexer : slice of int or array-like of uint64
+    ///     The integer
+    fn sel<'a>(
+        &self,
+        py: Python<'a>,
+        indexer: IndexKind<'a>,
+        depth: u8,
+    ) -> PyResult<(ConcreteSlice, Self)> {
+        let range_sizes = self.range_sizes(depth);
+        let offsets: Vec<usize> = range_sizes
+            .iter()
+            .scan(0, |state, x| {
+                let val = *state;
+                *state += x;
+                Some(val)
+            })
+            .collect();
+
+        match indexer {
+            IndexKind::Slice(pyslice) => {
+                // algorithm:
+                // - compute the length of each internal range
+                // - perform a cumulative sum to get the offsets for each range
+                // - for each slice:
+                //   - find all overlapping ranges
+                //   - map the slice onto all overlapping ranges
+                //   - assemble the sliced range and the resulting index
+                //
+                // Overlap check:
+                //
+                // (
+                //   (s.start is None or s.start < r.end)
+                //   and (s.stop is None or s.stop >= r.start)
+                // )
+                let slice = pyslice.as_label_slice(depth)?;
+                let (slices, ranges): (Vec<_>, Vec<_>) = self
+                    .moc
+                    .moc_ranges()
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(index, range)| slice.overlap(range, offsets[index]))
+                    .unzip();
+
+                let cls = <ConcreteSlice as PyTypeInfo>::type_object(py);
+                let joined_slice = ConcreteSlice::join(&cls, py, slices)?;
+
+                let new_moc: RangeMOC<u64, Hpx<u64>> =
+                    RangeMOC::new(self.moc.depth_max(), MocRanges::new_from(ranges));
+                let new_index = RangeMOCIndex { moc: new_moc };
+
+                Ok((joined_slice, new_index))
+            }
+            IndexKind::Array(_array) => {
+                // algorithm:
+                // - compute the length of each range
+                // - compute range offsets
+                // - for each value in the array:
+                //   - find the range with value >= start and value <= end
+                //   - if not found, raise
+                //   - if found, compute the integer offset as range_offset + (value - start) / step
+                Err(PyNotImplementedError::new_err(
+                    "label-based indexing with an array is not supported, yet.",
+                ))
             }
         }
     }
