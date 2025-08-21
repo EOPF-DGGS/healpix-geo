@@ -147,6 +147,10 @@ impl PositionalSlice {
 
         hasher.finish()
     }
+
+    fn __eq__(&self, other: &Self) -> bool {
+        self == other
+    }
 }
 
 impl ConcreteSlice {
