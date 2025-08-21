@@ -149,27 +149,33 @@ class TestRangeMOCIndex:
         ],
     )
     def test_sel(self, level, cell_ids, indexer):
-        if level != 0:
-            if isinstance(indexer, slice):
-                indexer = slice(
-                    4**level + indexer.start,
-                    4**level + indexer.stop,
-                    indexer.step,
-                )
-                range_ = np.arange(
-                    indexer.start, indexer.stop, indexer.step, dtype="uint64"
-                )
-                condition = np.isin(cell_ids, range_)
-                expected_cell_ids = cell_ids[condition]
-                expected_indices = np.flatnonzero(condition)
-            else:
-                indexer = 4**level + indexer
-                condition = np.isin(cell_ids, indexer)
-                expected_cell_ids = indexer
-                expected_indices = np.flatnonzero(condition)
+        if isinstance(indexer, slice):
+            n = slice(*indexer.indices(cell_ids.size))
+            indexer = slice(
+                4**level + n.start,
+                4**level + n.stop,
+                n.step,
+            )
+            range_ = np.arange(
+                indexer.start, indexer.stop + 1, indexer.step, dtype="uint64"
+            )
+            condition = np.isin(cell_ids, range_)
+            expected_cell_ids = cell_ids[condition]
+            expected_indices = np.flatnonzero(condition)
+        else:
+            indexer = 4**level + indexer
+            condition = np.isin(cell_ids, indexer)
+            expected_cell_ids = indexer
+            expected_indices = np.flatnonzero(condition)
+
         index = healpix_geo.nested.RangeMOCIndex.from_cell_ids(level, cell_ids)
 
-        actual_moc, actual_indices = index.sel(indexer)
+        actual_indexer, actual_moc = index.sel(indexer, depth=level)
+
+        if isinstance(actual_indexer, healpix_geo.slices.ConcreteSlice):
+            actual_indices = np.arange(*actual_indexer.indices())
+        else:
+            actual_indices = actual_indexer
 
         np.testing.assert_equal(actual_moc.cell_ids(), expected_cell_ids)
         np.testing.assert_equal(actual_indices, expected_indices)
