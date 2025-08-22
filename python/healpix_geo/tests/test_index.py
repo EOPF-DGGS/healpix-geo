@@ -122,55 +122,86 @@ class TestRangeMOCIndex:
         np.testing.assert_equal(actual.cell_ids(), expected)
 
     @pytest.mark.parametrize(
-        ["level", "cell_ids"],
+        ["level", "cell_ids", "indexer"],
         (
-            pytest.param(0, np.arange(12, dtype="uint64"), id="base cells"),
-            pytest.param(3, np.arange(12 * 4**3, dtype="uint64"), id="level 3 cells"),
+            pytest.param(
+                0,
+                np.arange(12, dtype="uint64"),
+                slice(None),
+                id="base cells-slice-full",
+            ),
+            pytest.param(
+                0,
+                np.arange(12, dtype="uint64"),
+                slice(None, 6),
+                id="base cells-slice-left_open",
+            ),
+            pytest.param(
+                0,
+                np.arange(12, dtype="uint64"),
+                slice(2, None),
+                id="base cells-slice-right_open",
+            ),
+            pytest.param(
+                0,
+                np.arange(12, dtype="uint64"),
+                slice(2, 7),
+                id="base cells-slice-domain",
+            ),
+            pytest.param(
+                0,
+                np.arange(12, dtype="uint64"),
+                np.arange(12, dtype="uint64"),
+                id="base cells-array-full",
+            ),
+            pytest.param(
+                0,
+                np.arange(12, dtype="uint64"),
+                np.arange(2, 7, dtype="uint64"),
+                id="base cells-array-domain",
+            ),
+            pytest.param(
+                0,
+                np.arange(12, dtype="uint64"),
+                np.array([1, 2, 3, 7, 8, 9, 10], dtype="uint64"),
+                id="base cells-array-disconnected",
+            ),
+            pytest.param(
+                3,
+                np.arange(12 * 4**3, dtype="uint64"),
+                slice(None, 15),
+                id="level 3 cells-slice-left_open",
+            ),
             pytest.param(
                 1,
                 np.array([0, 1, 2, 4, 5, 11, 12, 13, 25, 26, 27], dtype="uint64"),
-                id="list of level 1 cells",
+                np.array([2, 5, 11, 12, 25, 27], dtype="uint64"),
+                id="list of level 1 cells-array-disconnected",
             ),
             pytest.param(
                 4,
                 np.arange(1 * 4**4, 2 * 4**4, dtype="uint64"),
-                id="single level 4 base cell",
+                slice(260, 280),
+                id="single level 4 base cell-slice-domain",
             ),
         ),
     )
-    @pytest.mark.parametrize(
-        "indexer",
-        [
-            pytest.param(slice(None), id="slice_all"),
-            pytest.param(slice(None, 4), id="slice_first_four"),
-            pytest.param(slice(2, None), id="slice_all_but_first_two"),
-            pytest.param(slice(2, 11), id="slice_2-11"),
-            pytest.param(
-                np.arange(5, dtype="uint64"),
-                marks=pytest.mark.skip(reason="not implemented"),
-            ),
-            pytest.param(
-                np.array([0, 1, 7, 8, 9], dtype="uint64"),
-                marks=pytest.mark.skip(reason="not implemented"),
-            ),
-        ],
-    )
     def test_sel(self, level, cell_ids, indexer):
         if isinstance(indexer, slice):
-            n = slice(*indexer.indices(cell_ids.size))
-            indexer = slice(
-                4**level + n.start,
-                4**level + n.stop,
-                n.step,
+            n = slice(
+                indexer.start if indexer.start is not None else 0,
+                (
+                    indexer.stop + 1
+                    if indexer.stop is not None
+                    else int(np.max(cell_ids)) + 1
+                ),
+                indexer.step if indexer.step is not None else 1,
             )
-            range_ = np.arange(
-                indexer.start, indexer.stop + 1, indexer.step, dtype="uint64"
-            )
+            range_ = np.arange(n.start, n.stop, n.step, dtype="uint64")
             condition = np.isin(cell_ids, range_)
             expected_cell_ids = cell_ids[condition]
             expected_indices = np.flatnonzero(condition)
         else:
-            indexer = 4**level + indexer
             condition = np.isin(cell_ids, indexer)
             expected_cell_ids = indexer
             expected_indices = np.flatnonzero(condition)
@@ -179,15 +210,12 @@ class TestRangeMOCIndex:
 
         actual_indexer, actual_moc = index.sel(indexer, depth=level)
 
-        if isinstance(actual_indexer, healpix_geo.slices.ConcreteSlice):
-            actual_indices = np.arange(*actual_indexer.indices())
+        if isinstance(actual_indexer, slice):
+            actual_indices = np.arange(*actual_indexer.indices(cell_ids.size))
         else:
             actual_indices = actual_indexer
 
-        assert actual_indexer.size() == actual_moc.size
-        np.testing.assert_equal(
-            actual_moc.cell_ids(), cell_ids[actual_indexer.as_pyslice()]
-        )
+        np.testing.assert_equal(actual_moc.cell_ids(), cell_ids[actual_indexer])
         np.testing.assert_equal(actual_moc.cell_ids(), expected_cell_ids)
         np.testing.assert_equal(actual_indices, expected_indices)
 
