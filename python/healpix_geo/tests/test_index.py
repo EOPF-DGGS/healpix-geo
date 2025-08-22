@@ -125,6 +125,7 @@ class TestRangeMOCIndex:
         ["level", "cell_ids"],
         (
             pytest.param(0, np.arange(12, dtype="uint64"), id="base cells"),
+            pytest.param(3, np.arange(12 * 4**3, dtype="uint64"), id="level 3 cells"),
             pytest.param(
                 1,
                 np.array([0, 1, 2, 4, 5, 11, 12, 13, 25, 26, 27], dtype="uint64"),
@@ -140,12 +141,18 @@ class TestRangeMOCIndex:
     @pytest.mark.parametrize(
         "indexer",
         [
-            slice(None),
-            slice(None, 4),
-            slice(2, None),
-            slice(2, 11),
-            np.arange(5, dtype="uint64"),
-            np.array([0, 1, 7, 8, 9], dtype="uint64"),
+            pytest.param(slice(None), id="slice_all"),
+            pytest.param(slice(None, 4), id="slice_first_four"),
+            pytest.param(slice(2, None), id="slice_all_but_first_two"),
+            pytest.param(slice(2, 11), id="slice_2-11"),
+            pytest.param(
+                np.arange(5, dtype="uint64"),
+                marks=pytest.mark.skip(reason="not implemented"),
+            ),
+            pytest.param(
+                np.array([0, 1, 7, 8, 9], dtype="uint64"),
+                marks=pytest.mark.skip(reason="not implemented"),
+            ),
         ],
     )
     def test_sel(self, level, cell_ids, indexer):
@@ -177,6 +184,10 @@ class TestRangeMOCIndex:
         else:
             actual_indices = actual_indexer
 
+        assert actual_indexer.size() == actual_moc.size
+        np.testing.assert_equal(
+            actual_moc.cell_ids(), cell_ids[actual_indexer.as_pyslice()]
+        )
         np.testing.assert_equal(actual_moc.cell_ids(), expected_cell_ids)
         np.testing.assert_equal(actual_indices, expected_indices)
 
