@@ -514,12 +514,10 @@ impl RangeMOCIndex {
                             .position_first(|r| r.contains(&hash))
                             .ok_or(hash);
 
-                        println!("range index for {:?} at: {:?}", hash, range_index);
                         range_index
                             .map(|idx| {
                                 let position = (hash - ranges[idx].start) + offsets[idx] as u64;
 
-                                println!("computed position for {:?}: {:?}", hash, position);
                                 (position, hash)
                             })
                             .map_err(|err| {

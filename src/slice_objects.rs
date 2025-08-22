@@ -181,8 +181,6 @@ impl ConcreteSlice {
             .reduce(|a, b| a & b)
             .unwrap()
         {
-            println!("slices: {:?}", slices);
-
             Err("Slices are not contiguous".to_string())
         } else {
             let first = slices.first().unwrap();
