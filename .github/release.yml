@@ -3,3 +3,5 @@ changelog:
     authors:
       - app/dependabot
       - app/pre-commit-ci
+      - dependabot[bot]
+      - pre-commit-ci[bot]
