@@ -218,6 +218,17 @@ impl ConcreteSlice {
         PyTuple::new(py, vec![self.start, self.stop, self.step])
     }
 
+    /// Convert to a python slice
+    pub fn as_pyslice<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PySlice>> {
+        let builtins = py.import("builtins")?;
+
+        let result = builtins
+            .getattr("slice")?
+            .call1((self.start, self.stop, self.step))?;
+
+        result.extract::<Bound<'a, PySlice>>()
+    }
+
     #[classmethod]
     pub fn join<'a>(
         _cls: &Bound<'a, PyType>,
