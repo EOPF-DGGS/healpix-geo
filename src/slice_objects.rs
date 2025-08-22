@@ -12,7 +12,6 @@ pub struct CellIdSlice {
     pub start: Option<u64>,
     pub stop: Option<u64>,
     pub step: Option<u64>,
-    pub level: u8,
 }
 
 /// More powerful version of the built-in slice
@@ -47,7 +46,7 @@ pub struct ConcreteSlice {
 
 pub trait AsSlice {
     fn as_positional_slice(&self) -> PyResult<PositionalSlice>;
-    fn as_label_slice(&self, level: u8) -> PyResult<CellIdSlice>;
+    fn as_label_slice(&self) -> PyResult<CellIdSlice>;
 }
 
 impl AsSlice for Bound<'_, PySlice> {
@@ -59,17 +58,12 @@ impl AsSlice for Bound<'_, PySlice> {
         Ok(PositionalSlice { start, stop, step })
     }
 
-    fn as_label_slice(&self, level: u8) -> PyResult<CellIdSlice> {
+    fn as_label_slice(&self) -> PyResult<CellIdSlice> {
         let start = self.getattr("start")?.extract::<Option<u64>>()?;
         let stop = self.getattr("stop")?.extract::<Option<u64>>()?;
         let step = self.getattr("step")?.extract::<Option<u64>>()?;
 
-        Ok(CellIdSlice {
-            start,
-            stop,
-            step,
-            level,
-        })
+        Ok(CellIdSlice { start, stop, step })
     }
 }
 

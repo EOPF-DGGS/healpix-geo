@@ -199,25 +199,16 @@ class TestRangeMOCIndex:
             )
             range_ = np.arange(n.start, n.stop, n.step, dtype="uint64")
             condition = np.isin(cell_ids, range_)
-            expected_cell_ids = cell_ids[condition]
-            expected_indices = np.flatnonzero(condition)
         else:
             condition = np.isin(cell_ids, indexer)
-            expected_cell_ids = indexer
-            expected_indices = np.flatnonzero(condition)
+        expected_cell_ids = cell_ids[condition]
 
         index = healpix_geo.nested.RangeMOCIndex.from_cell_ids(level, cell_ids)
 
-        actual_indexer, actual_moc = index.sel(indexer, depth=level)
+        actual_indexer, actual_moc = index.sel(indexer)
 
-        if isinstance(actual_indexer, slice):
-            actual_indices = np.arange(*actual_indexer.indices(cell_ids.size))
-        else:
-            actual_indices = actual_indexer
-
-        np.testing.assert_equal(actual_moc.cell_ids(), cell_ids[actual_indexer])
+        np.testing.assert_equal(cell_ids[actual_indexer], expected_cell_ids)
         np.testing.assert_equal(actual_moc.cell_ids(), expected_cell_ids)
-        np.testing.assert_equal(actual_indices, expected_indices)
 
     @pytest.mark.parametrize(
         ["depth", "cell_ids"],

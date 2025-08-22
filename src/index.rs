@@ -31,12 +31,22 @@ enum IndexKind<'py> {
 }
 
 trait Overlap {
-    fn overlap(&self, range: &Range<u64>, offset: usize) -> Option<(ConcreteSlice, Range<u64>)>;
+    fn overlap(
+        &self,
+        range: &Range<u64>,
+        depth: u8,
+        offset: usize,
+    ) -> Option<(ConcreteSlice, Range<u64>)>;
 }
 
 impl Overlap for CellIdSlice {
-    fn overlap(&self, range: &Range<u64>, offset: usize) -> Option<(ConcreteSlice, Range<u64>)> {
-        let relative_depth = 29 - self.level;
+    fn overlap(
+        &self,
+        range: &Range<u64>,
+        depth: u8,
+        offset: usize,
+    ) -> Option<(ConcreteSlice, Range<u64>)> {
+        let relative_depth = 29 - depth;
 
         let range_start = range.start >> (relative_depth << 1);
         let range_end = range.end >> (relative_depth << 1);
@@ -431,12 +441,8 @@ impl RangeMOCIndex {
     ///     The resulting subset.
     /// indexer : slice of int or array-like of uint64
     ///     The integer
-    fn sel<'a>(
-        &self,
-        py: Python<'a>,
-        indexer: IndexKind<'a>,
-        depth: u8,
-    ) -> PyResult<(IndexKind<'a>, Self)> {
+    fn sel<'a>(&self, py: Python<'a>, indexer: IndexKind<'a>) -> PyResult<(IndexKind<'a>, Self)> {
+        let depth = self.moc.depth_max();
         let range_sizes = self.range_sizes(depth);
         let offsets: Vec<usize> = range_sizes
             .iter()
@@ -463,13 +469,13 @@ impl RangeMOCIndex {
                 //   (s.start is None or s.start < r.end)
                 //   and (s.stop is None or s.stop >= r.start)
                 // )
-                let slice = pyslice.as_label_slice(depth)?;
+                let slice = pyslice.as_label_slice()?;
                 let (slices, ranges): (Vec<_>, Vec<_>) = self
                     .moc
                     .moc_ranges()
                     .iter()
                     .enumerate()
-                    .filter_map(|(index, range)| slice.overlap(range, offsets[index]))
+                    .filter_map(|(index, range)| slice.overlap(range, depth, offsets[index]))
                     .unzip();
 
                 let cls = <ConcreteSlice as PyTypeInfo>::type_object(py);
@@ -493,7 +499,7 @@ impl RangeMOCIndex {
                     .into_owned()
                     .into_dimensionality::<Ix1>()
                     .map_err(|err| PyRuntimeError::new_err(err.to_string()))?;
-                let delta_depth = 29 - self.moc.depth_max();
+                let delta_depth = 29 - depth;
                 let shift = delta_depth << 1;
 
                 let ranges = self
