@@ -1,10 +1,11 @@
-use ndarray::Array1;
+use ndarray::{Array1, Ix1};
 use numpy::{PyArray1, PyArrayDyn, PyArrayMethods};
-use pyo3::exceptions::{PyNotImplementedError, PyRuntimeError, PyValueError};
+use pyo3::exceptions::{PyKeyError, PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::type_object::PyTypeInfo;
 use pyo3::types::{PyBytes, PySlice, PyType};
 
+use ndarray::parallel::prelude::*;
 use rayon::iter::ParallelIterator;
 
 use moc::deser::json::from_json_aladin;
@@ -21,12 +22,12 @@ use std::ops::Range;
 
 use crate::slice_objects::{AsSlice, CellIdSlice, ConcreteSlice};
 
-#[derive(FromPyObject)]
-enum IndexKind<'a> {
+#[derive(FromPyObject, IntoPyObject)]
+enum IndexKind<'py> {
     #[pyo3(transparent, annotation = "slice")]
-    Slice(Bound<'a, PySlice>),
+    Slice(Bound<'py, PySlice>),
     #[pyo3(transparent, annotation = "numpy.ndarray")]
-    Array(Bound<'a, PyArrayDyn<u64>>),
+    Array(Bound<'py, PyArrayDyn<u64>>),
 }
 
 trait Overlap {
@@ -409,8 +410,8 @@ impl RangeMOCIndex {
 
                 Ok(RangeMOCIndex { moc: subset })
             }
-            IndexKind::Array(_array) => {
-                let subset = self.moc.subset(&_array)?;
+            IndexKind::Array(array) => {
+                let subset = self.moc.subset(&array)?;
 
                 Ok(RangeMOCIndex { moc: subset })
             }
@@ -435,7 +436,7 @@ impl RangeMOCIndex {
         py: Python<'a>,
         indexer: IndexKind<'a>,
         depth: u8,
-    ) -> PyResult<(ConcreteSlice, Self)> {
+    ) -> PyResult<(IndexKind<'a>, Self)> {
         let range_sizes = self.range_sizes(depth);
         let offsets: Vec<usize> = range_sizes
             .iter()
@@ -478,9 +479,9 @@ impl RangeMOCIndex {
                     RangeMOC::new(self.moc.depth_max(), MocRanges::new_from(ranges));
                 let new_index = RangeMOCIndex { moc: new_moc };
 
-                Ok((joined_slice, new_index))
+                Ok((IndexKind::Slice(joined_slice.as_pyslice(py)?), new_index))
             }
-            IndexKind::Array(_array) => {
+            IndexKind::Array(array) => {
                 // algorithm:
                 // - compute the length of each range
                 // - compute range offsets
@@ -488,8 +489,60 @@ impl RangeMOCIndex {
                 //   - find the range with value >= start and value <= end
                 //   - if not found, raise
                 //   - if found, compute the integer offset as range_offset + (value - start) / step
-                Err(PyNotImplementedError::new_err(
-                    "label-based indexing with an array is not supported, yet.",
+                let array = unsafe { array.as_array() }
+                    .into_owned()
+                    .into_dimensionality::<Ix1>()
+                    .map_err(|err| PyRuntimeError::new_err(err.to_string()))?;
+                let delta_depth = 29 - self.moc.depth_max();
+                let shift = delta_depth << 1;
+
+                let ranges = self
+                    .moc
+                    .moc_ranges()
+                    .par_iter()
+                    .map(|x| Range {
+                        start: x.start >> shift,
+                        end: x.end >> shift,
+                    })
+                    .collect::<Vec<_>>();
+
+                let (positions, cell_ids): (Vec<_>, Vec<_>) = array
+                    .par_iter()
+                    .map(|&hash| {
+                        let range_index = ranges
+                            .par_iter()
+                            .position_first(|r| r.contains(&hash))
+                            .ok_or(hash);
+
+                        println!("range index for {:?} at: {:?}", hash, range_index);
+                        range_index
+                            .map(|idx| {
+                                let position = (hash - ranges[idx].start) + offsets[idx] as u64;
+
+                                println!("computed position for {:?}: {:?}", hash, position);
+                                (position, hash)
+                            })
+                            .map_err(|err| {
+                                PyKeyError::new_err(format!("Cannot find {hash} ({})", err))
+                            })
+                    })
+                    .collect::<Result<Vec<(_, _)>, _>>()?
+                    .into_iter()
+                    .unzip();
+
+                let new_moc: RangeMOC<u64, Hpx<u64>> = RangeMOC::from_fixed_depth_cells(
+                    self.moc.depth_max(),
+                    cell_ids.into_iter(),
+                    None,
+                );
+                let new_index = RangeMOCIndex { moc: new_moc };
+
+                Ok((
+                    IndexKind::Array(PyArrayDyn::from_owned_array(
+                        py,
+                        Array1::from_iter(positions).into_dyn(),
+                    )),
+                    new_index,
                 ))
             }
         }
