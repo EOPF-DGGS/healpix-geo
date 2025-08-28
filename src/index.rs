@@ -267,7 +267,7 @@ impl IndexSetOps for RangeMOC<u64, Hpx<u64>> {
         let slices = other
             .moc_ranges()
             .par_iter()
-            .map(|range_o| {
+            .filter_map(|range_o| {
                 let start_o = range_o.start >> shift;
                 let end_o = range_o.end >> shift;
                 let slices: Vec<_> = self
@@ -294,7 +294,11 @@ impl IndexSetOps for RangeMOC<u64, Hpx<u64>> {
                     })
                     .collect();
 
-                ConcreteSlice::join_slices(slices).map_err(PyValueError::new_err)
+                if !slices.is_empty() {
+                    Some(ConcreteSlice::join_slices(slices).map_err(PyValueError::new_err))
+                } else {
+                    None
+                }
             })
             .collect::<PyResult<Vec<ConcreteSlice>>>()?;
 
