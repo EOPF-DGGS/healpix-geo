@@ -15,6 +15,7 @@ dependencies = ["numpy"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
+geometries = ["shapely>=2"]
 tests = [
   "pytest",
 ]
