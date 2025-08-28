@@ -9,7 +9,7 @@ name = "healpix_geo"
 crate-type = ["cdylib"]
 
 [dependencies]
-cdshealpix = { git = "https://github.com/cds-astro/cds-healpix-rust.git", rev = "189083c1f8169a89c3b69a0650d4e442f9d86e07", version = "0.8.1" }
+cdshealpix = { git = "https://github.com/cds-astro/cds-healpix-rust.git", rev = "48a5ee396abf852450e4b685f6e107310f39beec", version = "0.8.1" }
 moc = "0.18.0"
 geodesy = "0.13.0"
 ndarray = { version = "0.16.1", features = ["rayon"] }
