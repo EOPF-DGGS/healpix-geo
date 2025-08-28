@@ -44,6 +44,15 @@ pub struct ConcreteSlice {
     pub step: isize,
 }
 
+/// Multiple concrete positional slices
+#[derive(PartialEq, PartialOrd, Debug, Clone)]
+#[pyclass]
+#[pyo3(module = "healpix_geo.slices", frozen)]
+pub struct MultiConcreteSlice {
+    #[pyo3(get)]
+    pub slices: Vec<ConcreteSlice>,
+}
+
 pub trait AsSlice {
     fn as_positional_slice(&self) -> PyResult<PositionalSlice>;
     fn as_label_slice(&self) -> PyResult<CellIdSlice>;
@@ -237,5 +246,46 @@ impl ConcreteSlice {
         self.step.hash(&mut hasher);
 
         hasher.finish()
+    }
+}
+
+#[pyclass]
+struct SliceIterator {
+    inner: std::vec::IntoIter<ConcreteSlice>,
+}
+
+#[pymethods]
+impl SliceIterator {
+    fn __iter__(slf: PyRef<'_, Self>) -> PyRef<'_, Self> {
+        slf
+    }
+
+    fn __next__(mut slf: PyRefMut<'_, Self>) -> Option<ConcreteSlice> {
+        slf.inner.next()
+    }
+}
+
+#[pymethods]
+impl MultiConcreteSlice {
+    fn __repr__(&self) -> String {
+        format!(
+            "MultiConcreteSlice([{0}])",
+            self.slices
+                .iter()
+                .map(|s| s.__repr__())
+                .collect::<Vec<_>>()
+                .join(", "),
+        )
+    }
+
+    fn __iter__(slf: PyRef<'_, Self>) -> PyResult<Py<SliceIterator>> {
+        let iter = SliceIterator {
+            inner: slf.slices.clone().into_iter(),
+        };
+        Py::new(slf.py(), iter)
+    }
+
+    fn size(&self, py: Python<'_>) -> usize {
+        self.slices.iter().map(|s| s.size(py).unwrap()).sum()
     }
 }
