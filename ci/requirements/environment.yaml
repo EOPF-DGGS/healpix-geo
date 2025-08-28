@@ -7,6 +7,4 @@ dependencies:
   - pytest-cov
   - numpy
   - shapely
-  - pip
-  - pip:
-      - cdshealpix
+  - cdshealpix
