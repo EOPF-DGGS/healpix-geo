@@ -57,7 +57,7 @@ class TestRangeMOCIndex:
 
         actual = index1.union(index2)
 
-        isinstance(actual, healpix_geo.nested.RangeMOCIndex)
+        assert isinstance(actual, healpix_geo.nested.RangeMOCIndex)
         np.testing.assert_equal(actual.cell_ids(), expected)
 
     @pytest.mark.parametrize(
@@ -237,14 +237,19 @@ class TestRangeMOCIndex:
             pytest.param(shapely.box(-25, 15, 25, 35), id="polygon"),
         ),
     )
-    def test_query(self, depth, geom):
-        index = healpix_geo.nested.RangeMOCIndex.full_domain(depth)
+    @pytest.mark.parametrize("domain", ["full", "partial"])
+    def test_query(self, depth, domain, geom):
+        if domain == "full":
+            index = healpix_geo.nested.RangeMOCIndex.full_domain(depth)
+        else:
+            cell_ids = np.arange(4**depth, dtype="uint64")
+            index = healpix_geo.nested.RangeMOCIndex.from_cell_ids(depth, cell_ids)
 
         multi_slice, moc = index.query(geom)
 
         cell_ids = index.cell_ids()
 
         actual = np.concatenate([cell_ids[s.as_pyslice()] for s in multi_slice], axis=0)
-        expected = moc.cell_ids()  # use cdshealpix instead?
+        expected = moc.cell_ids()
 
         np.testing.assert_equal(actual, expected)
