@@ -2,6 +2,7 @@ import pickle
 
 import numpy as np
 import pytest
+import shapely
 
 import healpix_geo
 
@@ -227,3 +228,23 @@ class TestRangeMOCIndex:
         assert isinstance(unpickled, healpix_geo.nested.RangeMOCIndex)
         assert index.depth == unpickled.depth
         np.testing.assert_equal(unpickled.cell_ids(), index.cell_ids())
+
+    @pytest.mark.parametrize("depth", (0, 2, 10))
+    @pytest.mark.parametrize(
+        "geom",
+        (
+            pytest.param(shapely.Point(30, 30), id="point"),
+            pytest.param(shapely.box(-25, 15, 25, 35), id="polygon"),
+        ),
+    )
+    def test_query(self, depth, geom):
+        index = healpix_geo.nested.RangeMOCIndex.full_domain(depth)
+
+        multi_slice, moc = index.query(geom)
+
+        cell_ids = index.cell_ids()
+
+        actual = np.concatenate([cell_ids[s.as_pyslice()] for s in multi_slice], axis=0)
+        expected = moc.cell_ids()  # use cdshealpix instead?
+
+        np.testing.assert_equal(actual, expected)
