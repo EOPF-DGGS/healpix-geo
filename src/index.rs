@@ -675,7 +675,7 @@ impl RangeMOCIndex {
                     .extract::<Bound<'py, PyTuple>>()?;
                 let lon: f64 = coords.get_item(0)?.extract::<f64>()?;
                 let lat: f64 = coords.get_item(1)?.extract::<f64>()?;
-                let hash = layer.hash(lon, lat);
+                let hash = layer.hash(lon.to_radians(), lat.to_radians());
 
                 RangeMOC::from_fixed_depth_cells(depth, vec![hash].into_iter(), None)
             }
