@@ -652,7 +652,16 @@ impl RangeMOCIndex {
 
                 RangeMOC::from_fixed_depth_cells(depth, vec![hash].into_iter(), None)
             }
-            GeometryTypes::LineString(_coords) => todo!(),
+            GeometryTypes::LineString(coords) => {
+                let hashes = coords
+                    .into_iter()
+                    .map(|(lon, lat)| {
+                        layer.hash(lon.rem_euclid(360.0).to_radians(), lat.to_radians())
+                    })
+                    .collect::<Vec<u64>>();
+
+                RangeMOC::from_fixed_depth_cells(depth, hashes.into_iter(), None)
+            }
             GeometryTypes::Polygon(exterior, _interiors) => {
                 let converted = exterior
                     .into_iter()
