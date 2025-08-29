@@ -235,6 +235,9 @@ class TestRangeMOCIndex:
         (
             pytest.param(shapely.Point(30, 30), id="point"),
             pytest.param(shapely.box(-25, 15, 25, 35), id="polygon"),
+            pytest.param(
+                shapely.LineString([(30, 30), (31, 31), (32, 33)]), id="linestring"
+            ),
             pytest.param(healpix_geo.geometry.Bbox(-25, 15, 25, 35), id="bbox"),
         ),
     )
@@ -255,6 +258,15 @@ class TestRangeMOCIndex:
             lon = Longitude([coords[0]], unit="deg")
             lat = Latitude([coords[0]], unit="deg")
             expected = cdshealpix.nested.lonlat_to_healpix(lon, lat, depth=depth)
+        elif isinstance(geom, shapely.LineString):
+            coords = np.asarray(geom.coords[:])
+            lon = Longitude(coords[:, 0], unit="deg")
+            lat = Latitude(coords[:, 1], unit="deg")
+
+            expected_ = np.unique(
+                cdshealpix.nested.lonlat_to_healpix(lon, lat, depth=depth)
+            )
+            expected = expected_[np.isin(expected_, cell_ids)]
         elif isinstance(geom, shapely.Polygon):
             coords = np.asarray(geom.exterior.coords[:])
             lon = Longitude(coords[:, 0], unit="deg")
