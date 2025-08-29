@@ -1,5 +1,6 @@
+use pyo3::exceptions::{PyImportError, PyTypeError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::types::{PyTuple, PyType};
+use pyo3::types::{PyString, PyTuple, PyType};
 
 /// bounding box
 #[derive(PartialEq, PartialOrd, Debug, Clone)]
@@ -7,13 +8,13 @@ use pyo3::types::{PyTuple, PyType};
 #[pyo3(module = "healpix_geo.geometry", frozen)]
 pub struct Bbox {
     #[pyo3(get)]
-    lon_min: f64,
+    pub lon_min: f64,
     #[pyo3(get)]
-    lat_min: f64,
+    pub lat_min: f64,
     #[pyo3(get)]
-    lon_max: f64,
+    pub lon_max: f64,
     #[pyo3(get)]
-    lat_max: f64,
+    pub lat_max: f64,
 }
 
 #[pymethods]
@@ -52,5 +53,99 @@ impl Bbox {
             "Bbox({0}, {1}, {2}, {3})",
             self.lon_min, self.lat_min, self.lon_max, self.lat_max
         )
+    }
+}
+
+enum ShapelyGeometryTypes {
+    Point,
+    LineString,
+    Polygon,
+}
+
+impl ShapelyGeometryTypes {
+    fn from_string(kind: String) -> PyResult<Self> {
+        if kind == "Point" {
+            Ok(Self::Point)
+        } else if kind == "LineString" {
+            Ok(Self::LineString)
+        } else if kind == "Polygon" {
+            Ok(Self::Polygon)
+        } else {
+            Err(PyValueError::new_err("unsupported geometry type: {kind}"))
+        }
+    }
+}
+
+pub enum GeometryTypes {
+    Point(f64, f64),
+    #[allow(dead_code)]
+    LineString(Vec<(f64, f64)>),
+    Polygon(Vec<(f64, f64)>, Vec<Vec<(f64, f64)>>),
+    Bbox(f64, f64, f64, f64),
+}
+
+impl GeometryTypes {
+    pub fn from_pyobject<'py>(py: Python<'py>, obj: &Bound<'py, PyAny>) -> PyResult<Self> {
+        if obj.is_instance_of::<Bbox>() {
+            let bbox = obj.extract::<Bbox>()?;
+
+            Ok(Self::Bbox(
+                bbox.lon_min,
+                bbox.lat_min,
+                bbox.lon_max,
+                bbox.lat_max,
+            ))
+        } else {
+            let shapely = match py.import("shapely") {
+                Ok(module) => Ok(module),
+                Err(err) => {
+                    if err.is_instance_of::<PyImportError>(py) {
+                        return Err(PyTypeError::new_err(
+                            "Object other than Bbox found, and cannot import shapely.",
+                        ));
+                    }
+
+                    Err(err)
+                }
+            }?;
+
+            let geometry_type = shapely.getattr("Geometry")?;
+
+            if !obj.is_instance(&geometry_type)? {
+                return Err(PyTypeError::new_err(
+                    "need to pass a Bbox object or a shapely geometry",
+                ));
+            }
+
+            let geom_type = ShapelyGeometryTypes::from_string(
+                obj.getattr("geom_type")?
+                    .extract::<Bound<'_, PyString>>()?
+                    .to_string(),
+            )?;
+            match geom_type {
+                ShapelyGeometryTypes::Point => {
+                    let coords = obj
+                        .getattr("coords")?
+                        .get_item(0)?
+                        .extract::<Bound<'py, PyTuple>>()?;
+                    let lon: f64 = coords.get_item(0)?.extract::<f64>()?;
+                    let lat: f64 = coords.get_item(1)?.extract::<f64>()?;
+                    Ok(GeometryTypes::Point(lon, lat))
+                }
+                ShapelyGeometryTypes::LineString => todo!(),
+                ShapelyGeometryTypes::Polygon => {
+                    let exterior = obj
+                        .getattr("exterior")?
+                        .getattr("coords")?
+                        .extract::<Vec<(f64, f64)>>()?;
+
+                    let interiors = obj
+                        .getattr("interiors")?
+                        .extract::<Vec<Vec<(f64, f64)>>>()?;
+
+                    Ok(GeometryTypes::Polygon(exterior, interiors))
+                }
+            }
+        }
     }
 }

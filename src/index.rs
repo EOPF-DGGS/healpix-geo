@@ -1,9 +1,9 @@
-use ndarray::{s, Array1, Ix1};
-use numpy::{PyArray1, PyArray2, PyArrayDyn, PyArrayMethods};
+use ndarray::{Array1, Ix1};
+use numpy::{PyArray1, PyArrayDyn, PyArrayMethods};
 use pyo3::exceptions::{PyKeyError, PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::type_object::PyTypeInfo;
-use pyo3::types::{PyBytes, PySlice, PyString, PyTuple, PyType};
+use pyo3::types::{PyBytes, PySlice, PyType};
 
 use ndarray::parallel::prelude::*;
 use rayon::iter::ParallelIterator;
@@ -22,6 +22,7 @@ use moc::ranges::SNORanges;
 use std::cmp::PartialEq;
 use std::ops::Range;
 
+use crate::geometry::GeometryTypes;
 use crate::slice_objects::{AsSlice, CellIdSlice, ConcreteSlice, MultiConcreteSlice};
 
 #[derive(FromPyObject, IntoPyObject)]
@@ -30,26 +31,6 @@ enum IndexKind<'py> {
     Slice(Bound<'py, PySlice>),
     #[pyo3(transparent, annotation = "numpy.ndarray")]
     Array(Bound<'py, PyArrayDyn<u64>>),
-}
-
-enum GeometryTypes {
-    Point,
-    LineString,
-    Polygon,
-}
-
-impl GeometryTypes {
-    fn from_string(type_name: String) -> PyResult<Self> {
-        if type_name == "Point" {
-            Ok(Self::Point)
-        } else if type_name == "LineString" {
-            Ok(Self::LineString)
-        } else if type_name == "Polygon" {
-            Ok(Self::Polygon)
-        } else {
-            Err(PyValueError::new_err("invalid geometry type: {type_name}"))
-        }
-    }
 }
 
 trait Overlap {
@@ -646,44 +627,34 @@ impl RangeMOCIndex {
         py: Python<'py>,
         geom: &Bound<'py, PyAny>,
     ) -> PyResult<(MultiConcreteSlice, Self)> {
-        let geom_type = GeometryTypes::from_string(
-            geom.getattr("geom_type")?
-                .extract::<Bound<'_, PyString>>()?
-                .to_string(),
-        )?;
         let depth = self.moc.depth_max();
         let layer = nested::get(depth);
 
-        let geometry_moc = match geom_type {
-            GeometryTypes::Polygon => {
-                let shapely = py.import("shapely")?;
-                let coordinates = shapely
-                    .getattr("get_coordinates")?
-                    .call1((geom,))?
-                    .extract::<Bound<'py, PyArray2<f64>>>()?;
-                let coordinates = unsafe { coordinates.as_array() };
+        let geometry = GeometryTypes::from_pyobject(py, geom)?;
 
-                let coords = coordinates
-                    .slice(s![..-1, ..])
-                    .rows()
-                    .into_iter()
-                    .map(|r| (r[0].to_radians(), r[1].to_radians()))
-                    .collect::<Vec<(_, _)>>();
-
-                RangeMOC::from_polygon(&coords, false, layer.depth(), CellSelection::All)
-            }
-            GeometryTypes::Point => {
-                let coords = geom
-                    .getattr("coords")?
-                    .get_item(0)?
-                    .extract::<Bound<'py, PyTuple>>()?;
-                let lon: f64 = coords.get_item(0)?.extract::<f64>()?;
-                let lat: f64 = coords.get_item(1)?.extract::<f64>()?;
+        let geometry_moc = match geometry {
+            GeometryTypes::Point(lon, lat) => {
                 let hash = layer.hash(lon.to_radians(), lat.to_radians());
 
                 RangeMOC::from_fixed_depth_cells(depth, vec![hash].into_iter(), None)
             }
-            GeometryTypes::LineString => todo!(),
+            GeometryTypes::LineString(_coords) => todo!(),
+            GeometryTypes::Polygon(exterior, _interiors) => {
+                let converted = exterior
+                    .into_iter()
+                    .map(|r| (r.0.to_radians(), r.1.to_radians()))
+                    .collect::<Vec<(_, _)>>();
+
+                RangeMOC::from_polygon(&converted, false, depth, CellSelection::All)
+            }
+            GeometryTypes::Bbox(lon_min, lat_min, lon_max, lat_max) => RangeMOC::from_zone(
+                lon_min.to_radians(),
+                lat_min.to_radians(),
+                lon_max.to_radians(),
+                lat_max.to_radians(),
+                depth,
+                CellSelection::All,
+            ),
         };
 
         let (slices, moc) = self.moc.index_intersection(geometry_moc)?;
