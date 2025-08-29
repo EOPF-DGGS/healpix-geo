@@ -622,6 +622,20 @@ impl RangeMOCIndex {
     }
 
     /// Query by geometry
+    ///
+    /// Parameters
+    /// ----------
+    /// geometry : Bbox or shapely.Geometry
+    ///     The geometry to query by. Supported are:
+    ///     - Bbox for true bounding box queries (planar geometry)
+    ///     - shapely objects for spherical geometry queries
+    ///
+    /// Returns
+    /// -------
+    /// slices : MultiConcreteSlice
+    ///     The slices necessary for extract the subdomain.
+    /// moc : RangeMOCIndex
+    ///     The index for the queried cell ids.
     fn query<'py>(
         &self,
         py: Python<'py>,
