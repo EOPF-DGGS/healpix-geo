@@ -127,7 +127,11 @@ impl GeometryTypes {
                         .extract::<(f64, f64)>()?;
                     Ok(GeometryTypes::Point(lon, lat))
                 }
-                ShapelyGeometryTypes::LineString => todo!(),
+                ShapelyGeometryTypes::LineString => {
+                    let coords = obj.getattr("coords")?.extract::<Vec<(_, _)>>()?;
+
+                    Ok(GeometryTypes::LineString(coords))
+                }
                 ShapelyGeometryTypes::Polygon => {
                     let exterior = obj
                         .getattr("exterior")?
