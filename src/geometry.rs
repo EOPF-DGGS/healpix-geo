@@ -35,16 +35,13 @@ impl Bbox {
         _py: Python<'py>,
         bbox: &Bound<'py, PyTuple>,
     ) -> PyResult<Self> {
-        let lon_min = bbox.get_item(0)?.extract::<f64>()?;
-        let lat_min = bbox.get_item(1)?.extract::<f64>()?;
-        let lon_max = bbox.get_item(2)?.extract::<f64>()?;
-        let lat_max = bbox.get_item(3)?.extract::<f64>()?;
+        let bbox_ = bbox.extract::<(f64, f64, f64, f64)>()?;
 
         Ok(Self {
-            lon_min,
-            lat_min,
-            lon_max,
-            lat_max,
+            lon_min: bbox_.0,
+            lat_min: bbox_.1,
+            lon_max: bbox_.2,
+            lat_max: bbox_.3,
         })
     }
 
