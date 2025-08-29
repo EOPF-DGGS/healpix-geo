@@ -625,14 +625,14 @@ impl RangeMOCIndex {
     fn query<'py>(
         &self,
         py: Python<'py>,
-        geom: &Bound<'py, PyAny>,
+        geometry: &Bound<'py, PyAny>,
     ) -> PyResult<(MultiConcreteSlice, Self)> {
         let depth = self.moc.depth_max();
         let layer = nested::get(depth);
 
-        let geometry = GeometryTypes::from_pyobject(py, geom)?;
+        let geom = GeometryTypes::from_pyobject(py, geometry)?;
 
-        let geometry_moc = match geometry {
+        let geometry_moc = match geom {
             GeometryTypes::Point(lon, lat) => {
                 let hash = layer.hash(lon.rem_euclid(360.0).to_radians(), lat.to_radians());
 
