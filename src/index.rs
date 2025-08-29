@@ -634,7 +634,7 @@ impl RangeMOCIndex {
 
         let geometry_moc = match geometry {
             GeometryTypes::Point(lon, lat) => {
-                let hash = layer.hash(lon.to_radians(), lat.to_radians());
+                let hash = layer.hash(lon.rem_euclid(360.0).to_radians(), lat.to_radians());
 
                 RangeMOC::from_fixed_depth_cells(depth, vec![hash].into_iter(), None)
             }
@@ -642,15 +642,15 @@ impl RangeMOCIndex {
             GeometryTypes::Polygon(exterior, _interiors) => {
                 let converted = exterior
                     .into_iter()
-                    .map(|r| (r.0.to_radians(), r.1.to_radians()))
+                    .map(|r| (r.0.rem_euclid(360.0).to_radians(), r.1.to_radians()))
                     .collect::<Vec<(_, _)>>();
 
                 RangeMOC::from_polygon(&converted, false, depth, CellSelection::All)
             }
             GeometryTypes::Bbox(lon_min, lat_min, lon_max, lat_max) => RangeMOC::from_zone(
-                lon_min.to_radians(),
+                lon_min.rem_euclid(360.0).to_radians(),
                 lat_min.to_radians(),
-                lon_max.to_radians(),
+                lon_max.rem_euclid(360.0).to_radians(),
                 lat_max.to_radians(),
                 depth,
                 CellSelection::All,
