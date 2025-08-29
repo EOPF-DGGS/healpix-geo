@@ -6,6 +6,7 @@ use numpy::{PyArrayDyn, PyArrayMethods};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
+mod geometry;
 mod hierarchy;
 mod index;
 mod slice_objects;
@@ -815,6 +816,12 @@ mod slices {
     use crate::slice_objects::{ConcreteSlice, PositionalSlice};
 }
 
+#[pymodule(name = "geometry")]
+mod geometry_ {
+    #[pymodule_export]
+    use crate::geometry::Bbox;
+}
+
 #[pymodule]
 mod healpix_geo {
     #[pymodule_export]
@@ -825,4 +832,7 @@ mod healpix_geo {
 
     #[pymodule_export]
     use super::slices;
+
+    #[pymodule_export]
+    use crate::geometry_;
 }

@@ -1,3 +1,3 @@
-from healpix_geo import nested, ring, slices
+from healpix_geo import geometry, nested, ring, slices
 
-__all__ = ["nested", "ring", "slices"]
+__all__ = ["nested", "ring", "slices", "geometry"]
