@@ -121,12 +121,10 @@ impl GeometryTypes {
             )?;
             match geom_type {
                 ShapelyGeometryTypes::Point => {
-                    let coords = obj
+                    let (lon, lat) = obj
                         .getattr("coords")?
                         .get_item(0)?
-                        .extract::<Bound<'py, PyTuple>>()?;
-                    let lon: f64 = coords.get_item(0)?.extract::<f64>()?;
-                    let lat: f64 = coords.get_item(1)?.extract::<f64>()?;
+                        .extract::<(f64, f64)>()?;
                     Ok(GeometryTypes::Point(lon, lat))
                 }
                 ShapelyGeometryTypes::LineString => todo!(),
