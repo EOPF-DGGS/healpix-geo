@@ -559,6 +559,71 @@ mod nested {
         }
         .to_vec()
     }
+
+    /// Determine bilinear interpolation targets for the given source points
+    /// The given array must have the same shape as `longitude` and `latitude`, but with an additional size 4 dimension at the end.
+    #[pyfunction]
+    fn interpolation_quadrilateral<'a>(
+        _py: Python,
+        depth: u8,
+        longitude: &Bound<'a, PyArrayDyn<f64>>,
+        latitude: &Bound<'a, PyArrayDyn<f64>>,
+        ipix: &Bound<'a, PyArrayDyn<u64>>,
+        ellipsoid: &str,
+        nthreads: u16,
+    ) -> PyResult<()> {
+        let lon = unsafe { longitude.as_array() };
+        let lat = unsafe { latitude.as_array() };
+
+        let mut ipix = unsafe { ipix.as_array_mut() };
+
+        let ellipsoid_ =
+            Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+        let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+
+        let layer = healpix::nested::get(depth);
+
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(nthreads as usize)
+                .build()
+                .unwrap();
+            pool.install(|| {
+                Zip::from(ipix.rows_mut()).and(&lon).and(&lat).par_for_each(
+                    |mut neighbours, lon, lat| {
+                        let n = Array1::from_iter(compute_quadrilaterals(
+                            layer,
+                            lon,
+                            lat,
+                            &ellipsoid_,
+                            &coefficients,
+                        ));
+
+                        neighbours.slice_mut(s![..]).assign(&n);
+                    },
+                )
+            });
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            Zip::from(ipix.rows_mut())
+                .and(&lon)
+                .and(&lat)
+                .for_each(|mut neighbours, lon, lat| {
+                    let n = Array1::from_iter(compute_quadrilaterals(
+                        layer,
+                        lon,
+                        lat,
+                        &ellipsoid_,
+                        coefficients,
+                    ));
+
+                    neighbours.slice_mut(s![..]).assign(&n);
+                })
+        }
+        Ok(())
+    }
 }
 
 #[pymodule]
