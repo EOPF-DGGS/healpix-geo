@@ -1,6 +1,6 @@
 use cdshealpix as healpix;
 use cdshealpix::sph_geom::coo3d::{vec3_of, UnitVec3, UnitVect3};
-use geodesy::Ellipsoid;
+use geodesy::{math::FourierCoefficients, Ellipsoid};
 use ndarray::{s, Array1, Zip};
 use numpy::{PyArrayDyn, PyArrayMethods};
 use pyo3::exceptions::PyValueError;
@@ -466,6 +466,98 @@ mod nested {
                 })
         }
         Ok(())
+    }
+
+    fn compute_quadrilaterals(
+        layer: &healpix::nested::Layer,
+        lon: &f64,
+        lat: &f64,
+        ellipsoid: &Ellipsoid,
+        coefficients: &FourierCoefficients,
+    ) -> Vec<u64> {
+        use cdshealpix::compass_point::MainWind::{E, N, NE, NW, S, SE, SW, W};
+
+        let lon_ = lon.to_radians();
+        let lat_ = if ellipsoid.flattening() == 0.0 {
+            lat.to_radians()
+        } else {
+            ellipsoid.latitude_geographic_to_authalic(lat.to_radians(), coefficients)
+        };
+
+        let (h, dx, dy) = layer.hash_with_dxdy(lon_, lat_);
+        let neighbours_map = layer.neighbours(h, true);
+
+        // look at the four pixels
+        let xcoo = (dx > 0.5) as u8;
+        let ycoo = (dy > 0.5) as u8;
+        let quadrant: u8 = (ycoo << 1) + xcoo;
+
+        match quadrant {
+            0 => {
+                // => S => (dx + 0.5, dy + 0.5, S, SE, SW, C)
+                match neighbours_map.get(S) {
+                    Some(nh) => [
+                        *nh,
+                        *neighbours_map.get(SE).unwrap(),
+                        *neighbours_map.get(SW).unwrap(),
+                        h,
+                    ],
+                    None => [
+                        h,
+                        *neighbours_map.get(SE).unwrap(),
+                        *neighbours_map.get(SW).unwrap(),
+                        h,
+                    ],
+                }
+            },
+            1 => // => E => (dx - 0.5, dy + 0.5, SE, E, C, NE)
+                match neighbours_map.get(E) {
+                    Some(nh) => [
+                        *neighbours_map.get(SE).unwrap(),
+                        *nh,
+                        h,
+                        *neighbours_map.get(NE).unwrap(),
+                    ],
+                    None => [
+                        *neighbours_map.get(SE).unwrap(),
+                        h,
+                        h,
+                        *neighbours_map.get(NE).unwrap(),
+                    ],
+                }
+            2 => // => W => (dx + 0.5, dy - 0.5, SW, C, W, NW)
+                match neighbours_map.get(W) {
+                    Some(nh) => [
+                        *neighbours_map.get(SW).unwrap(),
+                        h,
+                        *nh,
+                        *neighbours_map.get(NW).unwrap(),
+                    ],
+                    None => [
+                        *neighbours_map.get(SW).unwrap(),
+                        h,
+                        h,
+                        *neighbours_map.get(NW).unwrap(),
+                    ],
+                }
+            3 => // => N => (dx - 0.5, dy - 0.5, C, NE, NW, N)
+                match neighbours_map.get(N) {
+                    Some(nh) => [
+                        h,
+                        *neighbours_map.get(NE).unwrap(),
+                        *neighbours_map.get(NW).unwrap(),
+                        *nh,
+                    ],
+                    None => [
+                        h,
+                        *neighbours_map.get(NE).unwrap(),
+                        *neighbours_map.get(NW).unwrap(),
+                        h
+                    ],
+                }
+            _ => unreachable!(),
+        }
+        .to_vec()
     }
 }
 
