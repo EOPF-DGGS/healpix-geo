@@ -368,3 +368,46 @@ def angular_distances(from_, to_, depth, num_threads=0):
     )
 
     return np.where(mask, np.reshape(distances, to_.shape), np.nan)
+
+
+def interpolation_quadrilateral(longitude, latitude, depth, ellipsoid, num_threads=0):
+    """Determine the closest quadrilateral to the given points
+
+    These are the closest cells on the latitude rings immediately north and
+    south of the interpolation point.
+
+    Parameters
+    ----------
+    longitude : numpy.ndarray
+        The longitudes of the interpolation points. Must have the same shape as ``latitude``.
+    latitude : numpy.ndarray
+        The latitudes of the interpolation points. Must have the same shape as ``longitude``
+    depth : int
+        The depth of the healpix cells.
+    ellipsoid : str, default: "sphere"
+        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
+        the same result as the first return value of :py:func:`cdshealpix.nested.bilinear_interpolation`.
+    num_threads : int, default: 0
+        Specifies the number of threads to use for the computation. Default to 0 means
+        it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
+        or the number of logical CPUs (otherwise)
+
+    Returns
+    -------
+    quadrilaterals : numpy.ndarray
+        The cells forming the enclosing quadrilateral for each interpolation point.
+    """
+    _check_depth(depth)
+
+    longitude_ = np.atleast_1d(longitude).astype("float64")
+    latitude_ = np.atleast_1d(latitude).astype("float64")
+
+    num_threads = np.uint16(num_threads)
+
+    ipix = np.empty(shape=longitude_.shape + (4,), dtype="uint64")
+
+    healpix_geo.nested.interpolation_quadrilateral(
+        depth, longitude_, latitude_, ipix, ellipsoid, num_threads
+    )
+
+    return ipix
