@@ -368,3 +368,23 @@ def angular_distances(from_, to_, depth, num_threads=0):
     )
 
     return np.where(mask, np.reshape(distances, to_.shape), np.nan)
+
+
+def bbox_search(bbox, depth, *, ellipsoid="sphere", flat=True):
+    """Search the cells covering the given bounding box
+
+    Parameters
+    ----------
+    bbox : tuple of float
+        The 2D bounding box to rasterize.
+    depth : int
+        The maximum depth of the cells to be returned.
+    ellipsoid : str, default: "sphere"
+        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
+        the same result as :py:func:`cdshealpix.nested.healpix_to_lonlat`.
+    flat : bool, default: True
+        If ``True``, the cells returned will all be at the passed depth.
+    """
+    _check_depth(depth)
+
+    return healpix_geo.nested.bbox_search(depth, bbox, ellipsoid=ellipsoid, flat=flat)
