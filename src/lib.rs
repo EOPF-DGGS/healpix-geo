@@ -13,8 +13,8 @@ mod nested {
 
     #[pymodule_export]
     use crate::indexing_schemes::nested::{
-        angular_distances, healpix_to_lonlat, kth_neighbourhood, lonlat_to_healpix, siblings,
-        vertices, zoom_to,
+        angular_distances, bbox_search, healpix_to_lonlat, kth_neighbourhood, lonlat_to_healpix,
+        siblings, vertices, zoom_to,
     };
 }
 
