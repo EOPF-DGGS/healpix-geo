@@ -384,6 +384,15 @@ def zone_coverage(bbox, depth, *, ellipsoid="sphere", flat=True):
         the same result as :py:func:`cdshealpix.nested.healpix_to_lonlat`.
     flat : bool, default: True
         If ``True``, the cells returned will all be at the passed depth.
+
+    Returns
+    -------
+    cell_ids : numpy.ndarray
+        The rasterized cell ids.
+    depths : numpy.ndarray
+        The depths of the cell ids. If ``flat is True``, these will all have the same value.
+    fully_covered : numpy.ndarray
+        Boolean array marking whether the cells are fully covered by the bounding box.
     """
     _check_depth(depth)
 
