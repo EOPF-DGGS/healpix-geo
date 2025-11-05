@@ -65,9 +65,9 @@ pub(crate) fn zone_coverage<'py>(
 
     let layer = healpix::nested::get(depth);
     let bmoc = layer.zone_coverage(
-        lon_min.to_radians(),
+        lon_min.rem_euclid(360.0).to_radians(),
         ellipsoid_.latitude_geographic_to_authalic(lat_min.to_radians(), &coefficients),
-        lon_max.to_radians(),
+        lon_max.rem_euclid(360.0).to_radians(),
         ellipsoid_.latitude_geographic_to_authalic(lat_max.to_radians(), &coefficients),
     );
 
@@ -109,9 +109,9 @@ pub(crate) fn box_coverage<'py>(
 
     let layer = healpix::nested::get(depth);
     let bmoc = layer.box_coverage(
-        lon.to_radians(),
+        lon.rem_euclid(360.0).to_radians(),
         ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients),
-        size_lon.to_radians(),
+        size_lon.rem_euclid(360.0).to_radians(),
         size_lat.to_radians(),
         angle.to_radians(),
     );
@@ -157,7 +157,7 @@ pub(crate) fn polygon_coverage<'py>(
             let lon = row[0];
             let lat = row[1];
             (
-                lon.to_radians(),
+                lon.rem_euclid(360.0).to_radians(),
                 ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients),
             )
         })
@@ -214,7 +214,7 @@ pub(crate) fn cone_coverage<'py>(
     let layer = healpix::nested::get(depth);
     let bmoc = layer.cone_coverage_approx_custom(
         delta_depth,
-        lon.to_radians(),
+        lon.rem_euclid(360.0).to_radians(),
         ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients),
         radius.to_radians(),
     );
@@ -269,7 +269,7 @@ pub(crate) fn elliptical_cone_coverage<'py>(
     let layer = healpix::nested::get(depth);
     let bmoc = layer.elliptical_cone_coverage_custom(
         delta_depth,
-        lon.to_radians(),
+        lon.rem_euclid(360.0).to_radians(),
         ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients),
         a.to_radians(),
         b.to_radians(),
