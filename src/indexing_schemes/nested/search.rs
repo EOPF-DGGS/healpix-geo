@@ -47,7 +47,7 @@ fn get_flat_cells(bmoc: healpix::nested::bmoc::BMOC) -> (Array1<u64>, Array1<u8>
 #[allow(clippy::type_complexity)]
 #[pyfunction]
 #[pyo3(signature = (depth, bbox, *, ellipsoid = "sphere", flat = true))]
-pub(crate) fn bbox_search<'py>(
+pub(crate) fn zone_search<'py>(
     py: Python<'py>,
     depth: u8,
     bbox: &Bound<'py, PyTuple>,
