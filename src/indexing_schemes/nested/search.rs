@@ -83,3 +83,48 @@ pub(crate) fn zone_coverage<'py>(
         fully_covered.into_pyarray(py),
     ))
 }
+
+#[allow(clippy::type_complexity)]
+#[pyfunction]
+#[pyo3(signature = (depth, center, size, angle, *, ellipsoid = "sphere", flat = true))]
+pub(crate) fn box_coverage<'py>(
+    py: Python<'py>,
+    depth: u8,
+    center: (f64, f64),
+    size: (f64, f64),
+    angle: f64,
+    ellipsoid: &str,
+    flat: bool,
+) -> PyResult<(
+    Bound<'py, PyArray1<u64>>,
+    Bound<'py, PyArray1<u8>>,
+    Bound<'py, PyArray1<bool>>,
+)> {
+    let ellipsoid_ =
+        Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+
+    let (lon, lat) = center;
+    let (size_lon, size_lat) = size;
+
+    let bmoc = healpix::nested::box_coverage(
+        depth,
+        lon.to_radians(),
+        ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients),
+        size_lon.to_radians(),
+        size_lat.to_radians(),
+        angle.to_radians(),
+    );
+
+    let (ipix, moc_depth, fully_covered) = if flat {
+        get_flat_cells(bmoc)
+    } else {
+        get_cells(bmoc)
+    };
+
+    Ok((
+        ipix.into_pyarray(py),
+        moc_depth.into_pyarray(py),
+        fully_covered.into_pyarray(py),
+    ))
+}
