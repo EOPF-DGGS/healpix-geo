@@ -465,7 +465,7 @@ def polygon_coverage(vertices, depth, *, ellipsoid="sphere", flat=True):
     """
     _check_depth(depth)
 
-    return healpix_geo.nested.zone_coverage(
+    return healpix_geo.nested.polygon_coverage(
         depth, vertices, ellipsoid=ellipsoid, flat=flat
     )
 
@@ -505,7 +505,7 @@ def cone_coverage(
     if not isinstance(center, tuple):
         center = tuple(center)
 
-    return healpix_geo.nested.zone_coverage(
+    return healpix_geo.nested.cone_coverage(
         depth, center, radius, delta_depth=delta_depth, ellipsoid=ellipsoid, flat=flat
     )
 
@@ -556,7 +556,7 @@ def elliptical_cone_coverage(
     if not isinstance(ellipse_geometry, tuple):
         ellipse_geometry = tuple(ellipse_geometry)
 
-    return healpix_geo.nested.zone_coverage(
+    return healpix_geo.nested.elliptical_cone_coverage(
         depth,
         center,
         ellipse_geometry,

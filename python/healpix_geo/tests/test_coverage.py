@@ -214,3 +214,80 @@ def test_zone_coverage(flat, expected_ids, expected_depths, expected_coverage):
     np.testing.assert_equal(cell_ids, expected_ids)
     np.testing.assert_equal(depths, expected_depths)
     np.testing.assert_equal(fully_covered, expected_coverage)
+
+
+def test_box_coverage():
+    center = (45.0, 45.0)
+    size = (10.0, 10.0)
+    angle = 0.0
+
+    depth = 1
+
+    cell_ids, depths, fully_covered = healpix.box_coverage(
+        center, size, angle, depth, ellipsoid="WGS84"
+    )
+
+    expected_cell_ids = np.array([0, 1, 2, 3], dtype="uint64")
+    expected_depths = np.array([1, 1, 1, 1], dtype="uint8")
+    expected_coverage = np.array([False, False, False, False])
+
+    np.testing.assert_equal(cell_ids, expected_cell_ids)
+    np.testing.assert_equal(depths, expected_depths)
+    np.testing.assert_equal(fully_covered, expected_coverage)
+
+
+def test_polygon_coverage():
+    vertices = np.array(
+        [[40.0, 40.0], [50.0, 40.0], [50.0, 50.0], [40.0, 50.0]], dtype="float64"
+    )
+
+    depth = 1
+
+    cell_ids, depths, fully_covered = healpix.polygon_coverage(
+        vertices, depth, ellipsoid="WGS84"
+    )
+
+    expected_cell_ids = np.array([0, 1, 2, 3], dtype="uint64")
+    expected_depths = np.array([1, 1, 1, 1], dtype="uint8")
+    expected_coverage = np.array([False, False, False, False])
+
+    np.testing.assert_equal(cell_ids, expected_cell_ids)
+    np.testing.assert_equal(depths, expected_depths)
+    np.testing.assert_equal(fully_covered, expected_coverage)
+
+
+def test_cone_coverage():
+    center = (45.0, 45.0)
+    radius = 5.0
+    depth = 1
+
+    cell_ids, depths, fully_covered = healpix.cone_coverage(
+        center, radius, depth, ellipsoid="WGS84"
+    )
+
+    expected_cell_ids = np.array([0, 1, 2, 3], dtype="uint64")
+    expected_depths = np.array([1, 1, 1, 1], dtype="uint8")
+    expected_coverage = np.array([False, False, False, False])
+
+    np.testing.assert_equal(cell_ids, expected_cell_ids)
+    np.testing.assert_equal(depths, expected_depths)
+    np.testing.assert_equal(fully_covered, expected_coverage)
+
+
+def test_elliptical_cone_coverage():
+    center = (45.0, 45.0)
+    ellipse_geometry = (10.0, 8.0)
+    positional_angle = 30.0
+    depth = 1
+
+    cell_ids, depths, fully_covered = healpix.elliptical_cone_coverage(
+        center, ellipse_geometry, positional_angle, depth, ellipsoid="WGS84"
+    )
+
+    expected_cell_ids = np.array([0, 1, 2, 3], dtype="uint64")
+    expected_depths = np.array([1, 1, 1, 1], dtype="uint8")
+    expected_coverage = np.array([False, False, False, False])
+
+    np.testing.assert_equal(cell_ids, expected_cell_ids)
+    np.testing.assert_equal(depths, expected_depths)
+    np.testing.assert_equal(fully_covered, expected_coverage)
