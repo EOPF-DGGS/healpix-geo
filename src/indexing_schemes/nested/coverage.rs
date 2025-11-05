@@ -63,8 +63,8 @@ pub(crate) fn zone_coverage<'py>(
 
     let (lon_min, lat_min, lon_max, lat_max) = bbox;
 
-    let bmoc = healpix::nested::zone_coverage(
-        depth,
+    let layer = healpix::nested::get(depth);
+    let bmoc = layer.zone_coverage(
         lon_min.to_radians(),
         ellipsoid_.latitude_geographic_to_authalic(lat_min.to_radians(), &coefficients),
         lon_max.to_radians(),
@@ -107,8 +107,8 @@ pub(crate) fn box_coverage<'py>(
     let (lon, lat) = center;
     let (size_lon, size_lat) = size;
 
-    let bmoc = healpix::nested::box_coverage(
-        depth,
+    let layer = healpix::nested::get(depth);
+    let bmoc = layer.box_coverage(
         lon.to_radians(),
         ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients),
         size_lon.to_radians(),
@@ -163,7 +163,8 @@ pub(crate) fn polygon_coverage<'py>(
         })
         .collect();
 
-    let bmoc = healpix::nested::polygon_coverage(depth, &converted_vertices, exact);
+    let layer = healpix::nested::get(depth);
+    let bmoc = layer.polygon_coverage(&converted_vertices, exact);
 
     let (ipix, moc_depth, fully_covered) = if flat {
         get_flat_cells(bmoc)
