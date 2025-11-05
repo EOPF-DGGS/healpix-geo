@@ -1,7 +1,7 @@
 use cdshealpix as healpix;
 use geodesy::Ellipsoid;
 use ndarray::Array1;
-use numpy::{IntoPyArray, PyArray1};
+use numpy::{IntoPyArray, PyArray1, PyArray2, PyArrayMethods};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
@@ -115,6 +115,55 @@ pub(crate) fn box_coverage<'py>(
         size_lat.to_radians(),
         angle.to_radians(),
     );
+
+    let (ipix, moc_depth, fully_covered) = if flat {
+        get_flat_cells(bmoc)
+    } else {
+        get_cells(bmoc)
+    };
+
+    Ok((
+        ipix.into_pyarray(py),
+        moc_depth.into_pyarray(py),
+        fully_covered.into_pyarray(py),
+    ))
+}
+
+#[allow(clippy::type_complexity)]
+#[pyfunction]
+#[pyo3(signature = (depth, vertices, *, ellipsoid = "sphere", exact = false, flat = true))]
+pub(crate) fn polygon_coverage<'py>(
+    py: Python<'py>,
+    depth: u8,
+    vertices: &Bound<PyArray2<f64>>,
+    ellipsoid: &str,
+    exact: bool,
+    flat: bool,
+) -> PyResult<(
+    Bound<'py, PyArray1<u64>>,
+    Bound<'py, PyArray1<u8>>,
+    Bound<'py, PyArray1<bool>>,
+)> {
+    let vertices = unsafe { vertices.as_array() };
+
+    let ellipsoid_ =
+        Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+
+    let converted_vertices: Vec<(f64, f64)> = vertices
+        .rows()
+        .into_iter()
+        .map(|row| {
+            let lon = row[0];
+            let lat = row[1];
+            (
+                lon.to_radians(),
+                ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients),
+            )
+        })
+        .collect();
+
+    let bmoc = healpix::nested::polygon_coverage(depth, &converted_vertices, exact);
 
     let (ipix, moc_depth, fully_covered) = if flat {
         get_flat_cells(bmoc)
