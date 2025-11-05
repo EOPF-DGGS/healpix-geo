@@ -15,7 +15,7 @@ HEALPix (Hierarchical Equal-Area isoLatitude Pixelisation) was originally define
 
 ```{figure} healpix_global_indexing.png
 :alt: HEALPix nested indexing scheme
-:width: 500px
+:width: 800px
 :align: center
 
 The `nested` indexing scheme of HEALPix
