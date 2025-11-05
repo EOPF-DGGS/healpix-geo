@@ -25,6 +25,17 @@ Nested
    healpix_geo.nested.zoom_to
    healpix_geo.nested.siblings
 
+**Coverage**:
+
+.. autosummary::
+   :toctree: generated/
+
+   healpix_geo.nested.zone_coverage
+   healpix_geo.nested.box_coverage
+   healpix_geo.nested.polygon_coverage
+   healpix_geo.nested.cone_coverage
+   healpix_geo.nested.elliptical_cone_coverage
+
 **Distances**:
 
 .. autosummary::
