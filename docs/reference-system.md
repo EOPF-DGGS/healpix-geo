@@ -1,4 +1,4 @@
-# reference system
+# Reference system
 
 Geographic data can be expressed in different coordinate systems:
 
