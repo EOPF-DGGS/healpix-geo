@@ -47,6 +47,7 @@ Nested
 Ring
 ----
 **Coordinates**:
+
 .. autosummary::
    :toctree: generated/
 
