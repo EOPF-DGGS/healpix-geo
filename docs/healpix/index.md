@@ -22,7 +22,7 @@ To know what cell a identifier refers to, we need two additional parameters: the
 
 Based on `nested`, there are two more schemes that also encode the refinement level in the cell id:
 
-- `nunique`, which represents all cells in the hierarchy breadth-first, i.e. cells of a refinement level are close numerically.
-- `zunique`, which represents all cells in the hierarchy depth-first, i.e. descendant cells of a given cell are close numerically.
+- `nuniq`, which represents all cells in the hierarchy breadth-first, i.e. cells of a refinement level are close numerically.
+- `zuniq`, which represents all cells in the hierarchy depth-first, i.e. descendant cells of a given cell are close numerically.
 
 [Gorski et al., 2005]: https://doi.org/10.1086/427976
