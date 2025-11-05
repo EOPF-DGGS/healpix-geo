@@ -370,7 +370,7 @@ def angular_distances(from_, to_, depth, num_threads=0):
     return np.where(mask, np.reshape(distances, to_.shape), np.nan)
 
 
-def zone_search(bbox, depth, *, ellipsoid="sphere", flat=True):
+def zone_coverage(bbox, depth, *, ellipsoid="sphere", flat=True):
     """Search the cells covering the given bounding box
 
     Parameters
@@ -387,4 +387,4 @@ def zone_search(bbox, depth, *, ellipsoid="sphere", flat=True):
     """
     _check_depth(depth)
 
-    return healpix_geo.nested.zone_search(depth, bbox, ellipsoid=ellipsoid, flat=flat)
+    return healpix_geo.nested.zone_coverage(depth, bbox, ellipsoid=ellipsoid, flat=flat)

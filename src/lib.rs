@@ -14,7 +14,7 @@ mod nested {
     #[pymodule_export]
     use crate::indexing_schemes::nested::{
         angular_distances, healpix_to_lonlat, kth_neighbourhood, lonlat_to_healpix, siblings,
-        vertices, zone_search, zoom_to,
+        vertices, zone_coverage, zoom_to,
     };
 }
 
