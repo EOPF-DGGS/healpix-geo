@@ -13,8 +13,6 @@ HEALPix (Hierarchical Equal-Area isoLatitude Pixelisation) was originally define
 - iso-latitude: all cells of the same refinement level are arranged around rings of the same latitude
 - hierarchical: cells are created by recursively and evenly subdividing, which forms a hierarchy of cells
 
-![](healpix_global_indexing.png)
-
 ```{figure} healpix_global_indexing.png
 :alt: HEALPix nested indexing scheme
 :width: 500px
