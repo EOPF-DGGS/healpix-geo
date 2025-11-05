@@ -178,3 +178,113 @@ pub(crate) fn polygon_coverage<'py>(
         fully_covered.into_pyarray(py),
     ))
 }
+
+#[allow(clippy::type_complexity)]
+#[pyfunction]
+#[pyo3(signature = (depth, center, radius, *, ellipsoid = "sphere", delta_depth = 0, flat = true))]
+pub(crate) fn cone_coverage<'py>(
+    py: Python<'py>,
+    depth: u8,
+    center: (f64, f64),
+    radius: f64,
+    ellipsoid: &str,
+    delta_depth: u8,
+    flat: bool,
+) -> PyResult<(
+    Bound<'py, PyArray1<u64>>,
+    Bound<'py, PyArray1<u8>>,
+    Bound<'py, PyArray1<bool>>,
+)> {
+    let ellipsoid_ =
+        Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+
+    if depth > 29 {
+        return Err(PyValueError::new_err(
+            "depth must be between 0 and 29, inclusive.",
+        ));
+    } else if depth + delta_depth > 29 {
+        return Err(PyValueError::new_err(
+            "delta_depth must chosen such that depth + delta_depth <= 29",
+        ));
+    }
+
+    let (lon, lat) = center;
+
+    let layer = healpix::nested::get(depth);
+    let bmoc = layer.cone_coverage_approx_custom(
+        delta_depth,
+        lon.to_radians(),
+        ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients),
+        radius.to_radians(),
+    );
+
+    let (ipix, moc_depth, fully_covered) = if flat {
+        get_flat_cells(bmoc)
+    } else {
+        get_cells(bmoc)
+    };
+
+    Ok((
+        ipix.into_pyarray(py),
+        moc_depth.into_pyarray(py),
+        fully_covered.into_pyarray(py),
+    ))
+}
+
+#[allow(clippy::type_complexity, clippy::too_many_arguments)]
+#[pyfunction]
+#[pyo3(signature = (depth, center, ellipse_geometry, position_angle, *, ellipsoid = "sphere", delta_depth = 0, flat = true))]
+pub(crate) fn elliptical_cone_coverage<'py>(
+    py: Python<'py>,
+    depth: u8,
+    center: (f64, f64),
+    ellipse_geometry: (f64, f64),
+    position_angle: f64,
+    ellipsoid: &str,
+    delta_depth: u8,
+    flat: bool,
+) -> PyResult<(
+    Bound<'py, PyArray1<u64>>,
+    Bound<'py, PyArray1<u8>>,
+    Bound<'py, PyArray1<bool>>,
+)> {
+    if depth > 29 {
+        return Err(PyValueError::new_err(
+            "depth must be between 0 and 29, inclusive.",
+        ));
+    } else if depth + delta_depth > 29 {
+        return Err(PyValueError::new_err(
+            "delta_depth must chosen such that depth + delta_depth <= 29",
+        ));
+    }
+
+    let ellipsoid_ =
+        Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+
+    let (lon, lat) = center;
+    let (a, b) = ellipse_geometry;
+
+    let layer = healpix::nested::get(depth);
+    let bmoc = layer.elliptical_cone_coverage_custom(
+        delta_depth,
+        lon.to_radians(),
+        ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients),
+        a.to_radians(),
+        b.to_radians(),
+        position_angle.to_radians(),
+    );
+
+    let (ipix, moc_depth, fully_covered) = if flat {
+        get_flat_cells(bmoc)
+    } else {
+        get_cells(bmoc)
+    };
+
+    Ok((
+        ipix.into_pyarray(py),
+        moc_depth.into_pyarray(py),
+        fully_covered.into_pyarray(py),
+    ))
+}

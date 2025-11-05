@@ -13,8 +13,9 @@ mod nested {
 
     #[pymodule_export]
     use crate::indexing_schemes::nested::{
-        angular_distances, box_coverage, healpix_to_lonlat, kth_neighbourhood, lonlat_to_healpix,
-        polygon_coverage, siblings, vertices, zone_coverage, zoom_to,
+        angular_distances, box_coverage, cone_coverage, elliptical_cone_coverage,
+        healpix_to_lonlat, kth_neighbourhood, lonlat_to_healpix, polygon_coverage, siblings,
+        vertices, zone_coverage, zoom_to,
     };
 }
 
