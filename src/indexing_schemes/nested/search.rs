@@ -4,7 +4,6 @@ use ndarray::Array1;
 use numpy::{IntoPyArray, PyArray1};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use pyo3::types::PyTuple;
 
 fn get_cells(bmoc: healpix::nested::bmoc::BMOC) -> (Array1<u64>, Array1<u8>, Array1<bool>) {
     let len = bmoc.entries.len();
@@ -50,7 +49,7 @@ fn get_flat_cells(bmoc: healpix::nested::bmoc::BMOC) -> (Array1<u64>, Array1<u8>
 pub(crate) fn zone_coverage<'py>(
     py: Python<'py>,
     depth: u8,
-    bbox: &Bound<'py, PyTuple>,
+    bbox: (f64, f64, f64, f64),
     ellipsoid: &str,
     flat: bool,
 ) -> PyResult<(
@@ -62,7 +61,7 @@ pub(crate) fn zone_coverage<'py>(
         Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
     let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
 
-    let (lon_min, lat_min, lon_max, lat_max) = bbox.extract::<(f64, f64, f64, f64)>()?;
+    let (lon_min, lat_min, lon_max, lat_max) = bbox;
 
     let bmoc = healpix::nested::zone_coverage(
         depth,
