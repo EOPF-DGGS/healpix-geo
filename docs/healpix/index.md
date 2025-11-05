@@ -13,6 +13,16 @@ HEALPix was originally defined for use in astronomy by [Gorski et al., 2005]. It
 - iso-latitude: all cells of the same refinement level are arranged around rings of the same latitude
 - hierarchical: cells are created by recursively and evenly subdividing, which forms a hierarchy of cells
 
+![](healpix_global_indexing.png)
+
+```{figure} healpix_global_indexing.png
+:alt: HEALPix nested indexing scheme
+:width: 500px
+:align: center
+
+The `nested` indexing scheme of HEALPix
+```
+
 The latter two properties allow defining the two main indexing schemes:
 
 - `ring`, which assigns identifiers along the iso-latitude rings. Thus, cells on the same latitude ring have identifiers that are "close" numerically (and thus in memory for sorted data).
