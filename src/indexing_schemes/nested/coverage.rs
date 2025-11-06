@@ -1,5 +1,5 @@
 use cdshealpix as healpix;
-use geodesy::Ellipsoid;
+use geodesy::ellps::Ellipsoid;
 use ndarray::Array1;
 use numpy::{IntoPyArray, PyArray1, PyArray2, PyArrayMethods};
 use pyo3::exceptions::PyValueError;
