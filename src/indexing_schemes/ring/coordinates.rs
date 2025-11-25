@@ -1,6 +1,6 @@
 use cdshealpix as healpix;
 use cdshealpix::sph_geom::coo3d::{vec3_of, UnitVec3, UnitVect3};
-use geodesy::ellps::Ellipsoid;
+use geodesy::ellps::{Ellipsoid, Latitudes};
 use ndarray::{s, Array1, Zip};
 use numpy::{PyArrayDyn, PyArrayMethods};
 use pyo3::exceptions::PyValueError;
