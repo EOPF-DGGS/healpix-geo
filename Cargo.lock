@@ -446,7 +446,7 @@ checksum = "9229cfe53dfd69f0609a49f65461bd93001ea1ef889cd5529dd176593f5338a1"
 
 [[package]]
 name = "healpix-geo"
-version = "0.0.7"
+version = "0.0.8"
 dependencies = [
  "cdshealpix 0.8.1",
  "geodesy",
