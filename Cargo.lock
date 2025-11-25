@@ -451,7 +451,7 @@ dependencies = [
  "cdshealpix 0.8.1",
  "geodesy",
  "moc",
- "ndarray 0.17.1",
+ "ndarray",
  "numpy",
  "pyo3",
  "rayon",
@@ -694,21 +694,6 @@ dependencies = [
  "portable-atomic",
  "portable-atomic-util",
  "rawpointer",
-]
-
-[[package]]
-name = "ndarray"
-version = "0.17.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c7c9125e8f6f10c9da3aad044cc918cf8784fa34de857b1aa68038eb05a50a9"
-dependencies = [
- "matrixmultiply",
- "num-complex",
- "num-integer",
- "num-traits",
- "portable-atomic",
- "portable-atomic-util",
- "rawpointer",
  "rayon",
 ]
 
@@ -802,7 +787,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fa24ffc88cf9d43f7269d6b6a0d0a00010924a8cc90604a21ef9c433b66998d"
 dependencies = [
  "libc",
- "ndarray 0.16.1",
+ "ndarray",
  "num-complex",
  "num-integer",
  "num-traits",
