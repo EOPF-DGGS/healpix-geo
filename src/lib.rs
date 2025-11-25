@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 
+mod ellipsoid;
 mod geometry;
 mod hierarchy;
 mod index;
