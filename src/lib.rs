@@ -1,5 +1,7 @@
 use pyo3::prelude::*;
 
+#[macro_use]
+mod execution;
 mod geometry;
 mod hierarchy;
 mod index;
