@@ -17,6 +17,7 @@ pub(crate) fn healpix_to_lonlat<'py>(
 ) -> PyResult<()> {
     let is_spherical = ellipsoid.is_spherical();
     let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
+
     let ipix = unsafe { ipix.as_array() };
     let mut longitude = unsafe { longitude.as_array_mut() };
     let mut latitude = unsafe { latitude.as_array_mut() };
