@@ -3,7 +3,7 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 #[derive(FromPyObject)]
-pub(crate) enum EllipsoidType {
+pub(crate) enum EllipsoidLike {
     Named(String),
     EllipsoidParameters {
         #[pyo3(item("semimajor_axis"))]
@@ -27,7 +27,7 @@ pub(crate) enum EllipsoidType {
     },
 }
 
-impl EllipsoidType {
+impl EllipsoidLike {
     pub fn is_spherical(&self) -> bool {
         match self {
             Self::Named(name) => name.contains("sphere"),
@@ -41,24 +41,24 @@ pub(crate) trait IntoGeodesyEllipsoid {
     fn into_geodesy_ellipsoid(self) -> PyResult<GeoEllipsoid>;
 }
 
-impl IntoGeodesyEllipsoid for EllipsoidType {
+impl IntoGeodesyEllipsoid for EllipsoidLike {
     fn into_geodesy_ellipsoid(self) -> PyResult<GeoEllipsoid> {
         match self {
-            EllipsoidType::Named(name) => {
+            EllipsoidLike::Named(name) => {
                 GeoEllipsoid::named(&name).map_err(|e| PyValueError::new_err(e.to_string()))
             }
-            EllipsoidType::EllipsoidParameters {
+            EllipsoidLike::EllipsoidParameters {
                 semimajor_axis,
                 inverse_flattening,
             }
-            | EllipsoidType::EllipsoidObject {
+            | EllipsoidLike::EllipsoidObject {
                 semimajor_axis,
                 inverse_flattening,
             } => Ok(GeoEllipsoid::new(
                 semimajor_axis,
                 1.0f64 / inverse_flattening,
             )),
-            EllipsoidType::SphereParameters { radius } | EllipsoidType::SphereObject { radius } => {
+            EllipsoidLike::SphereParameters { radius } | EllipsoidLike::SphereObject { radius } => {
                 Ok(GeoEllipsoid::new(radius, 0.0f64))
             }
         }
