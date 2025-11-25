@@ -1,5 +1,5 @@
 use cdshealpix as healpix;
-use ndarray::{s, Array1, Zip};
+use ndarray::{Array1, Zip, s};
 use numpy::{PyArrayDyn, PyArrayMethods};
 use pyo3::prelude::*;
 

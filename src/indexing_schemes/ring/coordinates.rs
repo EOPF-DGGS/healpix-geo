@@ -1,7 +1,7 @@
 use cdshealpix as healpix;
-use cdshealpix::sph_geom::coo3d::{vec3_of, UnitVec3, UnitVect3};
+use cdshealpix::sph_geom::coo3d::{UnitVec3, UnitVect3, vec3_of};
 use geodesy::Ellipsoid;
-use ndarray::{s, Array1, Zip};
+use ndarray::{Array1, Zip, s};
 use numpy::{PyArrayDyn, PyArrayMethods};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
