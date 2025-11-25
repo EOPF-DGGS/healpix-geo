@@ -447,7 +447,7 @@ impl RangeMOCIndex {
         Ok(bytes)
     }
 
-    pub fn __reduce__(&self, py: Python) -> PyResult<(PyObject, PyObject, PyObject)> {
+    pub fn __reduce__(&self, py: Python) -> PyResult<(Py<PyAny>, Py<PyAny>, Py<PyAny>)> {
         let create = py
             .import("healpix_geo")?
             .getattr("nested")?
