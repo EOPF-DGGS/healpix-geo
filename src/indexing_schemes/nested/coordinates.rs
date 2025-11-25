@@ -1,4 +1,4 @@
-use crate::ellipsoid::{EllipsoidType, IntoGeodesyEllipsoid};
+use crate::ellipsoid::{EllipsoidLike, IntoGeodesyEllipsoid};
 use cdshealpix as healpix;
 use cdshealpix::sph_geom::coo3d::{UnitVec3, UnitVect3, vec3_of};
 use ndarray::{Array1, Zip, s};
@@ -10,7 +10,7 @@ pub(crate) fn healpix_to_lonlat<'py>(
     _py: Python<'py>,
     depth: u8,
     ipix: &Bound<'py, PyArrayDyn<u64>>,
-    ellipsoid: EllipsoidType,
+    ellipsoid: EllipsoidLike,
     longitude: &Bound<'py, PyArrayDyn<f64>>,
     latitude: &Bound<'py, PyArrayDyn<f64>>,
     nthreads: u16,
@@ -72,7 +72,7 @@ pub(crate) fn lonlat_to_healpix<'a>(
     depth: u8,
     longitude: &Bound<'a, PyArrayDyn<f64>>,
     latitude: &Bound<'a, PyArrayDyn<f64>>,
-    ellipsoid: EllipsoidType,
+    ellipsoid: EllipsoidLike,
     ipix: &Bound<'a, PyArrayDyn<u64>>,
     nthreads: u16,
 ) -> PyResult<()> {
@@ -130,7 +130,7 @@ pub(crate) fn vertices<'a>(
     _py: Python,
     depth: u8,
     ipix: &Bound<'a, PyArrayDyn<u64>>,
-    ellipsoid: EllipsoidType,
+    ellipsoid: EllipsoidLike,
     longitude: &Bound<'a, PyArrayDyn<f64>>,
     latitude: &Bound<'a, PyArrayDyn<f64>>,
     nthreads: u16,
