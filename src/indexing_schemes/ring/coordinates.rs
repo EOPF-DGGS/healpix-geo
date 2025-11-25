@@ -1,9 +1,8 @@
+use crate::ellipsoid::{EllipsoidLike, IntoGeodesyEllipsoid};
 use cdshealpix as healpix;
 use cdshealpix::sph_geom::coo3d::{UnitVec3, UnitVect3, vec3_of};
-use geodesy::Ellipsoid;
 use ndarray::{Array1, Zip, s};
 use numpy::{PyArrayDyn, PyArrayMethods};
-use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
 #[pyfunction]
@@ -11,13 +10,14 @@ pub(crate) fn healpix_to_lonlat<'a>(
     _py: Python,
     depth: u8,
     ipix: &Bound<'a, PyArrayDyn<u64>>,
-    ellipsoid: &str,
+    ellipsoid: EllipsoidLike,
     longitude: &Bound<'a, PyArrayDyn<f64>>,
     latitude: &Bound<'a, PyArrayDyn<f64>>,
     nthreads: u16,
 ) -> PyResult<()> {
-    let ellipsoid_ =
-        Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+    let is_spherical = ellipsoid.is_spherical();
+    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
+
     let ipix = unsafe { ipix.as_array() };
     let mut longitude = unsafe { longitude.as_array_mut() };
     let mut latitude = unsafe { latitude.as_array_mut() };
@@ -38,7 +38,7 @@ pub(crate) fn healpix_to_lonlat<'a>(
                 .par_for_each(|lon, lat, &p| {
                     let center = healpix::ring::center(nside, p);
                     *lon = center.0.to_degrees();
-                    if ellipsoid == "sphere" {
+                    if is_spherical {
                         *lat = center.1.to_degrees();
                     } else {
                         *lat = ellipsoid_
@@ -55,7 +55,7 @@ pub(crate) fn healpix_to_lonlat<'a>(
             .and(&ipix)
             .par_for_each(|lon, lat, &p| {
                 let center = healpix::ring::center(nside, p);
-                if ellipsoid == "sphere" {
+                if is_spherical {
                     *lat = center.1.to_degrees();
                 } else {
                     *lat = ellipsoid_
@@ -73,12 +73,13 @@ pub(crate) fn lonlat_to_healpix<'a>(
     depth: u8,
     longitude: &Bound<'a, PyArrayDyn<f64>>,
     latitude: &Bound<'a, PyArrayDyn<f64>>,
-    ellipsoid: &str,
+    ellipsoid: EllipsoidLike,
     ipix: &Bound<'a, PyArrayDyn<u64>>,
     nthreads: u16,
 ) -> PyResult<()> {
-    let ellipsoid_ =
-        Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+    let is_spherical = ellipsoid.is_spherical();
+    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
+
     let mut ipix = unsafe { ipix.as_array_mut() };
     let longitude = unsafe { longitude.as_array() };
     let latitude = unsafe { latitude.as_array() };
@@ -98,7 +99,7 @@ pub(crate) fn lonlat_to_healpix<'a>(
                 .and(&mut ipix)
                 .par_for_each(|&lon, &lat, p| {
                     let lon_ = lon.to_radians();
-                    let lat_ = if ellipsoid == "sphere" {
+                    let lat_ = if is_spherical {
                         lat.to_radians()
                     } else {
                         ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
@@ -114,7 +115,7 @@ pub(crate) fn lonlat_to_healpix<'a>(
             .and(&mut ipix)
             .par_for_each(|&lon, &lat, p| {
                 let lon_ = lon.to_radians();
-                let lat_ = if ellipsoid == "sphere" {
+                let lat_ = if is_spherical {
                     lat.to_radians()
                 } else {
                     ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
@@ -130,13 +131,14 @@ pub(crate) fn vertices<'a>(
     _py: Python,
     depth: u8,
     ipix: &Bound<'a, PyArrayDyn<u64>>,
-    ellipsoid: &str,
+    ellipsoid: EllipsoidLike,
     longitude: &Bound<'a, PyArrayDyn<f64>>,
     latitude: &Bound<'a, PyArrayDyn<f64>>,
     nthreads: u16,
 ) -> PyResult<()> {
-    let ellipsoid_ =
-        Ellipsoid::named(ellipsoid).map_err(|e| PyValueError::new_err(e.to_string()))?;
+    let is_spherical = ellipsoid.is_spherical();
+    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
+
     let ipix = unsafe { ipix.as_array() };
     let mut longitude = unsafe { longitude.as_array_mut() };
     let mut latitude = unsafe { latitude.as_array_mut() };
@@ -166,7 +168,7 @@ pub(crate) fn vertices<'a>(
                     );
                     lon.slice_mut(s![..]).assign(&vertex_lon_);
 
-                    let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
+                    let vertex_lat_ = Array1::from_iter(if is_spherical {
                         vertex_lat
                             .into_iter()
                             .map(|l| l.to_degrees())
@@ -201,7 +203,7 @@ pub(crate) fn vertices<'a>(
                 );
                 lon.slice_mut(s![..]).assign(&vertex_lon_);
 
-                let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
+                let vertex_lat_ = Array1::from_iter(if is_spherical {
                     vertex_lat
                         .into_iter()
                         .map(|l| l.to_degrees())
