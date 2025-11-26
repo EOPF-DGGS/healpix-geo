@@ -32,7 +32,7 @@ jobs:
           keyword: "[skip-ci]"
 
   test:
-    name: ${{ matrix.os }} py${{ matrix.python-version }}
+    name: ${{ matrix.os }} | ${{ matrix.env }}
     runs-on: ${{ matrix.os }}
     needs: detect-ci-trigger
     if: |
