@@ -1,9 +1,22 @@
+from dataclasses import dataclass
+
 import cdshealpix
 import numpy as np
 import pytest
 from astropy.coordinates import Latitude, Longitude
 
 import healpix_geo
+
+
+@dataclass
+class Sphere:
+    radius: float
+
+
+@dataclass
+class Ellipsoid:
+    semimajor_axis: float
+    inverse_flattening: float
 
 
 class TestHealpixToGeographic:
@@ -40,7 +53,24 @@ class TestHealpixToGeographic:
         np.testing.assert_allclose(actual_lon, expected_lon)
         np.testing.assert_allclose(actual_lat, expected_lat)
 
-    @pytest.mark.parametrize("ellipsoid", ["unitsphere", "sphere", "WGS84", "bessel"])
+    @pytest.mark.parametrize(
+        "ellipsoid",
+        [
+            "unitsphere",
+            "sphere",
+            "WGS84",
+            pytest.param({"radius": 1}, id="unitsphere-dict"),
+            pytest.param(
+                {"semimajor_axis": 6378388.0, "inverse_flattening": 297.0},
+                id="intl-dict",
+            ),
+            pytest.param(Sphere(radius=6370997.0), id="sphere-obj"),
+            pytest.param(
+                Ellipsoid(semimajor_axis=6378388.0, inverse_flattening=297.0),
+                id="intl-obj",
+            ),
+        ],
+    )
     @pytest.mark.parametrize("depth", [0, 1, 9])
     @pytest.mark.parametrize("indexing_scheme", ["ring", "nested"])
     def test_ellipsoidal(self, depth, indexing_scheme, ellipsoid):
