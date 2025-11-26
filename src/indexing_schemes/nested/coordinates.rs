@@ -6,6 +6,8 @@ use numpy::{PyArrayDyn, PyArrayMethods};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
+use crate::maybe_parallelize;
+
 #[pyfunction]
 pub(crate) fn healpix_to_lonlat<'a>(
     _py: Python,
@@ -25,45 +27,22 @@ pub(crate) fn healpix_to_lonlat<'a>(
     let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
 
     let layer = healpix::nested::get(depth);
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        let pool = rayon::ThreadPoolBuilder::new()
-            .num_threads(nthreads as usize)
-            .build()
-            .unwrap();
-        pool.install(|| {
-            Zip::from(&mut longitude)
-                .and(&mut latitude)
-                .and(&ipix)
-                .par_for_each(|lon, lat, &p| {
-                    let center = layer.center(p);
-                    *lon = center.0.to_degrees();
-                    if ellipsoid == "sphere" {
-                        *lat = center.1.to_degrees();
-                    } else {
-                        *lat = ellipsoid_
-                            .latitude_authalic_to_geographic(center.1, &coefficients)
-                            .to_degrees();
-                    }
-                })
-        });
-    }
-    #[cfg(target_arch = "wasm32")]
-    {
-        Zip::from(&mut longitude)
-            .and(&mut latitude)
-            .and(&ipix)
-            .par_for_each(|lon, lat, &p| {
-                let center = layer.center(p);
-                if ellipsoid == "sphere" {
-                    *lat = center.1.to_degrees();
-                } else {
-                    *lat = ellipsoid_
-                        .latitude_authalic_to_geographic(center.1, &coefficients)
-                        .to_degrees();
-                }
-            });
-    }
+
+    maybe_parallelize!(
+        nthreads,
+        Zip::from(&mut longitude).and(&mut latitude).and(&ipix),
+        |lon, lat, &p| {
+            let center = layer.center(p);
+            *lon = center.0.to_degrees();
+            if ellipsoid == "sphere" {
+                *lat = center.1.to_degrees();
+            } else {
+                *lat = ellipsoid_
+                    .latitude_authalic_to_geographic(center.1, &coefficients)
+                    .to_degrees();
+            }
+        }
+    );
     Ok(())
 }
 
@@ -86,42 +65,21 @@ pub(crate) fn lonlat_to_healpix<'a>(
     let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
 
     let layer = healpix::nested::get(depth);
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        let pool = rayon::ThreadPoolBuilder::new()
-            .num_threads(nthreads as usize)
-            .build()
-            .unwrap();
-        pool.install(|| {
-            Zip::from(&longitude)
-                .and(&latitude)
-                .and(&mut ipix)
-                .par_for_each(|&lon, &lat, p| {
-                    let lon_ = lon.to_radians();
-                    let lat_ = if ellipsoid == "sphere" {
-                        lat.to_radians()
-                    } else {
-                        ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
-                    };
-                    *p = layer.hash(lon_, lat_);
-                })
-        });
-    }
-    #[cfg(target_arch = "wasm32")]
-    {
-        Zip::from(&longitude)
-            .and(&latitude)
-            .and(&mut ipix)
-            .par_for_each(|&lon, &lat, p| {
-                let lon_ = lon.to_radians();
-                let lat_ = if ellipsoid == "sphere" {
-                    lat.to_radians()
-                } else {
-                    ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
-                };
-                *p = layer.hash(lon_, lat_);
-            })
-    }
+
+    maybe_parallelize!(
+        nthreads,
+        Zip::from(&longitude).and(&latitude).and(&mut ipix),
+        |&lon, &lat, p| {
+            let lon_ = lon.to_radians();
+            let lat_ = if ellipsoid == "sphere" {
+                lat.to_radians()
+            } else {
+                ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
+            };
+            *p = layer.hash(lon_, lat_);
+        }
+    );
+
     Ok(())
 }
 
@@ -144,81 +102,42 @@ pub(crate) fn vertices<'a>(
     let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
 
     let layer = healpix::nested::get(depth);
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        let pool = rayon::ThreadPoolBuilder::new()
-            .num_threads(nthreads as usize)
-            .build()
-            .unwrap();
-        pool.install(|| {
-            Zip::from(longitude.rows_mut())
-                .and(latitude.rows_mut())
-                .and(&ipix)
-                .par_for_each(|mut lon, mut lat, &p| {
-                    let vertices = layer.vertices(p);
-                    let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) =
-                        vertices.into_iter().unzip();
-                    let vertex_lon_ = Array1::from_iter(
-                        vertex_lon
-                            .into_iter()
-                            .map(|l| l.to_degrees() % 360.0)
-                            .collect::<Vec<f64>>(),
-                    );
-                    lon.slice_mut(s![..]).assign(&vertex_lon_);
 
-                    let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
-                        vertex_lat
-                            .into_iter()
-                            .map(|l| l.to_degrees())
-                            .collect::<Vec<f64>>()
-                    } else {
-                        vertex_lat
-                            .into_iter()
-                            .map(|l| {
-                                ellipsoid_
-                                    .latitude_authalic_to_geographic(l, &coefficients)
-                                    .to_degrees()
-                            })
-                            .collect()
-                    });
-                    lat.slice_mut(s![..]).assign(&vertex_lat_);
-                })
-        });
-    }
-    #[cfg(target_arch = "wasm32")]
-    {
+    maybe_parallelize!(
+        nthreads,
         Zip::from(longitude.rows_mut())
             .and(latitude.rows_mut())
-            .and(&ipix)
-            .par_for_each(|mut lon, mut lat, &p| {
-                let vertices = layer.vertices(p);
-                let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) = vertices.into_iter().unzip();
-                let vertex_lon_ = Array1::from_iter(
-                    vertex_lon
-                        .into_iter()
-                        .map(|l| l.to_degrees() % 360.0)
-                        .collect::<Vec<f64>>(),
-                );
-                lon.slice_mut(s![..]).assign(&vertex_lon_);
+            .and(&ipix),
+        |mut lon, mut lat, &p| {
+            let vertices = layer.vertices(p);
+            let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) = vertices.into_iter().unzip();
+            let vertex_lon_ = Array1::from_iter(
+                vertex_lon
+                    .into_iter()
+                    .map(|l| l.to_degrees() % 360.0)
+                    .collect::<Vec<f64>>(),
+            );
+            lon.slice_mut(s![..]).assign(&vertex_lon_);
 
-                let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
-                    vertex_lat
-                        .into_iter()
-                        .map(|l| l.to_degrees())
-                        .collect::<Vec<f64>>()
-                } else {
-                    vertex_lat
-                        .into_iter()
-                        .map(|l| {
-                            ellipsoid_
-                                .latitude_authalic_to_geographic(l, &coefficients)
-                                .to_degrees()
-                        })
-                        .collect()
-                });
-                lat.slice_mut(s![..]).assign(&vertex_lat_);
+            let vertex_lat_ = Array1::from_iter(if ellipsoid == "sphere" {
+                vertex_lat
+                    .into_iter()
+                    .map(|l| l.to_degrees())
+                    .collect::<Vec<f64>>()
+            } else {
+                vertex_lat
+                    .into_iter()
+                    .map(|l| {
+                        ellipsoid_
+                            .latitude_authalic_to_geographic(l, &coefficients)
+                            .to_degrees()
+                    })
+                    .collect()
             });
-    }
+            lat.slice_mut(s![..]).assign(&vertex_lat_);
+        }
+    );
+
     Ok(())
 }
 
@@ -242,43 +161,21 @@ pub(crate) fn angular_distances<'a>(
     let from = unsafe { from.as_array() };
     let to = unsafe { to.as_array() };
     let mut distances = unsafe { distances.as_array_mut() };
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        let pool = rayon::ThreadPoolBuilder::new()
-            .num_threads(nthreads as usize)
-            .build()
-            .unwrap();
-        pool.install(|| {
-            Zip::from(distances.rows_mut())
-                .and(&from)
-                .and(to.rows())
-                .par_for_each(|mut n, from_, to_| {
-                    let first = to_vec3(depth, *from_);
-                    let distances = Array1::from_iter(
-                        to_.iter()
-                            .map(|c| to_vec3(depth, *c))
-                            .map(|vec| first.ang_dist(&vec)),
-                    );
 
-                    n.slice_mut(s![..]).assign(&distances);
-                })
-        });
-    }
-    #[cfg(target_arch = "wasm32")]
-    {
-        Zip::from(distances.rows_mut())
-            .and(&from)
-            .and(to.rows())
-            .for_each(|mut n, from_, to_| {
-                let first = to_vec3(depth, *from_);
-                let distances = Array1::from_iter(
-                    to_.iter()
-                        .map(|c| to_vec3(depth, *c))
-                        .map(|vec| first.ang_dist(&vec)),
-                );
+    maybe_parallelize!(
+        nthreads,
+        Zip::from(distances.rows_mut()).and(&from).and(to.rows()),
+        |mut n, from_, to_| {
+            let first = to_vec3(depth, *from_);
+            let distances = Array1::from_iter(
+                to_.iter()
+                    .map(|c| to_vec3(depth, *c))
+                    .map(|vec| first.ang_dist(&vec)),
+            );
 
-                n.slice_mut(s![..]).assign(&distances);
-            })
-    }
+            n.slice_mut(s![..]).assign(&distances);
+        }
+    );
+
     Ok(())
 }
