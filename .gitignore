@@ -87,3 +87,7 @@ docs/_build/
 
 # jupyter
 .ipynb_checkpoints/
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+pixi.lock

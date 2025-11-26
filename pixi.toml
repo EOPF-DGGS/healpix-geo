@@ -1,0 +1,86 @@
+[workspace]
+channels = ["conda-forge"]
+name = "healpix-geo"
+platforms = ["linux-64", "win-64", "osx-arm64"]
+version = "0.1.0"
+
+[dependencies]
+rust = ">=1.91.1,<1.92"
+maturin = ">=1.10.2,<2"
+numpy = ">=2.3.5,<3"
+
+[pypi-dependencies]
+healpix-geo = { path = ".", editable = true }
+
+[tasks]
+build-wheel = "maturin build -r --compatibility manylinux_2_28 --strip --auditwheel repair"
+
+[tasks.build-all-wheels]
+depends-on = [
+  { task = "build-wheel", environment = "py311" },
+  { task = "build-wheel", environment = "py312" },
+  { task = "build-wheel", environment = "py313" },
+  { task = "build-wheel", environment = "py314" },
+]
+
+[tasks.ci-lint-rust]
+depends-on = [{ task = "rust-lints", environment = "py313" }]
+
+[tasks.lint-rust]
+depends-on = [{ task = "rust-lints", environment = "dev" }]
+
+[feature.dev.dependencies]
+ipython = "*"
+
+[feature.tests.dependencies]
+pytest = "*"
+pytest-cov = "*"
+shapely = "*"
+cdshealpix = "*"
+
+[feature.py311.dependencies]
+python = "3.11.*"
+
+[feature.py312.dependencies]
+python = "3.12.*"
+
+[feature.py313.dependencies]
+python = "3.13.*"
+
+[feature.py313.tasks]
+rust-lints = "cargo clippy --all-targets --all-features -- -D warnings"
+
+[feature.py314.dependencies]
+python = "3.14.*"
+
+[feature.docs.dependencies]
+sphinx = "*"
+matplotlib = "*"
+pydata-sphinx-theme = "*"
+myst-parser = "*"
+jupyter-sphinx = "*"
+sphinx-autobuild = "*"
+geopandas = "*"
+tabulate = "*"
+markdown = "*"
+pandas = "*"
+pyresample = "*"
+astropy = ">=7.2.0,<8"
+cdshealpix = ">=0.7.2,<0.8"
+
+[feature.docs.tasks]
+build-docs = { cmd = "rm -rf generated/; python -m sphinx -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
+autobuild-docs = { cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
+build-docs-rtd = { cmd = "python -m sphinx -b html -W -T -j auto . $READTHEDOCS_OUTPUT/html", cwd = "docs" }
+
+
+[environments]
+dev = ["tests", "py313", "dev"]
+py311 = ["py311"]
+py312 = ["py312"]
+py313 = ["py313"]
+py314 = ["py314"]
+ci-py311 = ["py311", "tests"]
+ci-py312 = ["py312", "tests"]
+ci-py313 = ["py313", "tests"]
+docs = ["docs", "py313"]

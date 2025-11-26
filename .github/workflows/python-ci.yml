@@ -32,7 +32,7 @@ jobs:
           keyword: "[skip-ci]"
 
   test:
-    name: ${{ matrix.os }} py${{ matrix.python-version }}
+    name: ${{ matrix.os }} | ${{ matrix.env }}
     runs-on: ${{ matrix.os }}
     needs: detect-ci-trigger
     if: |
@@ -51,7 +51,7 @@ jobs:
           - "ubuntu-latest"
           - "macos-latest"
           - "windows-latest"
-        python-version: ["3.10", "3.12", "3.13"]
+        env: ["ci-py311", "ci-py313"]
 
     steps:
       - uses: actions/checkout@v6
@@ -59,15 +59,10 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Setup micromamba
-        uses: mamba-org/setup-micromamba@v2
+      - name: setup environment
+        uses: prefix-dev/setup-pixi@82d477f15f3a381dbcc8adc1206ce643fe110fb7 # 0.9.3
         with:
-          environment-file: ci/requirements/environment.yaml
-          environment-name: python-tests
-          cache-environment: true
-          cache-environment-key: "${{runner.os}}-${{runner.arch}}-py${{matrix.python-version}}-${{env.TODAY}}-${{hashFiles(env.CONDA_ENV_FILE)}}"
-          create-args: >-
-            python=${{matrix.python-version}}
+          environments: "${{ matrix.env }}"
 
       - name: Create rust cache
         uses: Swatinem/rust-cache@v2
@@ -76,24 +71,34 @@ jobs:
 
       - name: Help finding installed libraries
         run: |
-          pushd $CONDA_PREFIX
-          echo "PKG_CONFIG_PATH=$(readlink -f lib/pkgconfig)" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=$(readlink -f lib)" >> $GITHUB_ENV
-          popd
-
+          export CONDA_PREFIX=$(pixi run --frozen 'echo $CONDA_PREFIX')
           if [[ -z "$CONDA_PREFIX" ]]; then
             echo "CONDA_PREFIX is unset!"
             exit 1
           fi
 
-      - name: Install the package
+          pushd $CONDA_PREFIX
+          echo "PKG_CONFIG_PATH=$(readlink -f lib/pkgconfig)" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$(readlink -f lib)" >> $GITHUB_ENV
+          popd
+
+      - name: Help the linker on macos
+        if: runner.os == 'MacOS'
         run: |
-          maturin develop
+          export CONDA_PREFIX=$(pixi run --frozen 'echo $CONDA_PREFIX')
+
+          if [ ! -d target/debug/deps ]; then
+              mkdir -p target/debug/deps
+              ln -s $CONDA_PREFIX/lib/*.dylib target/debug/deps/
+          fi
 
       - name: Check imports
         run: |
-          python -c 'import healpix_geo'
+          pixi run \
+              -e "${{ matrix.env }}" \
+              --frozen \
+              python -c 'import healpix_geo'
 
       - name: Run tests
         run: |
-          python -m pytest --cov=healpix_geo
+          pixi run -e "${{ matrix.env }}" --frozen python -m pytest --cov=healpix_geo

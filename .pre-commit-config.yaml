@@ -1,8 +1,3 @@
-ci:
-  skip:
-    - cargo-check
-    - cargo-clippy
-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -58,18 +53,6 @@ repos:
       - id: cargo-fmt
         name: cargo fmt
         entry: cargo fmt --
-        language: rust
-        types: [rust]
-        pass_filenames: false # This makes it a lot faster
-      - id: cargo-check
-        name: cargo check
-        entry: cargo check --profile test --
-        language: rust
-        types: [rust]
-        pass_filenames: false # This makes it a lot faster
-      - id: cargo-clippy
-        name: cargo clippy
-        entry: cargo clippy --tests -- -D warnings
         language: rust
         types: [rust]
         pass_filenames: false # This makes it a lot faster
