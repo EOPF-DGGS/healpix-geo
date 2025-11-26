@@ -11,4 +11,5 @@ hidden: true
 reference-system
 healpix/index
 api
+terminology
 ```
