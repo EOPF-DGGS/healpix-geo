@@ -1,5 +1,5 @@
 #[macro_export]
-macro_rules! execute {
+macro_rules! maybe_parallelize {
     ($nthreads:ident, $first:expr, $second:expr $(,)?) => {
         #[cfg(not(target_arch = "wasm32"))]
         {

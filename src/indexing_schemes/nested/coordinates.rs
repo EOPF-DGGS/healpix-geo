@@ -6,7 +6,7 @@ use numpy::{PyArrayDyn, PyArrayMethods};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
-use crate::execute;
+use crate::maybe_parallelize;
 
 #[pyfunction]
 pub(crate) fn healpix_to_lonlat<'a>(
@@ -28,7 +28,7 @@ pub(crate) fn healpix_to_lonlat<'a>(
 
     let layer = healpix::nested::get(depth);
 
-    execute!(
+    maybe_parallelize!(
         nthreads,
         Zip::from(&mut longitude).and(&mut latitude).and(&ipix),
         |lon, lat, &p| {
@@ -66,7 +66,7 @@ pub(crate) fn lonlat_to_healpix<'a>(
 
     let layer = healpix::nested::get(depth);
 
-    execute!(
+    maybe_parallelize!(
         nthreads,
         Zip::from(&longitude).and(&latitude).and(&mut ipix),
         |&lon, &lat, p| {
@@ -103,7 +103,7 @@ pub(crate) fn vertices<'a>(
 
     let layer = healpix::nested::get(depth);
 
-    execute!(
+    maybe_parallelize!(
         nthreads,
         Zip::from(longitude.rows_mut())
             .and(latitude.rows_mut())
@@ -162,7 +162,7 @@ pub(crate) fn angular_distances<'a>(
     let to = unsafe { to.as_array() };
     let mut distances = unsafe { distances.as_array_mut() };
 
-    execute!(
+    maybe_parallelize!(
         nthreads,
         Zip::from(distances.rows_mut()).and(&from).and(to.rows()),
         |mut n, from_, to_| {

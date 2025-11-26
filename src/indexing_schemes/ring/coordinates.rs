@@ -1,4 +1,4 @@
-use crate::execute;
+use crate::maybe_parallelize;
 use cdshealpix as healpix;
 use cdshealpix::sph_geom::coo3d::{vec3_of, UnitVec3, UnitVect3};
 use geodesy::Ellipsoid;
@@ -27,7 +27,7 @@ pub(crate) fn healpix_to_lonlat<'a>(
 
     let nside = healpix::nside(depth);
 
-    execute!(
+    maybe_parallelize!(
         nthreads,
         Zip::from(&mut longitude).and(&mut latitude).and(&ipix),
         |lon, lat, &p| {
@@ -66,7 +66,7 @@ pub(crate) fn lonlat_to_healpix<'a>(
 
     let nside = healpix::nside(depth);
 
-    execute!(
+    maybe_parallelize!(
         nthreads,
         Zip::from(&longitude).and(&latitude).and(&mut ipix),
         |&lon, &lat, p| {
@@ -103,7 +103,7 @@ pub(crate) fn vertices<'a>(
 
     let nside = healpix::nside(depth);
 
-    execute!(
+    maybe_parallelize!(
         nthreads,
         Zip::from(longitude.rows_mut())
             .and(latitude.rows_mut())
@@ -163,7 +163,7 @@ pub(crate) fn angular_distances<'a>(
     let mut distances = unsafe { distances.as_array_mut() };
     let nside = cdshealpix::nside(depth);
 
-    execute!(
+    maybe_parallelize!(
         nthreads,
         Zip::from(distances.rows_mut()).and(&from).and(to.rows()),
         |mut n, from_, to_| {
