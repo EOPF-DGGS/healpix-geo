@@ -65,6 +65,14 @@ tabulate = "*"
 markdown = "*"
 pandas = "*"
 pyresample = "*"
+astropy = ">=7.2.0,<8"
+cdshealpix = ">=0.7.2,<0.8"
+
+[feature.docs.tasks]
+build-docs = { cmd = "rm -rf generated/; python -m sphinx -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
+autobuild-docs = { cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
+build-docs-rtd = { cmd = "python -m sphinx -b html -W -T -j auto . $READTHEDOCS_OUTPUT/html", cwd = "docs" }
+
 
 [environments]
 dev = ["tests", "py313", "dev"]
@@ -75,3 +83,4 @@ py314 = ["py314"]
 ci-py311 = ["py311", "tests"]
 ci-py312 = ["py312", "tests"]
 ci-py313 = ["py313", "tests"]
+docs = ["docs", "py313"]
