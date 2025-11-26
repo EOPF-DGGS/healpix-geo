@@ -122,7 +122,7 @@ impl PositionalSlice {
             .getattr("slice")?
             .call1((self.start, self.stop, self.step))?;
 
-        result.extract::<Bound<'a, PySlice>>()
+        Ok(result.extract::<Bound<'a, PySlice>>()?)
     }
 
     /// Construct concrete indices
@@ -227,7 +227,7 @@ impl ConcreteSlice {
             .getattr("slice")?
             .call1((self.start, self.stop, self.step))?;
 
-        result.extract::<Bound<'a, PySlice>>()
+        Ok(result.extract::<Bound<'a, PySlice>>()?)
     }
 
     #[classmethod]
