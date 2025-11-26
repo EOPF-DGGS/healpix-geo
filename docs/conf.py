@@ -62,6 +62,11 @@ autodoc_typehints = "none"
 napoleon_numpy_docstring = True
 napoleon_use_param = False
 napoleon_use_rtype = False
+napoleon_preprocess_types = True
+napoleon_type_aliases = {
+    # healpix-geo
+    "ellipsoid-like": ":term:`ellipsoid-like`",
+}
 
 # -- myst-parser -------------------------------------------------------------
 
