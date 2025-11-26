@@ -45,12 +45,23 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
     "myst_parser",
     "jupyter_sphinx",
 ]
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+# -- intersphinx -------------------------------------------------------------
+
+intersphinx_mapping = {
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "python": ("https://docs.python.org/3/", None),
+    "cdshealpix": ("https://cds-astro.github.io/cds-healpix-python/", None),
+    "lonboard": ("https://developmentseed.org/lonboard/latest/", None),
+}
 
 # -- autosummary / autodoc ---------------------------------------------------
 
@@ -62,6 +73,11 @@ autodoc_typehints = "none"
 napoleon_numpy_docstring = True
 napoleon_use_param = False
 napoleon_use_rtype = False
+napoleon_preprocess_types = True
+napoleon_type_aliases = {
+    # healpix-geo
+    "ellipsoid-like": ":term:`ellipsoid-like`",
+}
 
 # -- myst-parser -------------------------------------------------------------
 

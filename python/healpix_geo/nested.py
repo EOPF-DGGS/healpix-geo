@@ -19,9 +19,10 @@ def healpix_to_lonlat(ipix, depth, ellipsoid, num_threads=0):
         The HEALPix cell indexes given as a `np.uint64` numpy array.
     depth : `numpy.ndarray`
         The HEALPix cell depth given as a `np.uint8` numpy array.
-    ellipsoid : str, default: "sphere"
-        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
-        the same result as :py:func:`cdshealpix.nested.healpix_to_lonlat`.
+    ellipsoid : ellipsoid-like, default: "sphere"
+        Reference ellipsoid to evaluate healpix on. If the reference ellipsoid
+        is spherical, this will return the same result as
+        :py:func:`cdshealpix.nested.healpix_to_lonlat`.
     num_threads : int, optional
         Specifies the number of threads to use for the computation. Default to 0 means
         it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
@@ -75,9 +76,10 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
         The latitudes of the input points, in degrees.
     depth : int or array-like of int
         The HEALPix cell depth given as a `np.uint8` numpy array.
-    ellipsoid : str, default: "sphere"
-        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
-        the same result as :py:func:`cdshealpix.nested.lonlat_to_healpix`.
+    ellipsoid : ellipsoid-like, default: "sphere"
+        Reference ellipsoid to evaluate healpix on. If the reference ellipsoid
+        is spherical, this will return the same result as
+        :py:func:`cdshealpix.nested.lonlat_to_healpix`.
     num_threads : int, optional
         Specifies the number of threads to use for the computation. Default to 0 means
         it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
@@ -130,9 +132,10 @@ def vertices(ipix, depth, ellipsoid, num_threads=0):
         The HEALPix cell indexes given as a `np.uint64` numpy array.
     depth : int, or `numpy.ndarray`
         The depth of the HEALPix cells. If given as an array, should have the same shape than ipix
-    ellipsoid : str, default: "sphere"
-        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
-        the same result as :py:func:`cdshealpix.nested.vertices`.
+    ellipsoid : ellipsoid-like, default: "sphere"
+        Reference ellipsoid to evaluate healpix on. If the reference ellipsoid
+        is spherical, this will return the same result as
+        :py:func:`cdshealpix.nested.vertices`.
     num_threads : int, optional
         Specifies the number of threads to use for the computation. Default to 0 means
         it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
@@ -379,9 +382,8 @@ def zone_coverage(bbox, depth, *, ellipsoid="sphere", flat=True):
         The 2D bounding box to rasterize.
     depth : int
         The maximum depth of the cells to be returned.
-    ellipsoid : str, default: "sphere"
-        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
-        the same result as :py:func:`cdshealpix.nested.healpix_to_lonlat`.
+    ellipsoid : ellipsoid-like, default: "sphere"
+        Reference ellipsoid to evaluate healpix on.
     flat : bool, default: True
         If ``True``, the cells returned will all be at the passed depth.
 
@@ -412,9 +414,8 @@ def box_coverage(center, size, angle, depth, *, ellipsoid="sphere", flat=True):
         The angle by which the box is rotated, in degree.
     depth : int
         The maximum depth of the cells to be returned.
-    ellipsoid : str, default: "sphere"
-        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
-        the same result as :py:func:`cdshealpix.nested.healpix_to_lonlat`.
+    ellipsoid : ellipsoid-like, default: "sphere"
+        Reference ellipsoid to evaluate healpix on.
     flat : bool, default: True
         If ``True``, the cells returned will all be at the passed depth.
 
@@ -448,9 +449,10 @@ def polygon_coverage(vertices, depth, *, ellipsoid="sphere", flat=True):
         The vertices of the polygon without holes. Must be an array of shape ``(n, 2)``.
     depth : int
         The maximum depth of the cells to be returned.
-    ellipsoid : str, default: "sphere"
-        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
-        the same result as :py:func:`cdshealpix.nested.healpix_to_lonlat`.
+    ellipsoid : ellipsoid-like, default: "sphere"
+        Reference ellipsoid to evaluate healpix on. If the reference ellipsoid
+        is spherical, this will return the same result as
+        :py:func:`cdshealpix.nested.polygon_search`.
     flat : bool, default: True
         If ``True``, the cells returned will all be at the passed depth.
 
@@ -485,9 +487,10 @@ def cone_coverage(
         The radius of the cone, in degree.
     depth : int
         The maximum depth of the cells to be returned.
-    ellipsoid : str, default: "sphere"
-        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
-        the same result as :py:func:`cdshealpix.nested.healpix_to_lonlat`.
+    ellipsoid : ellipsoid-like, default: "sphere"
+        Reference ellipsoid to evaluate healpix on. If the reference ellipsoid
+        is spherical, this will return the same result as
+        :py:func:`cdshealpix.nested.cone_search`.
     flat : bool, default: True
         If ``True``, the cells returned will all be at the passed depth.
 
@@ -534,9 +537,10 @@ def elliptical_cone_coverage(
         The orientation of the ellipse.
     depth : int
         The maximum depth of the cells to be returned.
-    ellipsoid : str, default: "sphere"
-        Reference ellipsoid to evaluate healpix on. If ``"sphere"``, this will return
-        the same result as :py:func:`cdshealpix.nested.healpix_to_lonlat`.
+    ellipsoid : ellipsoid-like, default: "sphere"
+        Reference ellipsoid to evaluate healpix on. If the reference ellipsoid
+        is spherical, this will return the same result as
+        :py:func:`cdshealpix.nested.elliptical_cone_search`.
     flat : bool, default: True
         If ``True``, the cells returned will all be at the passed depth.
 

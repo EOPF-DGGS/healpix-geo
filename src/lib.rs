@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 
+mod ellipsoid;
 #[macro_use]
 mod execution;
 mod geometry;
