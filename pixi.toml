@@ -23,6 +23,12 @@ depends-on = [
   { task = "build-wheel", environment = "py314" },
 ]
 
+[tasks.ci-lint-rust]
+depends-on = [{ task = "rust-lints", environment = "py313" }]
+
+[tasks.lint-rust]
+depends-on = [{ task = "rust-lints", environment = "dev" }]
+
 [feature.dev.dependencies]
 ipython = "*"
 
@@ -40,6 +46,9 @@ python = "3.12.*"
 
 [feature.py313.dependencies]
 python = "3.13.*"
+
+[feature.py313.tasks]
+rust-lints = "cargo clippy --all-targets --all-features -- -D warnings"
 
 [feature.py314.dependencies]
 python = "3.14.*"
