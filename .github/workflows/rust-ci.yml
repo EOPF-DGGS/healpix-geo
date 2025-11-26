@@ -45,7 +45,7 @@ jobs:
 
       - name: Help finding installed libraries
         run: |
-          export CONDA_PREFIX=$(pixi run -e "${{ matrix.env }} --frozen 'echo $CONDA_PREFIX')
+          export CONDA_PREFIX=$(pixi run -e "${{ matrix.env }}" --frozen 'echo $CONDA_PREFIX')
           if [[ -z "$CONDA_PREFIX" ]]; then
             echo "CONDA_PREFIX is unset!"
             exit 1
@@ -59,7 +59,7 @@ jobs:
       - name: Help the linker on macos
         if: runner.os == 'MacOS'
         run: |
-          export CONDA_PREFIX=$(pixi run -e "${{ matrix.env }} --frozen 'echo $CONDA_PREFIX')
+          export CONDA_PREFIX=$(pixi run -e "${{ matrix.env }}" --frozen 'echo $CONDA_PREFIX')
 
           if [ ! -d target/debug/deps ]; then
               mkdir -p target/debug/deps
