@@ -45,12 +45,25 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
+    "sphinx.ext.intersphinx",
     "myst_parser",
     "jupyter_sphinx",
 ]
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+
+# -- intersphinx -------------------------------------------------------------
+
+intersphinx_mapping = {
+    "dask": ("https://docs.dask.org/en/latest", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    "python": ("https://docs.python.org/3/", None),
+    "xarray": ("https://docs.xarray.dev/latest", None),
+    "cdshealpix": ("https://cds-astro.github.io/cds-healpix-python/", None),
+}
 
 # -- autosummary / autodoc ---------------------------------------------------
 
