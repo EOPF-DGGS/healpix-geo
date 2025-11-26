@@ -92,10 +92,6 @@ jobs:
               ln -s $CONDA_PREFIX/lib/*.dylib target/debug/deps/
           fi
 
-      - name: Explicitly build and install
-        run: |
-          pixi run -e "${{ matrix.env }}" --frozen maturin develop --uv
-
       - name: Check imports
         run: |
           pixi run \
