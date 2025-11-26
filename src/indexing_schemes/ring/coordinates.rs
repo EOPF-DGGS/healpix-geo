@@ -2,6 +2,7 @@ use crate::ellipsoid::{EllipsoidLike, IntoGeodesyEllipsoid};
 use crate::maybe_parallelize;
 use cdshealpix as healpix;
 use cdshealpix::sph_geom::coo3d::{UnitVec3, UnitVect3, vec3_of};
+use geodesy::ellps::Latitudes;
 use ndarray::{Array1, Zip, s};
 use numpy::{PyArrayDyn, PyArrayMethods};
 use pyo3::prelude::*;

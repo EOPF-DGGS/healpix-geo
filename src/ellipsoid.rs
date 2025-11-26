@@ -1,4 +1,4 @@
-use geodesy::Ellipsoid as GeoEllipsoid;
+use geodesy::ellps::Ellipsoid as GeoEllipsoid;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 

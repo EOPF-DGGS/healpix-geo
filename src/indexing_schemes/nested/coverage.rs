@@ -1,5 +1,6 @@
 use crate::ellipsoid::{EllipsoidLike, IntoGeodesyEllipsoid};
 use cdshealpix as healpix;
+use geodesy::ellps::Latitudes;
 use ndarray::Array1;
 use numpy::{IntoPyArray, PyArray1, PyArray2, PyArrayMethods};
 use pyo3::exceptions::PyValueError;
