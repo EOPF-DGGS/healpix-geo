@@ -3,41 +3,25 @@ version: 2
 build:
   os: ubuntu-lts-latest
   tools:
-    python: mambaforge-latest
-    rust: latest
+    # just so RTD stops complaining
+    python: "latest"
   apt_packages:
     - clang
   jobs:
     post_checkout:
       - (git --no-pager log --pretty="tformat:%s" -1 | grep -vqF "[skip-rtd]") || exit 183
       - git fetch --unshallow || true
-    pre_create_environment:
-      - mamba update --quiet --name base conda mamba
     create_environment:
-      - export CONDA_PREFIX_="$CONDA_ENVS_PATH/$CONDA_DEFAULT_ENV";
-        unset CONDA_DEFAULT_ENV;
-        mamba create --quiet --prefix "$CONDA_PREFIX_" python=3.13
-      - export CONDA_PREFIX_="$CONDA_ENVS_PATH/$CONDA_DEFAULT_ENV";
-        unset CONDA_DEFAULT_ENV;
-        mamba env update --quiet --prefix "$CONDA_PREFIX_" --file ci/requirements/environment.yaml
-      - export CONDA_PREFIX_="$CONDA_ENVS_PATH/$CONDA_DEFAULT_ENV";
-        unset CONDA_DEFAULT_ENV;
-        mamba env update --quiet --prefix "$CONDA_PREFIX_" --file ci/requirements/docs.yaml
+      - asdf plugin add pixi
+      - asdf install pixi latest
+      - asdf global pixi latest
     pre_install:
-      - git update-index --assume-unchanged docs/conf.py ci/requirements/docs.yaml
+      - git update-index --assume-unchanged docs/conf.py
     install:
-      - export PKG_CONFIG_PATH="$CONDA_ENVS_PATH/$CONDA_DEFAULT_ENV/lib/pkgconfig";
-        sed -i '/Requires.private:/d' $PKG_CONFIG_PATH/*.pc
-      - export CONDA_PREFIX_="$CONDA_ENVS_PATH/$CONDA_DEFAULT_ENV";
-        mamba run
-        -e PKG_CONFIG_PATH="$CONDA_PREFIX_/lib/pkgconfig"
-        --prefix "$CONDA_PREFIX_"
-        maturin develop
-    pre_build:
-      - python -c "import matplotlib.pyplot"
-
-conda:
-  environment: ci/requirements/docs.yaml
+      - pixi install -e docs
+    build:
+      html:
+        - pixi run -e docs build-docs-rtd
 
 sphinx:
   fail_on_warning: true
