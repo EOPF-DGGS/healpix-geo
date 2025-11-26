@@ -2,14 +2,14 @@
 
 `healpix-geo` is available on `conda-forge`:
 
-```{sh}
+```sh
 conda install -c conda-forge healpix-geo
 pixi add healpix-geo
 ```
 
 or on PyPI:
 
-```{sh}
+```sh
 # pip
 pip install healpix-geo
 # uv
