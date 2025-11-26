@@ -53,6 +53,19 @@ rust-lints = "cargo clippy --all-targets --all-features -- -D warnings"
 [feature.py314.dependencies]
 python = "3.14.*"
 
+[feature.docs.dependencies]
+sphinx = "*"
+matplotlib = "*"
+pydata-sphinx-theme = "*"
+myst-parser = "*"
+jupyter-sphinx = "*"
+sphinx-autobuild = "*"
+geopandas = "*"
+tabulate = "*"
+markdown = "*"
+pandas = "*"
+pyresample = "*"
+
 [environments]
 dev = ["tests", "py313", "dev"]
 py311 = ["py311"]
