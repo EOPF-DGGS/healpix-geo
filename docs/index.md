@@ -9,9 +9,7 @@ caption: Contents:
 hidden: true
 ---
 installation
-reference-system
-healpix/index
+user_guide/index
 api
 terminology
-
 ```
