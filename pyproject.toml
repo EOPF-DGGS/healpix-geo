@@ -6,29 +6,16 @@ build-backend = "maturin"
 name = "healpix-geo"
 license = "Apache-2.0"
 requires-python = ">=3.10"
+readme = "README.md"
 classifiers = [
   "Programming Language :: Rust",
   "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = ["numpy"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
 geometries = ["shapely>=2"]
-tests = [
-  "pytest",
-]
-docs = [
-  "sphinx",
-  "pydata-sphinx-theme",
-  "myst-parser",
-  "jupyter-sphinx",
-  "matplotlib",
-  "sphinx-autobuild",
-  "markdown",
-  "tabulate",
-]
 
 [tool.maturin]
 python-source = "python"
