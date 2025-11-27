@@ -16,19 +16,6 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 geometries = ["shapely>=2"]
-tests = [
-  "pytest",
-]
-docs = [
-  "sphinx",
-  "pydata-sphinx-theme",
-  "myst-parser",
-  "jupyter-sphinx",
-  "matplotlib",
-  "sphinx-autobuild",
-  "markdown",
-  "tabulate",
-]
 
 [tool.maturin]
 python-source = "python"
