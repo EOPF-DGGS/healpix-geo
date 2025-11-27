@@ -39,6 +39,7 @@ venv/
 # docs
 /docs/_build/
 /docs/generated/
+/docs/healpix/healpix_levels_table.md
 
 # Installer logs
 pip-log.txt
