@@ -7,7 +7,8 @@ caption: Contents:
 hidden: true
 ---
 installation
-user_guide/index
+reference-system
+healpix/index
 api
 terminology
 ```
@@ -18,4 +19,4 @@ It is built on top of the [cdshealpix rust crate](https://crates.io/crates/cdshe
 
 **Important resources**:
 
-- {doc}`HEALPix cell statistics <user_guide/healpix/levels>`
+- {doc}`HEALPix cell statistics <healpix/levels>`
