@@ -1,3 +1,5 @@
+use crate::maybe_parallelize;
+
 use cdshealpix as healpix;
 use ndarray::{Array1, Zip, s};
 use numpy::{PyArrayDyn, PyArrayMethods};
@@ -15,44 +17,26 @@ pub(crate) fn kth_neighbourhood<'a>(
     nthreads: u16,
 ) -> PyResult<()> {
     let ipix = unsafe { ipix.as_array() };
+
     let mut neighbours = unsafe { neighbours.as_array_mut() };
+
     let layer = healpix::nested::get(depth);
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        let pool = rayon::ThreadPoolBuilder::new()
-            .num_threads(nthreads as usize)
-            .build()
-            .unwrap();
-        pool.install(|| {
-            Zip::from(neighbours.rows_mut())
-                .and(&ipix)
-                .par_for_each(|mut n, &p| {
-                    let map = Array1::from_iter(
-                        layer
-                            .kth_neighbourhood(p, ring)
-                            .into_iter()
-                            .map(|v| v as i64),
-                    );
 
-                    n.slice_mut(s![..map.len()]).assign(&map);
-                })
-        });
-    }
-    #[cfg(target_arch = "wasm32")]
-    {
-        Zip::from(neighbours.rows_mut())
-            .and(&ipix)
-            .for_each(|mut n, &p| {
-                let map = Array1::from_iter(
-                    layer
-                        .kth_neighbourhood(p, ring)
-                        .into_iter()
-                        .map(|v| v as i64),
-                );
+    maybe_parallelize!(
+        nthreads,
+        Zip::from(neighbours.rows_mut()).and(&ipix),
+        |mut n, &p| {
+            let map = Array1::from_iter(
+                layer
+                    .kth_neighbourhood(p, ring)
+                    .into_iter()
+                    .map(|v| v as i64),
+            );
 
-                n.slice_mut(s![..]).assign(&map);
-            });
-    }
+            n.slice_mut(s![..map.len()]).assign(&map);
+        },
+    );
+
     Ok(())
 }
 
@@ -70,63 +54,29 @@ pub(crate) fn zoom_to<'a>(
 
     let ipix = unsafe { ipix.as_array() };
     let mut result = unsafe { result.as_array_mut() };
+
     let layer = healpix::nested::get(depth);
 
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        let pool = rayon::ThreadPoolBuilder::new()
-            .num_threads(nthreads as usize)
-            .build()
-            .unwrap();
-
-        match depth.cmp(&new_depth) {
-            Ordering::Equal => {
-                pool.install(|| {
-                    Zip::from(&mut result).and(&ipix).par_for_each(|n, &p| {
-                        *n = p;
-                    })
-                });
-            }
-            Ordering::Less => {
-                pool.install(|| {
-                    Zip::from(result.rows_mut())
-                        .and(&ipix)
-                        .par_for_each(|mut n, &p| {
-                            let map = Array1::from_iter(children(layer, p, new_depth));
-                            n.slice_mut(s![..map.len()]).assign(&map);
-                        })
-                });
-            }
-            Ordering::Greater => {
-                pool.install(|| {
-                    Zip::from(&mut result).and(&ipix).par_for_each(|n, &p| {
-                        *n = parent(layer, p, new_depth);
-                    })
-                });
-            }
+    match depth.cmp(&new_depth) {
+        Ordering::Equal => {
+            maybe_parallelize!(nthreads, Zip::from(&mut result).and(&ipix), |n, &p| {
+                *n = p;
+            },)
         }
-    }
-    #[cfg(target_arch = "wasm32")]
-    {
-        match depth.cmp(&new_depth) {
-            Ordering::Equal => {
-                Zip::from(&mut result).and(&ipix).par_for_each(|n, &p| {
-                    *n = p;
-                });
-            }
-            Ordering::Less => {
-                Zip::from(result.rows_mut())
-                    .and(&ipix)
-                    .par_for_each(|mut n, &p| {
-                        let map = Array1::from_iter(children(layer, p, new_depth));
-                        n.slice_mut(s![..map.len()]).assign(&map);
-                    });
-            }
-            Ordering::Greater => {
-                Zip::from(&mut result).and(&ipix).par_for_each(|n, &p| {
-                    *n = parent(layer, p, new_depth);
-                });
-            }
+        Ordering::Less => {
+            maybe_parallelize!(
+                nthreads,
+                Zip::from(result.rows_mut()).and(&ipix),
+                |mut n, &p| {
+                    let map = Array1::from_iter(children(layer, p, new_depth));
+                    n.slice_mut(s![..map.len()]).assign(&map);
+                },
+            )
+        }
+        Ordering::Greater => {
+            maybe_parallelize!(nthreads, Zip::from(&mut result).and(&ipix), |n, &p| {
+                *n = parent(layer, p, new_depth);
+            },)
         }
     }
 
@@ -147,30 +97,14 @@ pub(crate) fn siblings<'a>(
     let mut result = unsafe { result.as_array_mut() };
     let layer = healpix::nested::get(depth);
 
-    #[cfg(not(target_arch = "wasm32"))]
-    {
-        let pool = rayon::ThreadPoolBuilder::new()
-            .num_threads(nthreads as usize)
-            .build()
-            .unwrap();
+    maybe_parallelize!(
+        nthreads,
+        Zip::from(result.rows_mut()).and(&ipix),
+        |mut n, &p| {
+            let map = Array1::from_iter(siblings(layer, p));
+            n.slice_mut(s![..map.len()]).assign(&map);
+        },
+    );
 
-        pool.install(|| {
-            Zip::from(result.rows_mut())
-                .and(&ipix)
-                .par_for_each(|mut n, &p| {
-                    let map = Array1::from_iter(siblings(layer, p));
-                    n.slice_mut(s![..map.len()]).assign(&map);
-                })
-        });
-    }
-    #[cfg(target_arch = "wasm32")]
-    {
-        Zip::from(result.rows_mut())
-            .and(&ipix)
-            .par_for_each(|mut n, &p| {
-                let map = Array1::from_iter(siblings(layer, p));
-                n.slice_mut(s![..map.len()]).assign(&map);
-            });
-    }
     Ok(())
 }
