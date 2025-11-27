@@ -204,7 +204,7 @@ def kth_neighbourhood(ipix, depth, ring, num_threads=0):
     neighbours : `numpy.ndarray`
         A :math:`N` x :math:`(2 k + 1)^2` `np.int64` numpy array containing the kth ring neighbours of each cell.
         The :math:`5^{th}` element corresponds to the index of HEALPix cell from which the neighbours are evaluated.
-        All its 8 neighbours occup the remaining elements of the line.
+        All its 8 neighbours occupy the remaining elements of the line.
 
     Raises
     ------
