@@ -16,6 +16,6 @@ terminology
 
 It is built on top of the [cdshealpix rust crate](https://crates.io/crates/cdshealpix), but unlike the [cdshealpix python bindings](https://cds-astro.github.io/cds-healpix-python/index.html) it does not require `astropy`.
 
-Important resources:
+**Important resources**:
 
 - {doc}`HEALPix cell statistics <user_guide/healpix/levels>`
