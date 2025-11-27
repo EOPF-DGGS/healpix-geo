@@ -10,7 +10,7 @@ def create_empty(depth):
     return RangeMOCIndex.create_empty(depth)
 
 
-def healpix_to_lonlat(ipix, depth, ellipsoid, num_threads=0):
+def healpix_to_lonlat(ipix, depth, ellipsoid="sphere", num_threads=0):
     r"""Get the longitudes and latitudes of the center of some HEALPix cells.
 
     Parameters
@@ -121,7 +121,7 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
     return ipix
 
 
-def vertices(ipix, depth, ellipsoid, num_threads=0):
+def vertices(ipix, depth, ellipsoid="sphere", num_threads=0):
     """Get the longitudes and latitudes of the vertices of some HEALPix cells at a given depth.
 
     This method returns the 4 vertices of each cell in `ipix`.
