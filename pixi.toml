@@ -35,6 +35,9 @@ depends-on = [{ task = "rust-lints", environment = "dev" }]
 [feature.dev.dependencies]
 ipython = "*"
 
+[feature.dev.tasks]
+ipython = "ipython"
+
 [feature.tests.dependencies]
 pytest = "*"
 pytest-cov = "*"
