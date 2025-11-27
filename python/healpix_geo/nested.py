@@ -70,9 +70,9 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
 
     Parameters
     ----------
-    lon : array-like
+    longitude : array-like
         The longitudes of the input points, in degrees.
-    lat : array-like
+    latitude : array-like
         The latitudes of the input points, in degrees.
     depth : int or array-like of int
         The HEALPix cell depth given as a `np.uint8` numpy array.
@@ -144,7 +144,7 @@ def vertices(ipix, depth, ellipsoid, num_threads=0):
     Returns
     -------
     longitude, latitude : array-like
-        The sky coordinates of the 4 vertices of the HEALPix cells.
+        The coordinates of the 4 vertices of the HEALPix cells.
         `lon` and `lat` are of shape :math:`N` x :math:`4` numpy arrays where N is the number of HEALPix cell given in `ipix`.
 
     Raises
