@@ -61,7 +61,7 @@ pub(crate) fn zoom_to<'a>(
         Ordering::Equal => {
             maybe_parallelize!(nthreads, Zip::from(&mut result).and(&ipix), |n, &p| {
                 *n = p;
-            },)
+            });
         }
         Ordering::Less => {
             maybe_parallelize!(
@@ -71,14 +71,14 @@ pub(crate) fn zoom_to<'a>(
                     let map = Array1::from_iter(children(layer, p, new_depth));
                     n.slice_mut(s![..map.len()]).assign(&map);
                 },
-            )
+            );
         }
         Ordering::Greater => {
             maybe_parallelize!(nthreads, Zip::from(&mut result).and(&ipix), |n, &p| {
                 *n = parent(layer, p, new_depth);
-            },)
+            });
         }
-    }
+    };
 
     Ok(())
 }
