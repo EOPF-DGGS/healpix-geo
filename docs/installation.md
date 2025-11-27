@@ -21,8 +21,8 @@ uv add healpix-geo
 To install from source, run
 
 ```sh
-pixi run build-all-wheels  # build wheels for all supported python versions
-pixi run -e py313 build-wheel  # build wheel for python=3.13
+pixi run build-all-wheels  # option 1: build wheels for all supported python versions
+pixi run -e py313 build-wheel  # option 2: build wheel for python=3.13
 ```
 
 then install the appropriate wheel:
