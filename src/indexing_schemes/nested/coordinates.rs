@@ -144,6 +144,62 @@ pub(crate) fn vertices<'a>(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
+#[pyfunction]
+pub(crate) fn bilinear_interpolation<'a>(
+    _py: Python,
+    depth: u8,
+    longitude: &Bound<'a, PyArrayDyn<f64>>,
+    latitude: &Bound<'a, PyArrayDyn<f64>>,
+    ellipsoid: EllipsoidLike,
+    ipix: &Bound<'a, PyArrayDyn<u64>>,
+    weights: &Bound<'a, PyArrayDyn<f64>>,
+    nthreads: u16,
+) -> PyResult<()> {
+    let is_spherical = ellipsoid.is_spherical();
+    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
+
+    let mut ipix = unsafe { ipix.as_array_mut() };
+    let mut weights = unsafe { weights.as_array_mut() };
+
+    let longitude = unsafe { longitude.as_array() };
+    let latitude = unsafe { latitude.as_array() };
+
+    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+
+    let layer = healpix::nested::get(depth);
+
+    maybe_parallelize!(
+        nthreads,
+        Zip::from(ipix.rows_mut())
+            .and(weights.rows_mut())
+            .and(&longitude)
+            .and(&latitude),
+        |mut p, mut w, &lon, &lat| {
+            let lon_ = lon.to_radians();
+            let lat_ = if is_spherical {
+                lat.to_radians()
+            } else {
+                ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
+            };
+
+            let [(p1, w1), (p2, w2), (p3, w3), (p4, w4)] = layer.bilinear_interpolation(lon_, lat_);
+
+            p[0] = p1;
+            p[1] = p2;
+            p[2] = p3;
+            p[3] = p4;
+
+            w[0] = w1;
+            w[1] = w2;
+            w[2] = w3;
+            w[3] = w4;
+        }
+    );
+
+    Ok(())
+}
+
 fn to_vec3(depth: u8, cell_id: u64) -> UnitVect3 {
     let (lon, lat) = cdshealpix::nested::center(depth, cell_id);
 
