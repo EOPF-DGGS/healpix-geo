@@ -55,14 +55,14 @@ impl IntoGeodesyEllipsoid for EllipsoidLike {
                 semimajor_axis,
                 inverse_flattening,
             } => {
-                if inverse_flattening >= 1.0 && semimajor_axis > 0.0 {
+                if inverse_flattening >= 2.0 && semimajor_axis > 0.0 {
                     Ok(GeoEllipsoid::new(
                         semimajor_axis,
                         1.0f64 / inverse_flattening,
                     ))
-                } else if inverse_flattening < 1.0 {
+                } else if inverse_flattening < 2.0 {
                     Err(PyValueError::new_err(format!(
-                        "The inverse_flattening must be greater or equal to 1, but got {:?}.",
+                        "The inverse_flattening must be greater or equal to 2, but got {:?}.",
                         inverse_flattening,
                     )))
                 } else {
