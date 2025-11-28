@@ -54,10 +54,24 @@ impl IntoGeodesyEllipsoid for EllipsoidLike {
             | EllipsoidLike::EllipsoidObject {
                 semimajor_axis,
                 inverse_flattening,
-            } => Ok(GeoEllipsoid::new(
-                semimajor_axis,
-                1.0f64 / inverse_flattening,
-            )),
+            } => {
+                if inverse_flattening >= 1.0 && semimajor_axis > 0.0 {
+                    Ok(GeoEllipsoid::new(
+                        semimajor_axis,
+                        1.0f64 / inverse_flattening,
+                    ))
+                } else if inverse_flattening < 1.0 {
+                    Err(PyValueError::new_err(format!(
+                        "The inverse_flattening must be greater or equal to 1, but got {:?}.",
+                        inverse_flattening,
+                    )))
+                } else {
+                    Err(PyValueError::new_err(format!(
+                        "The semimajor axis must be greater than 0, but got {:?}.",
+                        semimajor_axis
+                    )))
+                }
+            }
             EllipsoidLike::SphereParameters { radius } | EllipsoidLike::SphereObject { radius } => {
                 Ok(GeoEllipsoid::new(radius, 0.0f64))
             }
