@@ -62,7 +62,7 @@ impl IntoGeodesyEllipsoid for EllipsoidLike {
                     ))
                 } else if inverse_flattening < 2.0 {
                     Err(PyValueError::new_err(format!(
-                        "The inverse_flattening must be greater or equal to 2, but got {:?}.",
+                        "The inverse flattening must be greater than or equal to 2, but got {:?}.",
                         inverse_flattening,
                     )))
                 } else {
