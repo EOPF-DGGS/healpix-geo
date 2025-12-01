@@ -77,7 +77,7 @@ impl IntoGeodesyEllipsoid for EllipsoidLike {
                     Ok(GeoEllipsoid::new(radius, 0.0f64))
                 } else {
                     Err(PyValueError::new_err(format!(
-                        "The radius must be greater than 0, but got {}.",
+                        "The radius must be greater than 0, but got {:?}.",
                         radius
                     )))
                 }
