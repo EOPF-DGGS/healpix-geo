@@ -1,6 +1,8 @@
+from contextlib import nullcontext
 from dataclasses import dataclass
 
-import cdshealpix
+import cdshealpix.nested
+import cdshealpix.ring
 import numpy as np
 import pytest
 from astropy.coordinates import Latitude, Longitude
@@ -17,6 +19,70 @@ class Sphere:
 class Ellipsoid:
     semimajor_axis: float
     inverse_flattening: float
+
+
+@pytest.mark.parametrize(
+    ["ellipsoid_like", "error_handler"],
+    (
+        pytest.param("WGS84", nullcontext(), id="named-existing"),
+        pytest.param(
+            "unknown-ellipsoid",
+            pytest.raises(ValueError, match="Operator 'unknown-ellipsoid' not found"),
+            id="named-not_existing",
+        ),
+        pytest.param(Sphere(radius=1), nullcontext(), id="object-sphere"),
+        pytest.param(
+            Ellipsoid(semimajor_axis=1, inverse_flattening=10),
+            nullcontext(),
+            id="object-ellipsoid",
+        ),
+        pytest.param(
+            object(),
+            pytest.raises(TypeError, match="failed to extract enum"),
+            id="object-unknown",
+        ),
+        pytest.param({"radius": 1}, nullcontext(), id="dict-sphere"),
+        pytest.param(
+            {"semimajor_axis": 1, "inverse_flattening": 10},
+            nullcontext(),
+            id="dict-ellipsoid",
+        ),
+        pytest.param(
+            {"abc": 2},
+            pytest.raises(TypeError, match="failed to extract enum"),
+            id="dict-unknown",
+        ),
+        pytest.param(
+            {"radius": -1},
+            pytest.raises(
+                ValueError, match="The radius must be greater than 0, but got -1.0"
+            ),
+            id="dict-ellipsoid-low_radius",
+        ),
+        pytest.param(
+            {"semimajor_axis": 1, "inverse_flattening": 0.5},
+            pytest.raises(
+                ValueError,
+                match="The inverse flattening must be greater than or equal to 2, but got 0.5",
+            ),
+            id="dict-ellipsoid-low_inverse_flattening",
+        ),
+        pytest.param(
+            {"semimajor_axis": 0, "inverse_flattening": 10},
+            pytest.raises(
+                ValueError,
+                match="The semimajor axis must be greater than 0, but got 0.0",
+            ),
+            id="dict-ellipsoid-low_semimajor_axis",
+        ),
+    ),
+)
+def test_ellipsoid_like(ellipsoid_like, error_handler):
+    cell_ids = np.arange(12)
+    depth = 0
+
+    with error_handler:
+        healpix_geo.nested.healpix_to_lonlat(cell_ids, depth, ellipsoid=ellipsoid_like)
 
 
 class TestHealpixToGeographic:
