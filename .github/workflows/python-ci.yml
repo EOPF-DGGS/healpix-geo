@@ -71,7 +71,7 @@ jobs:
 
       - name: Help finding installed libraries
         run: |
-          export CONDA_PREFIX=$(pixi run --frozen 'echo $CONDA_PREFIX')
+          export CONDA_PREFIX=$(pixi run --frozen -e '${{ matrix.env }}' 'echo $CONDA_PREFIX')
           if [[ -z "$CONDA_PREFIX" ]]; then
             echo "CONDA_PREFIX is unset!"
             exit 1
@@ -85,7 +85,7 @@ jobs:
       - name: Help the linker on macos
         if: runner.os == 'MacOS'
         run: |
-          export CONDA_PREFIX=$(pixi run --frozen 'echo $CONDA_PREFIX')
+          export CONDA_PREFIX=$(pixi run --frozen -e '${{ matrix.env }}' 'echo $CONDA_PREFIX')
 
           if [ ! -d target/debug/deps ]; then
               mkdir -p target/debug/deps
@@ -95,10 +95,10 @@ jobs:
       - name: Check imports
         run: |
           pixi run \
-              -e "${{ matrix.env }}" \
+              -e '${{ matrix.env }}' \
               --frozen \
               python -c 'import healpix_geo'
 
       - name: Run tests
         run: |
-          pixi run -e "${{ matrix.env }}" --frozen python -m pytest --cov=healpix_geo
+          pixi run -e '${{ matrix.env }}' --frozen python -m pytest --cov=healpix_geo
