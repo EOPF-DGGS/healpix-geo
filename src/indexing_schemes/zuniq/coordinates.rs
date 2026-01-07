@@ -12,6 +12,61 @@ use crate::indexing_schemes::nested::coordinates::{
 use crate::maybe_parallelize;
 
 #[pyfunction]
+pub(crate) fn from_nested<'py>(
+    _py: Python<'py>,
+    nested: &Bound<'py, PyArrayDyn<u64>>,
+    depth: DepthLike,
+    nthreads: u16,
+) -> PyResult<Bound<'py, PyArray1<u64>>> {
+    let nested = unsafe { nested.as_array() };
+
+    let mut zuniq = Array::<u64>::zeros(nested.shape());
+    match depth {
+        DepthLike::Constant(d) => {
+            maybe_parallelize!(
+                nthreads,
+                Zip::from(&mut zuniq).and(&nested),
+                |result, &hash| {
+                    *result = healpix::nested::to_zuniq_unsafe(d, hash);
+                }
+            );
+        }
+        DepthLike::Array(depths) => {
+            maybe_parallelize!(
+                nthreads,
+                Zip::from(&mut zuniq).and(&nested).and(&depths),
+                |result, &hash, &d| {
+                    *result = healpix::nested::to_zuniq_unsafe(d, hash);
+                }
+            );
+        }
+    }
+}
+
+#[pyfunction]
+pub(crate) fn to_nested<'py>(
+    _py: Python<'py>,
+    zuniq: &Bound<'py, PyArrayDyn<u64>>,
+    nthreads: u16,
+) -> PyResult<(Bound<'py, PyArray1<u64>>, Bound<'py, PyArray1<u8>>)> {
+    let zuniq = unsafe { zuniq.as_array() };
+
+    let mut nested = Array::<u64>::zeros(zuniq.shape());
+    let mut depths = Array::<u8>::zeros(zuniq.shape());
+
+    maybe_parallelize!(
+        nthreads,
+        Zip::from(&mut nested).and(&mut depths).and(&zuniq),
+        |n, d, &z| {
+            let (d_, n_) = healpix::nested::from_zuniq(z);
+
+            *n = n_;
+            *d = d_;
+        }
+    );
+}
+
+#[pyfunction]
 pub(crate) fn healpix_to_lonlat<'py>(
     _py: Python<'py>,
     ipix: &Bound<'py, PyArrayDyn<u64>>,
