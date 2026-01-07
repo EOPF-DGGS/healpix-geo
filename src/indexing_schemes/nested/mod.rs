@@ -1,4 +1,4 @@
-mod coordinates;
+pub(crate) mod coordinates;
 mod coverage;
 mod hierarchy;
 

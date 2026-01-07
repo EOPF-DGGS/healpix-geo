@@ -11,7 +11,7 @@ use pyo3::prelude::*;
 use crate::maybe_parallelize;
 
 #[inline]
-fn healpix_to_lonlat_internal(
+pub(crate) fn healpix_to_lonlat_internal(
     hash: &u64,
     layer: &Layer,
     ellipsoid: &Ellipsoid,
@@ -33,7 +33,7 @@ fn healpix_to_lonlat_internal(
 }
 
 #[inline]
-fn lonlat_to_healpix_internal(
+pub(crate) fn lonlat_to_healpix_internal(
     lon: &f64,
     lat: &f64,
     layer: &Layer,
@@ -52,7 +52,7 @@ fn lonlat_to_healpix_internal(
 }
 
 #[inline]
-fn vertices_internal(
+pub(crate) fn vertices_internal(
     hash: &u64,
     layer: &Layer,
     ellipsoid: &Ellipsoid,
