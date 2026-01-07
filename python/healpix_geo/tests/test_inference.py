@@ -246,8 +246,6 @@ class TestGeographicToHealpix:
 
             def cds_lonlat_to_healpix(lon, lat, depth):
                 cell_ids = cdshealpix.nested.lonlat_to_healpix(lon, lat, depth)
-                print(cell_ids)
-                print(healpix_geo.zuniq.from_nested(cell_ids, depth))
                 return healpix_geo.zuniq.from_nested(cell_ids, depth)
 
             param_cds = depth
@@ -347,9 +345,6 @@ class TestVertices:
         expected_lon_, expected_lat_ = cds_vertices(cell_ids, param_cds)
         expected_lon = np.asarray(expected_lon_.to("degree"))
         expected_lat = np.asarray(expected_lat_.to("degree"))
-
-        print(expected_lon, expected_lat)
-        print(actual_lon, actual_lat)
 
         np.testing.assert_allclose(actual_lon, expected_lon)
         np.testing.assert_allclose(actual_lat, expected_lat)
