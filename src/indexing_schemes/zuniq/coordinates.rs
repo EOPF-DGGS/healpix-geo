@@ -72,7 +72,7 @@ pub(crate) fn lonlat_to_healpix<'a>(
                 nthreads,
                 Zip::from(&longitude).and(&latitude).and(&mut ipix),
                 |lon, lat, p| {
-                    *p = lonlat_to_healpix_internal(
+                    let hash = lonlat_to_healpix_internal(
                         lon,
                         lat,
                         layer,
@@ -80,6 +80,8 @@ pub(crate) fn lonlat_to_healpix<'a>(
                         &coefficients,
                         &is_spherical,
                     );
+
+                    *p = healpix::nested::to_zuniq(d, hash);
                 }
             );
         }
@@ -95,7 +97,7 @@ pub(crate) fn lonlat_to_healpix<'a>(
                 |lon, lat, &d, p| {
                     let layer = cdshealpix::nested::get(d);
 
-                    *p = lonlat_to_healpix_internal(
+                    let hash = lonlat_to_healpix_internal(
                         lon,
                         lat,
                         layer,
@@ -103,6 +105,8 @@ pub(crate) fn lonlat_to_healpix<'a>(
                         &coefficients,
                         &is_spherical,
                     );
+
+                    *p = healpix::nested::to_zuniq(d, hash);
                 }
             );
         }

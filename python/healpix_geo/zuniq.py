@@ -28,8 +28,8 @@ def from_nested(ipix, depth, num_threads=0):
     ipix = np.atleast_1d(ipix)
     _check_ipixels(data=ipix, depth=depth)
     ipix = ipix.astype(np.uint64)
-    depth = depth.astype(np.uint8)
 
+    depth = depth if isinstance(depth, int) else depth.astype("uint8")
     num_threads = np.uint16(num_threads)
 
     return healpix_geo.zuniq.from_nested(ipix, depth, num_threads)
@@ -159,7 +159,7 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
 
     ipix = np.empty_like(longitude, dtype="uint64")
 
-    healpix_geo.nested.lonlat_to_healpix(
+    healpix_geo.zuniq.lonlat_to_healpix(
         depth, longitude, latitude, ellipsoid, ipix, num_threads
     )
 
@@ -211,6 +211,6 @@ def vertices(ipix, ellipsoid, num_threads=0):
     longitude = np.empty(shape=shape, dtype="float64")
     latitude = np.empty(shape=shape, dtype="float64")
 
-    healpix_geo.nested.vertices(ipix, ellipsoid, longitude, latitude, num_threads)
+    healpix_geo.zuniq.vertices(ipix, ellipsoid, longitude, latitude, num_threads)
 
     return longitude, latitude
