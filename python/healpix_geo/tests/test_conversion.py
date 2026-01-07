@@ -1,0 +1,59 @@
+import numpy as np
+import pytest
+
+import healpix_geo
+
+
+class TestZuniq:
+    @pytest.mark.parametrize(
+        ["cell_ids", "depths", "expected"],
+        (
+            (
+                np.array([3, 12, 48]),
+                np.array([0, 1, 2]),
+                np.array(
+                    [2017612633061982208, 1801439850948198400, 1747396655419752448],
+                    dtype="uint64",
+                ),
+            ),
+            (
+                np.array([215, 230, 245]),
+                np.array([4, 4, 4]),
+                np.array(
+                    [485262859849170944, 519039857054449664, 552816854259728384],
+                    dtype="uint64",
+                ),
+            ),
+        ),
+    )
+    def test_from_nested(self, cell_ids, depths, expected):
+        actual = healpix_geo.zuniq.from_nested(cell_ids, depths)
+
+        np.testing.assert_equal(actual, expected)
+
+    @pytest.mark.parametrize(
+        ["cell_ids", "expected_cell_ids", "expected_depths"],
+        (
+            (
+                np.array(
+                    [2017612633061982208, 1801439850948198400, 1747396655419752448],
+                    dtype="uint64",
+                ),
+                np.array([3, 12, 48]),
+                np.array([0, 1, 2]),
+            ),
+            (
+                np.array(
+                    [485262859849170944, 519039857054449664, 552816854259728384],
+                    dtype="uint64",
+                ),
+                np.array([215, 230, 245]),
+                np.array([4, 4, 4]),
+            ),
+        ),
+    )
+    def test_to_nested(self, cell_ids, expected_cell_ids, expected_depths):
+        actual_cell_ids, actual_depths = healpix_geo.zuniq.to_nested(cell_ids)
+
+        np.testing.assert_equal(actual_cell_ids, expected_cell_ids)
+        np.testing.assert_equal(actual_depths, expected_depths)
