@@ -1,12 +1,36 @@
 use crate::ellipsoid::{EllipsoidLike, IntoGeodesyEllipsoid};
 use cdshealpix as healpix;
+use cdshealpix::nested::Layer;
 use cdshealpix::sph_geom::coo3d::{UnitVec3, UnitVect3, vec3_of};
-use geodesy::ellps::Latitudes;
+use geodesy::authoring::FourierCoefficients;
+use geodesy::ellps::{Ellipsoid, Latitudes};
 use ndarray::{Array1, Zip, s};
 use numpy::{PyArrayDyn, PyArrayMethods};
 use pyo3::prelude::*;
 
 use crate::maybe_parallelize;
+
+#[inline]
+fn healpix_to_lonlat_internal(
+    layer: &Layer,
+    hash: &u64,
+    ellipsoid: &Ellipsoid,
+    coefficients: &FourierCoefficients,
+    is_spherical: &bool,
+) -> (f64, f64) {
+    let center = layer.center(*hash);
+    let lon = center.0.to_degrees();
+
+    let lat = if *is_spherical {
+        center.1.to_degrees()
+    } else {
+        ellipsoid
+            .latitude_authalic_to_geographic(center.1, coefficients)
+            .to_degrees()
+    };
+
+    (lon, lat)
+}
 
 #[pyfunction]
 pub(crate) fn healpix_to_lonlat<'py>(
@@ -32,16 +56,11 @@ pub(crate) fn healpix_to_lonlat<'py>(
     maybe_parallelize!(
         nthreads,
         Zip::from(&mut longitude).and(&mut latitude).and(&ipix),
-        |lon, lat, &p| {
-            let center = layer.center(p);
-            *lon = center.0.to_degrees();
-            if is_spherical {
-                *lat = center.1.to_degrees();
-            } else {
-                *lat = ellipsoid_
-                    .latitude_authalic_to_geographic(center.1, &coefficients)
-                    .to_degrees();
-            }
+        |lon, lat, p| {
+            let (lon_, lat_) =
+                healpix_to_lonlat_internal(layer, p, &ellipsoid_, &coefficients, &is_spherical);
+            *lon = lon_;
+            *lat = lat_;
         }
     );
     Ok(())
