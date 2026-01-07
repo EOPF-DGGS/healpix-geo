@@ -12,8 +12,8 @@ use crate::maybe_parallelize;
 
 #[inline]
 fn healpix_to_lonlat_internal(
-    layer: &Layer,
     hash: &u64,
+    layer: &Layer,
     ellipsoid: &Ellipsoid,
     coefficients: &FourierCoefficients,
     is_spherical: &bool,
@@ -30,6 +30,60 @@ fn healpix_to_lonlat_internal(
     };
 
     (lon, lat)
+}
+
+#[inline]
+fn lonlat_to_healpix_internal(
+    lon: &f64,
+    lat: &f64,
+    layer: &Layer,
+    ellipsoid: &Ellipsoid,
+    coefficients: &FourierCoefficients,
+    is_spherical: &bool,
+) -> u64 {
+    let lon_ = lon.to_radians();
+    let lat_ = if *is_spherical {
+        lat.to_radians()
+    } else {
+        ellipsoid.latitude_geographic_to_authalic(lat.to_radians(), coefficients)
+    };
+
+    layer.hash(lon_, lat_)
+}
+
+#[inline]
+fn vertices_internal(
+    hash: &u64,
+    layer: &Layer,
+    ellipsoid: &Ellipsoid,
+    coefficients: &FourierCoefficients,
+    is_spherical: &bool,
+) -> (Array1<f64>, Array1<f64>) {
+    let vertices = layer.vertices(*hash);
+
+    let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) = vertices.into_iter().unzip();
+    let vertex_lon_ = Array1::from_iter(
+        vertex_lon
+            .into_iter()
+            .map(|l| l.to_degrees().rem_euclid(360.0)),
+    );
+    let vertex_lat_ = Array1::from_iter(if *is_spherical {
+        vertex_lat
+            .into_iter()
+            .map(|l| l.to_degrees())
+            .collect::<Vec<_>>()
+    } else {
+        vertex_lat
+            .into_iter()
+            .map(|l| {
+                ellipsoid
+                    .latitude_authalic_to_geographic(l, coefficients)
+                    .to_degrees()
+            })
+            .collect::<Vec<_>>()
+    });
+
+    (vertex_lon_, vertex_lat_)
 }
 
 #[pyfunction]
@@ -58,7 +112,7 @@ pub(crate) fn healpix_to_lonlat<'py>(
         Zip::from(&mut longitude).and(&mut latitude).and(&ipix),
         |lon, lat, p| {
             let (lon_, lat_) =
-                healpix_to_lonlat_internal(layer, p, &ellipsoid_, &coefficients, &is_spherical);
+                healpix_to_lonlat_internal(p, layer, &ellipsoid_, &coefficients, &is_spherical);
             *lon = lon_;
             *lat = lat_;
         }
@@ -90,14 +144,15 @@ pub(crate) fn lonlat_to_healpix<'a>(
     maybe_parallelize!(
         nthreads,
         Zip::from(&longitude).and(&latitude).and(&mut ipix),
-        |&lon, &lat, p| {
-            let lon_ = lon.to_radians();
-            let lat_ = if is_spherical {
-                lat.to_radians()
-            } else {
-                ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
-            };
-            *p = layer.hash(lon_, lat_);
+        |lon, lat, p| {
+            *p = lonlat_to_healpix_internal(
+                lon,
+                lat,
+                layer,
+                &ellipsoid_,
+                &coefficients,
+                &is_spherical,
+            );
         }
     );
 
@@ -130,33 +185,11 @@ pub(crate) fn vertices<'a>(
         Zip::from(longitude.rows_mut())
             .and(latitude.rows_mut())
             .and(&ipix),
-        |mut lon, mut lat, &p| {
-            let vertices = layer.vertices(p);
-            let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) = vertices.into_iter().unzip();
-            let vertex_lon_ = Array1::from_iter(
-                vertex_lon
-                    .into_iter()
-                    .map(|l| l.to_degrees() % 360.0)
-                    .collect::<Vec<f64>>(),
-            );
-            lon.slice_mut(s![..]).assign(&vertex_lon_);
-
-            let vertex_lat_ = Array1::from_iter(if is_spherical {
-                vertex_lat
-                    .into_iter()
-                    .map(|l| l.to_degrees())
-                    .collect::<Vec<f64>>()
-            } else {
-                vertex_lat
-                    .into_iter()
-                    .map(|l| {
-                        ellipsoid_
-                            .latitude_authalic_to_geographic(l, &coefficients)
-                            .to_degrees()
-                    })
-                    .collect()
-            });
-            lat.slice_mut(s![..]).assign(&vertex_lat_);
+        |mut lon, mut lat, p| {
+            let (vertices_lon, vertices_lat) =
+                vertices_internal(p, layer, &ellipsoid_, &coefficients, &is_spherical);
+            lon.slice_mut(s![..]).assign(&vertices_lon);
+            lat.slice_mut(s![..]).assign(&vertices_lat);
         }
     );
 
