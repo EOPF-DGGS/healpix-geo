@@ -92,6 +92,20 @@ class TestHealpixToGeographic:
             pytest.param(np.array([0, 4, 5, 7, 9]), 0, "ring", id="level0-ring"),
             pytest.param(np.array([1, 2, 3, 8]), 0, "nested", id="level0-nested"),
             pytest.param(
+                np.array(
+                    [
+                        864691128455135232,
+                        1441151880758558720,
+                        2017612633061982208,
+                        4899916394579099648,
+                    ],
+                    dtype="uint64",
+                ),
+                0,
+                "zuniq",
+                id="level0-zuniq",
+            ),
+            pytest.param(
                 np.array([3, 19, 54, 63, 104, 127]), 4, "ring", id="level4-ring"
             ),
             pytest.param(
@@ -104,6 +118,19 @@ class TestHealpixToGeographic:
             param_cds = 2**depth
             hg_healpix_to_lonlat = healpix_geo.ring.healpix_to_lonlat
             cds_healpix_to_lonlat = cdshealpix.ring.healpix_to_lonlat
+        elif indexing_scheme == "zuniq":
+
+            def hg_healpix_to_lonlat(cell_ids, depth, ellipsoid):
+                return healpix_geo.zuniq.healpix_to_lonlat(
+                    cell_ids, ellipsoid=ellipsoid
+                )
+
+            def cds_healpix_to_lonlat(cell_ids, depth):
+                cell_ids, depths = healpix_geo.zuniq.to_nested(cell_ids)
+
+                return cdshealpix.nested.healpix_to_lonlat(cell_ids, depths)
+
+            param_cds = depth
         else:
             param_cds = depth
             hg_healpix_to_lonlat = healpix_geo.nested.healpix_to_lonlat
@@ -188,6 +215,13 @@ class TestGeographicToHealpix:
                 id="level0-nested",
             ),
             pytest.param(
+                np.array([-170.0, 10.0, 30.0, 124.0, 174.0]),
+                np.array([-48.0, -30.0, -5.0, 15.0, 30.0]),
+                0,
+                "zuniq",
+                id="level0-zuniq",
+            ),
+            pytest.param(
                 np.array([-70.0, 135.0, 150.0]),
                 np.array([-65.0, 0.0, 65.0]),
                 4,
@@ -208,6 +242,16 @@ class TestGeographicToHealpix:
             param_cds = 2**depth
             hg_lonlat_to_healpix = healpix_geo.ring.lonlat_to_healpix
             cds_lonlat_to_healpix = cdshealpix.ring.lonlat_to_healpix
+        elif indexing_scheme == "zuniq":
+
+            def cds_lonlat_to_healpix(lon, lat, depth):
+                cell_ids = cdshealpix.nested.lonlat_to_healpix(lon, lat, depth)
+                print(cell_ids)
+                print(healpix_geo.zuniq.from_nested(cell_ids, depth))
+                return healpix_geo.zuniq.from_nested(cell_ids, depth)
+
+            param_cds = depth
+            hg_lonlat_to_healpix = healpix_geo.zuniq.lonlat_to_healpix
         else:
             param_cds = depth
             hg_lonlat_to_healpix = healpix_geo.nested.lonlat_to_healpix
@@ -255,6 +299,22 @@ class TestVertices:
             pytest.param(np.array([0, 4, 5, 7, 9]), 0, "ring", id="level0-ring"),
             pytest.param(np.array([1, 2, 3, 8]), 0, "nested", id="level0-nested"),
             pytest.param(
+                np.array(
+                    [
+                        864691128455135232,
+                        1441151880758558720,
+                        2017612633061982208,
+                        4899916394579099648,
+                    ],
+                    dtype="uint64",
+                ),
+                None,
+                "zuniq",
+                id="level0-zuniq",
+            ),
+            pytest.param(np.array([0, 4, 5, 7, 9]), 0, "ring", id="level0-ring"),
+            pytest.param(np.array([1, 2, 3, 8]), 0, "nested", id="level0-nested"),
+            pytest.param(
                 np.array([3, 19, 54, 63, 104, 127]), 4, "ring", id="level4-ring"
             ),
             pytest.param(
@@ -267,6 +327,17 @@ class TestVertices:
             param_cds = 2**depth
             hg_vertices = healpix_geo.ring.vertices
             cds_vertices = cdshealpix.ring.vertices
+        elif indexing_scheme == "zuniq":
+
+            def cds_vertices(cell_ids, depth):
+                cell_ids, depths = healpix_geo.zuniq.to_nested(cell_ids)
+
+                return cdshealpix.nested.vertices(cell_ids, depths)
+
+            def hg_vertices(cell_ids, depth, ellipsoid):
+                return healpix_geo.zuniq.vertices(cell_ids, ellipsoid=ellipsoid)
+
+            param_cds = depth
         else:
             param_cds = depth
             hg_vertices = healpix_geo.nested.vertices
@@ -276,6 +347,9 @@ class TestVertices:
         expected_lon_, expected_lat_ = cds_vertices(cell_ids, param_cds)
         expected_lon = np.asarray(expected_lon_.to("degree"))
         expected_lat = np.asarray(expected_lat_.to("degree"))
+
+        print(expected_lon, expected_lat)
+        print(actual_lon, actual_lat)
 
         np.testing.assert_allclose(actual_lon, expected_lon)
         np.testing.assert_allclose(actual_lat, expected_lat)
