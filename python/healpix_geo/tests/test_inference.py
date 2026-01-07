@@ -165,13 +165,27 @@ class TestHealpixToGeographic:
         ],
     )
     @pytest.mark.parametrize("depth", [0, 1, 9])
-    @pytest.mark.parametrize("indexing_scheme", ["ring", "nested"])
+    @pytest.mark.parametrize("indexing_scheme", ["ring", "nested", "zuniq"])
     def test_ellipsoidal(self, depth, indexing_scheme, ellipsoid):
         cell_ids = np.arange(12)
         if indexing_scheme == "ring":
             param_cds = 2**depth
             hg_healpix_to_lonlat = healpix_geo.ring.healpix_to_lonlat
             cds_healpix_to_lonlat = cdshealpix.ring.healpix_to_lonlat
+        elif indexing_scheme == "zuniq":
+
+            def hg_healpix_to_lonlat(cell_ids, depth, ellipsoid):
+                return healpix_geo.zuniq.healpix_to_lonlat(
+                    cell_ids, ellipsoid=ellipsoid
+                )
+
+            def cds_healpix_to_lonlat(cell_ids, depth):
+                cell_ids, depths = healpix_geo.zuniq.to_nested(cell_ids)
+
+                return cdshealpix.nested.healpix_to_lonlat(cell_ids, depths)
+
+            cell_ids = healpix_geo.zuniq.from_nested(cell_ids, depth)
+            param_cds = depth
         else:
             param_cds = depth
             hg_healpix_to_lonlat = healpix_geo.nested.healpix_to_lonlat
@@ -235,6 +249,13 @@ class TestGeographicToHealpix:
                 "nested",
                 id="level4-nested",
             ),
+            pytest.param(
+                np.array([-70.0, 135.0, 150.0]),
+                np.array([-65.0, 0.0, 65.0]),
+                4,
+                "zuniq",
+                id="level4-zuniq",
+            ),
         ),
     )
     def test_spherical(self, lon, lat, depth, indexing_scheme):
@@ -264,7 +285,7 @@ class TestGeographicToHealpix:
 
     @pytest.mark.parametrize("ellipsoid", ["unitsphere", "sphere", "WGS84", "bessel"])
     @pytest.mark.parametrize("depth", [0, 1, 9])
-    @pytest.mark.parametrize("indexing_scheme", ["ring", "nested"])
+    @pytest.mark.parametrize("indexing_scheme", ["ring", "nested", "zuniq"])
     def test_ellipsoidal(self, ellipsoid, depth, indexing_scheme):
         lat = np.linspace(-90, 90, 50)
         lon = np.full_like(lat, fill_value=45.0)
@@ -273,6 +294,14 @@ class TestGeographicToHealpix:
             param_cds = 2**depth
             hg = healpix_geo.ring.lonlat_to_healpix
             cds = cdshealpix.ring.lonlat_to_healpix
+        elif indexing_scheme == "zuniq":
+
+            def cds(lon, lat, depth):
+                cell_ids = cdshealpix.nested.lonlat_to_healpix(lon, lat, depth)
+                return healpix_geo.zuniq.from_nested(cell_ids, depth)
+
+            param_cds = depth
+            hg = healpix_geo.zuniq.lonlat_to_healpix
         else:
             param_cds = depth
             hg = healpix_geo.nested.lonlat_to_healpix
@@ -317,6 +346,20 @@ class TestVertices:
             ),
             pytest.param(
                 np.array([22, 89, 134, 154, 190]), 4, "nested", id="level4-nested"
+            ),
+            pytest.param(
+                np.array(
+                    [
+                        50665495807918080,
+                        201536083324829696,
+                        302867074940665856,
+                        347903071214370816,
+                        428967864507039744,
+                    ]
+                ),
+                4,
+                "zuniq",
+                id="level4-zuniq",
             ),
         ),
     )
