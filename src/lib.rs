@@ -31,6 +31,14 @@ mod ring {
 }
 
 #[pymodule]
+mod zuniq {
+    #[pymodule_export]
+    use crate::indexing_schemes::zuniq::{
+        from_nested, healpix_to_lonlat, lonlat_to_healpix, to_nested, vertices,
+    };
+}
+
+#[pymodule]
 mod slices {
     #[pymodule_export]
     use crate::slice_objects::{ConcreteSlice, PositionalSlice};
@@ -49,6 +57,9 @@ mod healpix_geo {
 
     #[pymodule_export]
     use super::ring;
+
+    #[pymodule_export]
+    use super::zuniq;
 
     #[pymodule_export]
     use super::slices;

@@ -43,6 +43,25 @@ Nested
 
    healpix_geo.nested.angular_distances
 
+Zuniq
+-----
+
+**Conversion**
+
+.. autosummary::
+   :toctree: generated/
+
+   healpix_geo.zuniq.from_nested
+   healpix_geo.zuniq.to_nested
+
+**Coordinates**:
+
+.. autosummary::
+   :toctree: generated/
+
+   healpix_geo.zuniq.healpix_to_lonlat
+   healpix_geo.zuniq.lonlat_to_healpix
+   healpix_geo.zuniq.vertices
 
 Ring
 ----
