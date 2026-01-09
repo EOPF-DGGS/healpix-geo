@@ -91,12 +91,13 @@ jobs:
             3.11
             3.12
             3.13
+            3.14
 
       - name: Build wheels
         uses: PyO3/maturin-action@86b9d133d34bc1b40018696f782949dac11bd380 # 1.49.4
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --zig -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          args: --release --out dist --find-interpreter --zig
           sccache: "false"
           manylinux: auto
 
@@ -133,12 +134,13 @@ jobs:
             3.11
             3.12
             3.13
+            3.14
 
       - name: Build wheels
         uses: PyO3/maturin-action@86b9d133d34bc1b40018696f782949dac11bd380 # 1.49.4
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --zig -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          args: --release --out dist --find-interpreter --zig
           sccache: "false"
           manylinux: musllinux_1_2
 
@@ -172,12 +174,13 @@ jobs:
             3.11
             3.12
             3.13
+            3.14
 
       - name: Build wheels
         uses: PyO3/maturin-action@86b9d133d34bc1b40018696f782949dac11bd380 # 1.49.4
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --zig -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          args: --release --out dist --find-interpreter --zig
           sccache: "false"
 
       - name: Upload wheels
@@ -209,12 +212,13 @@ jobs:
             3.11
             3.12
             3.13
+            3.14
 
       - name: Build wheels
         uses: PyO3/maturin-action@86b9d133d34bc1b40018696f782949dac11bd380 # 1.49.4
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --zig -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          args: --release --out dist --find-interpreter --zig
           sccache: "false"
 
       - name: Upload wheels
