@@ -54,7 +54,7 @@ jobs:
         run: |
           if [[ $TAG_FOUND || $LABEL_FOUND ]]; then
               echo "trigger-found=true" >> "$GITHUB_OUTPUT";
-          else:
+          else
               echo "trigger-found=false" >> "$GITHUB_OUTPUT";
           fi
 
