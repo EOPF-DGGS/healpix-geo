@@ -52,7 +52,7 @@ jobs:
           TAG_FOUND: ${{ steps.detect-trigger-tag.outputs.trigger-found }}
           LABEL_FOUND: ${{ steps.detect-trigger-label.outputs.label-found }}
         run: |
-          if [[ $TAG_FOUND || $LABEL_FOUND ]]; then
+          if [[ "$TAG_FOUND" == "true" || "$LABEL_FOUND" == "true" ]]; then
               echo "trigger-found=true" >> "$GITHUB_OUTPUT";
           else
               echo "trigger-found=false" >> "$GITHUB_OUTPUT";
