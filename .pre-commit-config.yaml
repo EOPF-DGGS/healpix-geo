@@ -48,6 +48,14 @@ repos:
     hooks:
       - id: typos
         exclude: ".*\\.ipynb$"
+  - repo: https://github.com/mpalmer/action-validator
+    rev: v0.8.0
+    hooks:
+      - id: action-validator
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.19.0
+    hooks:
+      - id: zizmor
   - repo: local
     hooks:
       - id: cargo-fmt
