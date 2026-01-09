@@ -96,9 +96,9 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
-          sccache: "true"
-          manylinux: ${{ matrix.manylinux }}
+          args: --release --out dist --find-interpreter --zig -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          manylinux: auto
 
       - name: Upload wheels
         uses: actions/upload-artifact@v6
@@ -113,13 +113,13 @@ jobs:
     strategy:
       matrix:
         platform:
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             target: x86_64
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             target: x86
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             target: aarch64
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             target: armv7
     steps:
       - uses: actions/checkout@v6
@@ -136,8 +136,8 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
-          sccache: "true"
+          args: --release --out dist --find-interpreter --zig -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: musllinux_1_2
 
       - name: Upload wheels
@@ -155,11 +155,14 @@ jobs:
         platform:
           - runner: windows-latest
             target: x64
+          - runner: windows-latest
+            target: x86
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
+          architecture: ${{ matrix.platform.target }}
           python-version: |
             3.10
             3.11
@@ -170,8 +173,8 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
-          sccache: "true"
+          args: --release --out dist --find-interpreter --zig -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
       - name: Upload wheels
         uses: actions/upload-artifact@v6
@@ -205,8 +208,8 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
-          sccache: "true"
+          args: --release --out dist --find-interpreter --zig -i 3.10 -i 3.11 -i 3.12 -i 3.13
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
       - name: Upload wheels
         uses: actions/upload-artifact@v6
