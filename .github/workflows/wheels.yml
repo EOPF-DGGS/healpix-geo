@@ -34,7 +34,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 2
 
-      - uses: xarray-contrib/ci-trigger@v1
+      - uses: xarray-contrib/ci-trigger@10cd2bfec3484946a4058a421ddf9cfad101e715 # v1.2.1
         id: detect-trigger-tag
         with:
           keyword: "[build-wheels]"
@@ -93,11 +93,11 @@ jobs:
             3.13
 
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@86b9d133d34bc1b40018696f782949dac11bd380 # 1.49.4
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --zig -i 3.10 -i 3.11 -i 3.12 -i 3.13
-          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          sccache: "false"
           manylinux: auto
 
       - name: Upload wheels
@@ -123,6 +123,8 @@ jobs:
             target: armv7
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@v6
         with:
@@ -133,11 +135,11 @@ jobs:
             3.13
 
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@86b9d133d34bc1b40018696f782949dac11bd380 # 1.49.4
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --zig -i 3.10 -i 3.11 -i 3.12 -i 3.13
-          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          sccache: "false"
           manylinux: musllinux_1_2
 
       - name: Upload wheels
@@ -159,6 +161,8 @@ jobs:
             target: x86
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@v6
         with:
@@ -170,11 +174,11 @@ jobs:
             3.13
 
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@86b9d133d34bc1b40018696f782949dac11bd380 # 1.49.4
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --zig -i 3.10 -i 3.11 -i 3.12 -i 3.13
-          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          sccache: "false"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v6
@@ -195,6 +199,8 @@ jobs:
             target: aarch64
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-python@v6
         with:
@@ -205,11 +211,11 @@ jobs:
             3.13
 
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@86b9d133d34bc1b40018696f782949dac11bd380 # 1.49.4
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --zig -i 3.10 -i 3.11 -i 3.12 -i 3.13
-          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          sccache: "false"
 
       - name: Upload wheels
         uses: actions/upload-artifact@v6
@@ -261,4 +267,4 @@ jobs:
         with:
           subject-path: "dist/*.whl"
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
