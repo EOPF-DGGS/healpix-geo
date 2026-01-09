@@ -60,7 +60,7 @@ jobs:
 
   linux:
     needs: detect-ci-trigger
-    if: needs.detect-ci-trigger.outputs.triggered
+    if: needs.detect-ci-trigger.outputs.triggered == "true"
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false
@@ -109,7 +109,7 @@ jobs:
 
   musllinux:
     needs: detect-ci-trigger
-    if: needs.detect-ci-trigger.outputs.triggered
+    if: needs.detect-ci-trigger.outputs.triggered == "true"
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -152,7 +152,7 @@ jobs:
 
   windows:
     needs: detect-ci-trigger
-    if: needs.detect-ci-trigger.outputs.triggered
+    if: needs.detect-ci-trigger.outputs.triggered == "true"
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -191,7 +191,7 @@ jobs:
 
   macos:
     needs: detect-ci-trigger
-    if: needs.detect-ci-trigger.outputs.triggered
+    if: needs.detect-ci-trigger.outputs.triggered == "true"
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
