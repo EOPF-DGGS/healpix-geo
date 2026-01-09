@@ -12,6 +12,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   detect-ci-trigger:
     name: detect ci trigger
@@ -24,9 +27,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 2
 
-      - uses: xarray-contrib/ci-trigger@v1
+      - uses: xarray-contrib/ci-trigger@10cd2bfec3484946a4058a421ddf9cfad101e715 # v1.2.1
         id: detect-trigger
         with:
           keyword: "[skip-ci]"
@@ -55,9 +59,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        run: |
+          rustup update stable
+          rustup default stable
 
       - name: setup environment
         uses: prefix-dev/setup-pixi@82d477f15f3a381dbcc8adc1206ce643fe110fb7 # 0.9.3
@@ -65,7 +73,7 @@ jobs:
           environments: "${{ matrix.env }}"
 
       - name: Create rust cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # 2.8.2
         with:
           prefix-key: "py${{ matrix.python-version }}"
 

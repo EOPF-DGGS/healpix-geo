@@ -10,6 +10,9 @@ concurrency:
   group: ${{ github.workflow }}.${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint
@@ -29,11 +32,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
+        run: |
+          rustup update stable
+          rustup default stable
+          rustup component add clippy
 
       - name: setup environment
         uses: prefix-dev/setup-pixi@82d477f15f3a381dbcc8adc1206ce643fe110fb7 # 0.9.3
@@ -41,7 +47,7 @@ jobs:
           environments: "${{ matrix.env }}"
 
       - name: Create rust cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # 2.8.2
 
       - name: Help finding installed libraries
         run: |
