@@ -35,13 +35,26 @@ jobs:
         with:
           keyword: "[skip-ci]"
 
-  test:
-    name: ${{ matrix.os }} | ${{ matrix.env }}
-    runs-on: ${{ matrix.os }}
+  cache-pixi-lock:
+    runs-on: ubuntu-slim
     needs: detect-ci-trigger
     if: |
       needs.detect-ci-trigger.outputs.triggered == 'false'
       && !contains(github.event.pull_request.labels.*.name, 'skip-ci')
+    outputs:
+      cache-key: ${{ steps.pixi-lock.outputs.cache-key }}
+      pixi-version: ${{ steps.pixi-lock.outputs.pixi-version }}
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+      - uses: Parcels-code/pixi-lock/create-and-cache@5cbd7a155fa24aa0711ec0a9aad9ede0819e84a1 # v0.1.0
+        id: pixi-lock
+
+  test:
+    name: ${{ matrix.os }} | ${{ matrix.env }}
+    needs: detect-ci-trigger
+    runs-on: ${{ matrix.os }}
     env:
       FORCE_COLOR: 3
     defaults:
