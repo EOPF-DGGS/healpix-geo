@@ -60,7 +60,6 @@ jobs:
   test:
     name: ${{ matrix.os }} | ${{ matrix.env }}
     needs: detect-ci-trigger
-    if: false
     runs-on: ${{ matrix.os }}
     env:
       FORCE_COLOR: 3
@@ -90,6 +89,10 @@ jobs:
       - uses: Parcels-code/pixi-lock/restore@5cbd7a155fa24aa0711ec0a9aad9ede0819e84a1 # v0.1.0
         with:
           cache-key: ${{ needs.cache-pixi-lock.outputs.cache-key }}
+
+      - run: |
+          echo "intentional failure"
+          exit 1
 
       - name: setup environment
         uses: prefix-dev/setup-pixi@82d477f15f3a381dbcc8adc1206ce643fe110fb7 # 0.9.3
