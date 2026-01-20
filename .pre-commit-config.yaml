@@ -6,7 +6,7 @@ repos:
       - id: end-of-file-fixer
       - id: check-docstring-first
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.7.4
+    rev: v3.8.0
     hooks:
       - id: prettier
         args: ["--cache-location=.prettier_cache/cache"]
@@ -22,29 +22,29 @@ repos:
     hooks:
       - id: validate-pyproject
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.10
+    rev: v0.14.13
     hooks:
       - id: ruff
         args: ["--fix", "--show-fixes"]
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 25.12.0
+    rev: 26.1.0
     hooks:
       - id: black-jupyter
   - repo: https://github.com/keewis/blackdoc
     rev: v0.4.6
     hooks:
       - id: blackdoc
-        additional_dependencies: ["black==25.12.0"]
+        additional_dependencies: ["black==26.1.0"]
       - id: blackdoc-autoupdate-black
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.8.2
+    rev: 0.9.0
     hooks:
       - id: nbstripout
         args:
           - "--extra-keys=metadata.kernelspec"
           - "metadata.language_info.version"
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.41.0
+    rev: v1.42.0
     hooks:
       - id: typos
         exclude: ".*\\.ipynb$"
@@ -53,7 +53,7 @@ repos:
     hooks:
       - id: action-validator
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: v1.19.0
+    rev: v1.22.0
     hooks:
       - id: zizmor
   - repo: local
