@@ -59,7 +59,7 @@ jobs:
 
   test:
     name: ${{ matrix.os }} | ${{ matrix.env }}
-    needs: detect-ci-trigger
+    needs: cache-pixi-lock
     runs-on: ${{ matrix.os }}
     env:
       FORCE_COLOR: 3
