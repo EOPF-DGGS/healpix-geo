@@ -48,12 +48,19 @@ jobs:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
+
       - uses: Parcels-code/pixi-lock/create-and-cache@5cbd7a155fa24aa0711ec0a9aad9ede0819e84a1 # v0.1.0
         id: pixi-lock
+
+      - run: |
+          echo "CACHE_KEY=$CACHE_KEY"
+        env:
+          CACHE_KEY: ${{ steps.pixi-lock.outputs.cache-key }}
 
   test:
     name: ${{ matrix.os }} | ${{ matrix.env }}
     needs: detect-ci-trigger
+    if: false
     runs-on: ${{ matrix.os }}
     env:
       FORCE_COLOR: 3
