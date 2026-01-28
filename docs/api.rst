@@ -36,6 +36,8 @@ Nested
    healpix_geo.nested.cone_coverage
    healpix_geo.nested.elliptical_cone_coverage
 
+   healpix_geo.nested.internal_boundary
+
 **Distances**:
 
 .. autosummary::
