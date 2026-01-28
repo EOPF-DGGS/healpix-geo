@@ -18,7 +18,7 @@ permissions:
 jobs:
   detect-ci-trigger:
     name: detect ci trigger
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     if: |
       github.repository == 'EOPF-DGGS/healpix-geo'
       && (github.event_name == 'push' || github.event_name == 'pull_request')
@@ -35,13 +35,27 @@ jobs:
         with:
           keyword: "[skip-ci]"
 
-  test:
-    name: ${{ matrix.os }} | ${{ matrix.env }}
-    runs-on: ${{ matrix.os }}
+  cache-pixi-lock:
+    runs-on: ubuntu-slim
     needs: detect-ci-trigger
     if: |
       needs.detect-ci-trigger.outputs.triggered == 'false'
       && !contains(github.event.pull_request.labels.*.name, 'skip-ci')
+    outputs:
+      cache-key: ${{ steps.pixi-lock.outputs.cache-key }}
+      pixi-version: ${{ steps.pixi-lock.outputs.pixi-version }}
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - uses: Parcels-code/pixi-lock/create-and-cache@5cbd7a155fa24aa0711ec0a9aad9ede0819e84a1 # v0.1.0
+        id: pixi-lock
+
+  test:
+    name: ${{ matrix.os }} | ${{ matrix.env }}
+    needs: cache-pixi-lock
+    runs-on: ${{ matrix.os }}
     env:
       FORCE_COLOR: 3
     defaults:
@@ -67,10 +81,17 @@ jobs:
           rustup update stable
           rustup default stable
 
+      - uses: Parcels-code/pixi-lock/restore@5cbd7a155fa24aa0711ec0a9aad9ede0819e84a1 # v0.1.0
+        with:
+          cache-key: ${{ needs.cache-pixi-lock.outputs.cache-key }}
+
       - name: setup environment
         uses: prefix-dev/setup-pixi@82d477f15f3a381dbcc8adc1206ce643fe110fb7 # 0.9.3
         with:
           environments: "${{ matrix.env }}"
+          pixi-version: ${{ needs.cache-pixi-lock.outputs.pixi-version }}
+          cache: true
+          frozen: true
 
       - name: Create rust cache
         uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # 2.8.2
