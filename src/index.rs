@@ -394,6 +394,12 @@ impl RangeMOCIndex {
 
     /// Compute the set difference of two indexes
     ///
+    /// The set difference contains all elements that are in `self` but not in `other`.
+    ///
+    /// .. math::
+    ///
+    ///    A - B = { x | x \in A \land x \notin B }
+    ///
     /// Parameters
     /// ----------
     /// other : RangeMOCIndex
