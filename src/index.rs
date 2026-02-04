@@ -392,6 +392,54 @@ impl RangeMOCIndex {
         }
     }
 
+    /// Compute the set difference of two indexes
+    ///
+    /// The set difference contains all elements that are in `self` but not in `other`.
+    ///
+    /// .. math::
+    ///
+    ///    A - B = { x | x \in A \land x \notin B }
+    ///
+    /// Parameters
+    /// ----------
+    /// other : RangeMOCIndex
+    ///     The index to subtract. May have a different depth, in which case the
+    ///     result will use the maximum depth between both indexes.
+    ///
+    /// Returns
+    /// -------
+    /// result : RangeMOCIndex
+    ///     The set difference of the two indexes.
+    fn difference(&self, other: &RangeMOCIndex) -> Self {
+        RangeMOCIndex {
+            moc: self.moc.minus(&other.moc),
+        }
+    }
+
+    /// Compute the symmetric set difference of two indexes
+    ///
+    /// The symmetric set difference contains all elements that are in `self` or `other` but not both:
+    ///
+    /// .. math::
+    ///
+    ///    A \Delta B = (A - B) \cup (B - A)
+    ///
+    /// Parameters
+    /// ----------
+    /// other : RangeMOCIndex
+    ///     The index to subtract. May have a different depth, in which case the
+    ///     result will use the maximum depth between both indexes.
+    ///
+    /// Returns
+    /// -------
+    /// result : RangeMOCIndex
+    ///     The symmetric set difference of the two indexes.
+    fn symmetric_difference(&self, other: &RangeMOCIndex) -> Self {
+        RangeMOCIndex {
+            moc: self.moc.xor(&other.moc),
+        }
+    }
+
     /// The size of the ranges in bytes, minus any overhead.
     #[getter]
     fn nbytes(&self) -> u64 {
