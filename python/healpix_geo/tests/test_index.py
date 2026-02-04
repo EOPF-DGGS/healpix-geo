@@ -87,6 +87,63 @@ class TestRangeMOCIndex:
         np.testing.assert_equal(actual.cell_ids(), expected)
 
     @pytest.mark.parametrize(
+        ["level", "cell_ids1", "cell_ids2", "expected"],
+        (
+            (
+                4,
+                np.arange(2 * 4**4, 4 * 4**4, dtype="uint64"),
+                np.arange(3 * 4**4, 5 * 4**4, dtype="uint64"),
+                np.arange(2 * 4**4, 3 * 4**4, dtype="uint64"),
+            ),
+            (
+                1,
+                np.array([1, 2, 3, 4, 21, 22, 23, 24, 25], dtype="uint64"),
+                np.array([21, 22, 23, 25, 26, 32, 33, 34, 35], dtype="uint64"),
+                np.array([1, 2, 3, 4, 24], dtype="uint64"),
+            ),
+        ),
+    )
+    def test_difference(self, level, cell_ids1, cell_ids2, expected):
+        index1 = healpix_geo.nested.RangeMOCIndex.from_cell_ids(level, cell_ids1)
+        index2 = healpix_geo.nested.RangeMOCIndex.from_cell_ids(level, cell_ids2)
+
+        actual = index1.difference(index2)
+
+        assert isinstance(actual, healpix_geo.nested.RangeMOCIndex)
+        np.testing.assert_equal(actual.cell_ids(), expected)
+
+    @pytest.mark.parametrize(
+        ["level", "cell_ids1", "cell_ids2", "expected"],
+        (
+            (
+                4,
+                np.arange(2 * 4**4, 4 * 4**4, dtype="uint64"),
+                np.arange(3 * 4**4, 5 * 4**4, dtype="uint64"),
+                np.concatenate(
+                    [
+                        np.arange(2 * 4**4, 3 * 4**4, dtype="uint64"),
+                        np.arange(4 * 4**4, 5 * 4**4, dtype="uint64"),
+                    ]
+                ),
+            ),
+            (
+                1,
+                np.array([1, 2, 3, 4, 21, 22, 23, 24, 25], dtype="uint64"),
+                np.array([21, 22, 23, 25, 26, 32, 33, 34, 35], dtype="uint64"),
+                np.array([1, 2, 3, 4, 24, 26, 32, 33, 34, 35], dtype="uint64"),
+            ),
+        ),
+    )
+    def test_symmetric_difference(self, level, cell_ids1, cell_ids2, expected):
+        index1 = healpix_geo.nested.RangeMOCIndex.from_cell_ids(level, cell_ids1)
+        index2 = healpix_geo.nested.RangeMOCIndex.from_cell_ids(level, cell_ids2)
+
+        actual = index1.symmetric_difference(index2)
+
+        assert isinstance(actual, healpix_geo.nested.RangeMOCIndex)
+        np.testing.assert_equal(actual.cell_ids(), expected)
+
+    @pytest.mark.parametrize(
         ["level", "cell_ids"],
         (
             pytest.param(0, np.arange(12, dtype="uint64"), id="base cells"),
