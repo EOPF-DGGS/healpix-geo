@@ -392,6 +392,24 @@ impl RangeMOCIndex {
         }
     }
 
+    /// Compute the set difference of two indexes
+    ///
+    /// Parameters
+    /// ----------
+    /// other : RangeMOCIndex
+    ///     The index to subtract. May have a different depth, in which case the
+    ///     result will use the maximum depth between both indexes.
+    ///
+    /// Returns
+    /// -------
+    /// result : RangeMOCIndex
+    ///     The set difference of the two indexes.
+    fn difference(&self, other: &RangeMOCIndex) -> Self {
+        RangeMOCIndex {
+            moc: self.moc.minus(&other.moc),
+        }
+    }
+
     /// The size of the ranges in bytes, minus any overhead.
     #[getter]
     fn nbytes(&self) -> u64 {
