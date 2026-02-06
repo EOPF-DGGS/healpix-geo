@@ -11,5 +11,6 @@ HEALPix supports three main schemes:
 - **Zuniq** (for MOC)
 
 For more details, see:
+
 - {doc}`../tutorials/coordinate_conversion` - Conversion Tutorial
 - {doc}`../healpix/index` - HEALPix Introduction

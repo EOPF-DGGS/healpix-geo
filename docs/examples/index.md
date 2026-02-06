@@ -44,8 +44,9 @@ En attendant, tous les tutorials contiennent des examples completes :
 - {doc}`../tutorials/coverage_queries` - Examples de requêtes
 
 <<<<<<< Updated upstream
+
 ## Contribuer
 
-Vous avez un example intéressant ? Partagez-le via [GitHub](https://github.com/EOPF-DGGS/healpix-geo) !
-=======
->>>>>>> Stashed changes
+# Vous avez un example intéressant ? Partagez-le via [GitHub](https://github.com/EOPF-DGGS/healpix-geo) !
+
+> > > > > > > Stashed changes

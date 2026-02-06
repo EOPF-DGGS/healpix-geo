@@ -9,6 +9,7 @@ HEALPix is a spherical tiling system with three fundamental properties:
 3. **Hierarchical** - Natural tree structure
 
 For more details, see:
+
 - {doc}`../healpix/index` - Complete HEALPix Introduction
 - {doc}`../tutorials/quickstart` - Quick Start Tutorial
 - {doc}`../terminology` - Glossary of Terms

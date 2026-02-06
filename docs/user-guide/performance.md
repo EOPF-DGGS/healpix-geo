@@ -10,5 +10,6 @@ This chapter presents advanced optimization techniques for Healpix-Geo.
 4. Memory Management
 
 For more details, see:
+
 - {doc}`../tutorials/performance_optimization` - Practical Tutorial
 - {doc}`../api` - Performance Parameters

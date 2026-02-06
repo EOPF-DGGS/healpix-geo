@@ -69,7 +69,7 @@ Conversions between geographic coordinates and HEALPix indices.
    vertices
 
 .. seealso::
-   Tutoriel complet : :doc:`tutorials/coordinate_conversion`
+   Tutorial complete : :doc:`tutorials/coordinate_conversion`
 
 Hierarchy and neighborhood
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
