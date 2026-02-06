@@ -2,14 +2,14 @@
 
 Geographic data can be expressed in different coordinate systems:
 
-- 3D cartesian
-- Spherical
-- Ellipsoidal
-- Projected
+- **3D cartesian** : Coordinates (x, y, z) in space
+- **Spherical** : Simple model with constant radius
+- **Ellipsoidal** : Accurate model with flattening at the poles
+- **Projected** : Projection onto a plane (e.g., Mercator, UTM)
 
 3D cartesian coordinates are the simplest coordinates, but rather tricky to use to describe coordinates on earth's curved surface.
 
-Instead, the earth's surface is commonly approximated in first order as a sphere, and in second order as an ellipsoid.
+Instead, the earth's surface is commonly approximated in first order as a **sphere**, and in second order as an **ellipsoid**.
 
 ## Ellipsoidal coordinates
 
@@ -56,3 +56,28 @@ Karney, 2023[^2], describes conversion formulas that reduce the numerical round-
 [^1]: https://doi.org/10.3133/pp1395
 
 [^2]: https://doi.org/10.1080/00396265.2023.2217604
+
+
+```{toctree}
+---
+maxdepth: 2
+caption: Guide utilisateur
+hidden: true
+---
+installation
+user-guide/index
+tutorials/index
+examples/index
+```
+
+```{toctree}
+---
+maxdepth: 2
+caption: Reference
+hidden: true
+---
+api
+healpix/index
+reference-system
+terminology
+```
