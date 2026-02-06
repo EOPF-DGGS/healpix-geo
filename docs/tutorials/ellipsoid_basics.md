@@ -2,7 +2,6 @@
 
 This tutorial explain why and how to use ellipsoids of reference in `healpix-geo`.
 
-
 ## Supported Ellipsoids
 
 ```python
@@ -14,7 +13,10 @@ lon, lat = np.array([0.0]), np.array([45.0])
 depth = 10
 
 ellipsoids = {
-    "sphere","WGS84","GRS80","WGS72",
+    "sphere",
+    "WGS84",
+    "GRS80",
+    "WGS72",
 }
 
 print(f"HEALPix cell at point (0°, 45°) at depth={depth}:\n")
@@ -29,12 +31,12 @@ See [this link](https://github.com/busstoptaktik/geodesy/blob/f9090b8c91f401892a
 
 ### Which ellipsoid choose ?
 
-| Ellipsoid | When to use it |
-|------------|------------------|
-| **WGS84** | **Recommanded by default** - International Standard GPS  |
-| GRS80 | Almost equal to WGS84 |
-| WGS72 |Only for compatibility with old data |
-| sphere | Quick tests |
+| Ellipsoid | When to use it                                          |
+| --------- | ------------------------------------------------------- |
+| **WGS84** | **Recommended by default** - International Standard GPS |
+| GRS80     | Almost equal to WGS84                                   |
+| WGS72     | Only for compatibility with old data                    |
+| sphere    | Quick tests                                             |
 
 :::{important}
 **Golden rule**: Use **WGS84** unless you have a specific reason to use a different ellipsoid.
@@ -46,11 +48,13 @@ See [this link](https://github.com/busstoptaktik/geodesy/blob/f9090b8c91f401892a
 
 ```python
 # GPS trajectory data
-gps_points = np.array([
-    [2.3522, 48.8566],  # Paris
-    [2.3532, 48.8576],  # 100m further
-    [2.3542, 48.8586],  # 100m further
-])
+gps_points = np.array(
+    [
+        [2.3522, 48.8566],  # Paris
+        [2.3532, 48.8576],  # 100m further
+        [2.3542, 48.8586],  # 100m further
+    ]
+)
 
 lon_gps = gps_points[:, 0]
 lat_gps = gps_points[:, 1]

@@ -9,7 +9,7 @@
 :link: quickstart
 :link-type: doc
 
-**Recommanded for begginers**
+**Recommended for beginners**
 
 Learn bases of `healpix-geo` in 15 minutes : conversions of coordinates, understand depth, and visualised your first HEALPix cells.
 :::
@@ -68,5 +68,3 @@ Techniques for optimizing performance: vectorization, multi-threading, and best 
 :::
 
 ::::
-
-

@@ -1,6 +1,6 @@
 # Gallery of example
 
-Cette section contient des exemples de code prêts à l'emploi avec healpix-geo.
+Cette section contient des examples de code prêts à l'emploi avec healpix-geo.
 
 ```{toctree}
 ---
@@ -29,20 +29,20 @@ hidden: true
 ## À propos de cette galerie
 
 :::{note}
-**Section en construction**. Les exemples seront ajoutés progressivement.
+**Section en construction**. Les examples seront ajoutés progressivement.
 
-Pour l'instant, consultez les tutoriels qui contiennent de nombreux exemples exécutables.
+Pour l'instant, consultez les tutorials qui contiennent de nombreux examples exécutables.
 :::
 
-## Exemples dans les tutoriels
+## Examples dans les tutorials
 
-En attendant, tous les tutoriels contiennent des exemples complets :
+En attendant, tous les tutorials contiennent des examples completes :
 
-- {doc}`../tutorials/quickstart` - Exemples de base
-- {doc}`../tutorials/ellipsoid_basics` - Exemples avec ellipsoïdes
-- {doc}`../tutorials/coordinate_conversion` - Exemples de conversions
-- {doc}`../tutorials/coverage_queries` - Exemples de requêtes
+- {doc}`../tutorials/quickstart` - Examples de base
+- {doc}`../tutorials/ellipsoid_basics` - Examples avec ellipsoïdes
+- {doc}`../tutorials/coordinate_conversion` - Examples de conversions
+- {doc}`../tutorials/coverage_queries` - Examples de requêtes
 
 ## Contribuer
 
-Vous avez un exemple intéressant ? Partagez-le via [GitHub](https://github.com/EOPF-DGGS/healpix-geo) !
+Vous avez un example intéressant ? Partagez-le via [GitHub](https://github.com/EOPF-DGGS/healpix-geo) !

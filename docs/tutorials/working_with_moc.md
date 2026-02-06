@@ -1,6 +1,6 @@
 # Work with MOC
 
-This tutorial explains how to use Multi-Order Coverage maps (MOC) to represent efficiently compex regions.
+This tutorial explains how to use Multi-Order Coverage maps (MOC) to represent efficiently complex regions.
 
 ## zuniq scheme
 
@@ -22,6 +22,7 @@ print(f"Zuniq IDs: {zuniq_ids}")
 ipix_back, depth_back = to_nested(zuniq_ids)
 print(f"Nested: depth={depth_back}, ipix={ipix_back}")
 ```
+
 ## Creates a MOC
 
 ```python

@@ -90,11 +90,12 @@ depth = 5
 k = 1  # direct neighbour (distance 1)
 
 neighbours = kth_neighbourhood(ipix, depth, k)
-print(f"Direct neighbourhouds of the cell {ipix[0]}:")
+print(f"Direct neighbourhoods of the cell {ipix[0]}:")
 print(neighbours)
 ```
+
 :::{seealso}
-For more details on hierarchy and neighbourhoud, see {doc}`../user-guide/hierarchical_indexing`.
+For more details on hierarchy and neighbourhood, see {doc}`../user-guide/hierarchical_indexing`.
 :::
 
 ## Hierarchic navigation

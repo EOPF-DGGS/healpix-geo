@@ -4,12 +4,12 @@ API reference
 This page contains the complete documentation of all the functions and classes available in `healpix-geo`.
 
 Overview
-============== 
+==============
 
 `healpix-geo` is organised in several modules following the **HEALPix indexing scheme** used :
 
 - :mod:`healpix_geo.nested` : nested scheme
-- :mod:`healpix_geo.ring` : ring scheme 
+- :mod:`healpix_geo.ring` : ring scheme
 - :mod:`healpix_geo.zuniq` : Zuniq scheme for Multi-Order Coverage (MOC)
 
 .. tip::
@@ -26,19 +26,19 @@ Choose your module following your needs :
 
    * - Module
      - When to use it
-     - Principal functionnalities
+     - Principal functionalities
    * - **nested**
-     - - General applications 
+     - - General applications
        - Hierarchical requests
        - Multi-resolution
-     - - Coordinates conversions 
+     - - Coordinates conversions
        - Coverage
        - Hierarchy
        - Distances
    * - **ring**
      - - Compatibility legacy
        - Specific order requested
-     - - Coordinates conversions 
+     - - Coordinates conversions
        - Distances
        - Limited neighbours
    * - **zuniq**
@@ -48,7 +48,7 @@ Choose your module following your needs :
        - Cell Coordinates
 
 
-Module nested 
+Module nested
 ==============
 
 The module :mod:`healpix_geo.nested` gives functions for the nested indexing scheme.
@@ -88,13 +88,13 @@ Navigation in the hierarchical structure of HEALPix.
 
 .. code-block:: python
 
-   from healpix_geo.nested import kth_neighbourhood, zoom_to
+    from healpix_geo.nested import kth_neighbourhood, zoom_to
 
-   # Direct neighbours
-   neighbours = kth_neighbourhood(ipix, depth=8, k=1)
+    # Direct neighbours
+    neighbours = kth_neighbourhood(ipix, depth=8, k=1)
 
-       # Parents and children
-   children = zoom_to(parent_ipix, parent_depth, parent_depth + 1)
+    # Parents and children
+    children = zoom_to(parent_ipix, parent_depth, parent_depth + 1)
 
 .. seealso::
    Complete tutorial : :doc:`user-guide/hierarchical_indexing`
@@ -206,13 +206,13 @@ Conversions between schemes nested et zuniq.
 
 .. code-block:: python
 
-   from healpix_geo.zuniq import from_nested, to_nested
+    from healpix_geo.zuniq import from_nested, to_nested
 
-   # nested → zuniq
-   zuniq_id = from_nested(ipix, depth)
+    # nested → zuniq
+    zuniq_id = from_nested(ipix, depth)
 
-   # zuniq → nested
-   ipix, depth = to_nested(zuniq_id)
+    # zuniq → nested
+    ipix, depth = to_nested(zuniq_id)
 
 Coordinates Conversions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -226,7 +226,7 @@ Coordinates Conversions
    vertices
 
 .. seealso::
-   Tutoriel MOC : :doc:`tutorials/working_with_moc`
+   Tutorial MOC : :doc:`tutorials/working_with_moc`
 
 Common Parameters
 ==================
@@ -247,7 +247,7 @@ HEALPix indices
 
   - 0 = coarser (12 cells)
   - 29 = finer (~0.2 mm)
-  - See :doc:`healpix/levels` pour le tableau complet
+  - See :doc:`healpix/levels` pour le tableau complete
 
 Ellipsoids
 ~~~~~~~~~~~
@@ -257,7 +257,7 @@ Ellipsoids
   - ``"WGS84"`` : Standard GPS
   - ``"GRS80"`` : Geodesic System of reference 1980
   - ``"WGS72"`` : Old standard GPS
-  - ``"sphere"`` : Perfect sphere 
+  - ``"sphere"`` : Perfect sphere
 
 .. tip::
    **Always use** ``ellipsoid="WGS84"`` for real geospatial applications.
@@ -282,5 +282,3 @@ All functions are **vectorized** and accept:
 - Scalars (automatically converted to arrays)
 - 1D NumPy arrays
 - Multidimensional NumPy arrays (depending on the function)
-
-

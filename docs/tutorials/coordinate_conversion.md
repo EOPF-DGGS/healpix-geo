@@ -5,6 +5,7 @@ This tutorial delves deeper into conversions between geographic coordinates and 
 ## HEALPix indexing schemes
 
 HEALPix supports three different indexing schemes:
+
 - Nested
 - Ring
 - Zuniq
@@ -51,7 +52,7 @@ ipix_back, depth_back = to_nested(zuniq_id)
 print(f"Zuniq {zuniq_id} → Nested (depth={depth_back}, ipix={ipix_back})")
 ```
 
-### Visual compairison
+### Visual comparison
 
 Let see how the different schemes are organising cells :
 
@@ -73,14 +74,20 @@ for ipix in sample_cells:
     lons, lats = nested_vertices(np.array([ipix]), depth, "WGS84")
     lons_closed = np.append(lons[:, 0], lons[0, 0])
     lats_closed = np.append(lats[:, 0], lats[0, 0])
-    
-    ax1.plot(lons_closed, lats_closed, 'b-', linewidth=0.5, alpha=0.5)
-    ax1.text(lons[:, 0].mean(), lats[:, 0].mean(), str(ipix), 
-             ha='center', va='center', fontsize=6)
 
-ax1.set_title(f'Nested Scheme (depth={depth})', fontsize=14)
-ax1.set_xlabel('Longitude (°)')
-ax1.set_ylabel('Latitude (°)')
+    ax1.plot(lons_closed, lats_closed, "b-", linewidth=0.5, alpha=0.5)
+    ax1.text(
+        lons[:, 0].mean(),
+        lats[:, 0].mean(),
+        str(ipix),
+        ha="center",
+        va="center",
+        fontsize=6,
+    )
+
+ax1.set_title(f"Nested Scheme (depth={depth})", fontsize=14)
+ax1.set_xlabel("Longitude (°)")
+ax1.set_ylabel("Latitude (°)")
 ax1.grid(True, alpha=0.3)
 
 # Ring
@@ -88,14 +95,20 @@ for ipix in sample_cells:
     lons, lats = ring_vertices(np.array([ipix]), depth, "WGS84")
     lons_closed = np.append(lons[:, 0], lons[0, 0])
     lats_closed = np.append(lats[:, 0], lats[0, 0])
-    
-    ax2.plot(lons_closed, lats_closed, 'r-', linewidth=0.5, alpha=0.5)
-    ax2.text(lons[:, 0].mean(), lats[:, 0].mean(), str(ipix), 
-             ha='center', va='center', fontsize=6)
 
-ax2.set_title(f'Ring Scheme (depth={depth})', fontsize=14)
-ax2.set_xlabel('Longitude (°)')
-ax2.set_ylabel('Latitude (°)')
+    ax2.plot(lons_closed, lats_closed, "r-", linewidth=0.5, alpha=0.5)
+    ax2.text(
+        lons[:, 0].mean(),
+        lats[:, 0].mean(),
+        str(ipix),
+        ha="center",
+        va="center",
+        fontsize=6,
+    )
+
+ax2.set_title(f"Ring Scheme (depth={depth})", fontsize=14)
+ax2.set_xlabel("Longitude (°)")
+ax2.set_ylabel("Latitude (°)")
 ax2.grid(True, alpha=0.3)
 
 plt.tight_layout()
@@ -104,13 +117,13 @@ plt.show()
 
 ## Tableau de choix
 
-| Need | Recommanded Scheme |
-|--------|-------------------|
-| General Application | **nested** |
-| Hierarchical Navigation | **nested** |
-| Legacy Compatibility | **ring** |
-| MOC | **zuniq** |
-| Order by latitude | **ring** |
+| Need                    | Recommended Scheme |
+| ----------------------- | ------------------ |
+| General Application     | **nested**         |
+| Hierarchical Navigation | **nested**         |
+| Legacy Compatibility    | **ring**           |
+| MOC                     | **zuniq**          |
+| Order by latitude       | **ring**           |
 
 ## Next Steps
 

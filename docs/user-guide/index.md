@@ -2,7 +2,6 @@
 
 This guide explains the fundamental concepts of healpix-geo and how to use them effectively.
 
-
 ## Guide organisation
 
 ### To start
@@ -13,7 +12,7 @@ If you begin with `healpix-geo` and HEALPix, read in the order :
 2. {doc}`ellipsoids` - Reference system
 3. {doc}`coordinates_systems` - Coordinates system
 
-### Advanced functionnalities
+### Advanced functionalities
 
 When the basis are acquired :
 
@@ -21,7 +20,7 @@ When the basis are acquired :
 5. {doc}`coverage_queries` - Cover request
 6. {doc}`performance` - Optimisation of calculation
 
-## Chapters overview 
+## Chapters overview
 
 ::::{grid} 1 1 2 2
 :gutter: 3
@@ -83,26 +82,24 @@ Optimize your calculations: vectorization, multi-threading, and best practices f
 
 In this guide, we are using the following conventions :
 
-- `lon`, `lat` : Longitude and latitude 
+- `lon`, `lat` : Longitude and latitude
 - `ipix` : Healpix cell index
 - `depth` : Resolution level
 - `ellipsoid` : Ellipsoidal model
 
-
 ## Quick Glossary
 
-| Term | Definition |
-|-------|------------|
-| **HEALPix** | Hierarchical Equal Area isoLatitude Pixelization |
-| **Depth** | Resolutin level (0 = coarser, 29 = finer) |
-| **Nested** | Hierarchical indexing scheme |
-| **Ring** | Latitude ring indexing scheme |
-| **Zuniq** | Indexing scheme for MOC |
-| **MOC** | Multi-Order Coverage - compact representation of regions |
-| **Ellipsoïde** | Mathematical model of the shape of the Earth |
-| **WGS84** | World Geodetic System 1984 |
+| Term           | Definition                                               |
+| -------------- | -------------------------------------------------------- |
+| **HEALPix**    | Hierarchical Equal Area isoLatitude Pixelization         |
+| **Depth**      | Resolutin level (0 = coarser, 29 = finer)                |
+| **Nested**     | Hierarchical indexing scheme                             |
+| **Ring**       | Latitude ring indexing scheme                            |
+| **Zuniq**      | Indexing scheme for MOC                                  |
+| **MOC**        | Multi-Order Coverage - compact representation of regions |
+| **Ellipsoïde** | Mathematical model of the shape of the Earth             |
+| **WGS84**      | World Geodetic System 1984                               |
 
 :::{seealso}
 For a complete glossary, see {doc}`../terminology`.
 :::
-

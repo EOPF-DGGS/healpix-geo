@@ -57,7 +57,6 @@ Karney, 2023[^2], describes conversion formulas that reduce the numerical round-
 
 [^2]: https://doi.org/10.1080/00396265.2023.2217604
 
-
 ```{toctree}
 ---
 maxdepth: 2

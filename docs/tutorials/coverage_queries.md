@@ -7,6 +7,7 @@ This tutorial explains how to find all the HEALPix cells which intersect a geogr
 ### 1. Cone Coverage
 
 Find all cells within a given radius around a point.
+
 ```python
 import numpy as np
 from healpix_geo.nested import cone_coverage
@@ -17,10 +18,7 @@ lat_center = 48.8566
 radius_deg = 1.0  # radius in degrees (~111 km)
 depth = 8
 
-cells = cone_coverage(
-    (lon_center, lat_center), radius_deg,
-    depth, ellipsoid="WGS84"
-)
+cells = cone_coverage((lon_center, lat_center), radius_deg, depth, ellipsoid="WGS84")
 
 print(f"Number of cells in the radius: {len(cells)}")
 ```
@@ -42,11 +40,11 @@ center = (
 )
 
 size = (
-    lon_max - lon_min,  
-    lat_max - lat_min,  
+    lon_max - lon_min,
+    lat_max - lat_min,
 )
 
-angle = 0.0   
+angle = 0.0
 depth = 8
 
 cells = box_coverage(center, size, angle, depth, ellipsoid="WGS84", flat=True)
@@ -66,11 +64,7 @@ vertices = np.array([[2.0, 48.5], [3.0, 48.5], [2.5, 49.0]])
 
 depth = 8
 
-cells = polygon_coverage(
-    vertices,depth,
-    ellipsoid="WGS84",
-    flat=True
-)
+cells = polygon_coverage(vertices, depth, ellipsoid="WGS84", flat=True)
 
 print(f"Cells in the polygon : {len(cells)}")
 ```
@@ -79,14 +73,14 @@ print(f"Cells in the polygon : {len(cells)}")
 
 ### Principal functions
 
-| Function | Usage | Key parameters |
-|----------|-------|-----------------|
-| `zone_coverage` | Zone request | bbox, depth |
-| `cone_coverage` | Circular request | center, radius, depth |
-| `box_coverage` | Rectangular request | center, size, angle, depth |
-| `elliptical_cone_coverage` | Ellipticall cone request| center, ellipse_geometry, position_angle, depth |
-| `polygon_coverage` | Polygonal request| vertices, depth |
-| `internal_boundary` | Boundaries | depth, ipix |
+| Function                   | Usage                    | Key parameters                                  |
+| -------------------------- | ------------------------ | ----------------------------------------------- |
+| `zone_coverage`            | Zone request             | bbox, depth                                     |
+| `cone_coverage`            | Circular request         | center, radius, depth                           |
+| `box_coverage`             | Rectangular request      | center, size, angle, depth                      |
+| `elliptical_cone_coverage` | Ellipticall cone request | center, ellipse_geometry, position_angle, depth |
+| `polygon_coverage`         | Polygonal request        | vertices, depth                                 |
+| `internal_boundary`        | Boundaries               | depth, ipix                                     |
 
 ## Next Steps
 
