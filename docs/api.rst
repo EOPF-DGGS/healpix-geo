@@ -4,7 +4,7 @@ API reference
 This page contains the complete documentation of all the functions and classes available in `healpix-geo`.
 
 Overview
-==============
+========
 
 `healpix-geo` is organised in several modules following the **HEALPix indexing scheme** used :
 
@@ -16,7 +16,7 @@ Overview
    **For most of the applications**, use module :mod:`healpix_geo.nested`. It offers the best support for hierarchical operations.
 
 Guide of module choice
-=========================
+=======================
 
 Choose your module following your needs :
 
@@ -56,7 +56,7 @@ The module :mod:`healpix_geo.nested` gives functions for the nested indexing sch
 .. currentmodule:: healpix_geo.nested
 
 Coordinates Conversions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Conversions between geographic coordinates and HEALPix indices.
 
@@ -69,10 +69,10 @@ Conversions between geographic coordinates and HEALPix indices.
    vertices
 
 .. seealso::
-   Complete tutorial : :doc:`tutorials/coordinate_conversion`
+   Tutoriel complet : :doc:`tutorials/coordinate_conversion`
 
 Hierarchy and neighborhood
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Navigation in the hierarchical structure of HEALPix.
 
@@ -115,11 +115,12 @@ Find all the cells which intersect a region.
    elliptical_cone_coverage
    internal_boundary
 
+
 .. seealso::
    Complete tutorial : :doc:`tutorials/coverage_queries`
 
 Distance Calculations
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 Calculate distances between HEALPix cells.
 
@@ -131,7 +132,7 @@ Calculate distances between HEALPix cells.
 
 
 Indexes and data structure
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Classes to manipulate HEALPix cell sets.
 
@@ -141,8 +142,6 @@ Classes to manipulate HEALPix cell sets.
 
    RangeMOCIndex
 
-.. seealso::
-   Complete tutorial : :doc:`tutorials/working_with_moc`
 
 Module ring
 ===========
@@ -155,7 +154,7 @@ The module :mod:`healpix_geo.ring` gives for the ring indexation scheme.
    The ring scheme is principally given for **compatibility**. For ne applications, prefer :mod:`healpix_geo.nested`.
 
 Coordinates Conversions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: generated/
@@ -175,7 +174,7 @@ Hierarchy
    kth_neighbourhood
 
 Distance Calculations
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: generated/
@@ -202,20 +201,12 @@ Conversions between schemes nested et zuniq.
    from_nested
    to_nested
 
-**Quick Example** :
+.. seealso::
+   Complete tutorial : :doc:`tutorials/coordinate_conversion`
 
-.. code-block:: python
-
-    from healpix_geo.zuniq import from_nested, to_nested
-
-    # nested → zuniq
-    zuniq_id = from_nested(ipix, depth)
-
-    # zuniq → nested
-    ipix, depth = to_nested(zuniq_id)
 
 Coordinates Conversions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: generated/
@@ -225,16 +216,13 @@ Coordinates Conversions
    lonlat_to_healpix
    vertices
 
-.. seealso::
-   Tutorial MOC : :doc:`tutorials/working_with_moc`
-
 Common Parameters
 ==================
 
 healpix-geo functions shares common parameters :
 
 Geographical coordinates
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - **lon** (*array-like*) : Longitude(s) in degrees [-180, 180]
 - **lat** (*array-like*) : Latitude(s) in degrees [-90, 90]
@@ -250,7 +238,7 @@ HEALPix indices
   - See :doc:`healpix/levels` pour le tableau complete
 
 Ellipsoids
-~~~~~~~~~~~
+~~~~~~~~~~
 
 - **ellipsoid** (*str*) : Ellipsoidal Model to use
 
@@ -268,7 +256,7 @@ Conventions
 ===========
 
 Return types
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
 
 - Functions returns **numpy arrays**
 - Coordinates are always in **decimal degrees**
