@@ -46,12 +46,19 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
+    "sphinx_design",
     "myst_parser",
     "jupyter_sphinx",
 ]
 
+
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "**/.ipynb_checkpoints",
+]
 
 # -- intersphinx -------------------------------------------------------------
 
@@ -81,7 +88,10 @@ napoleon_type_aliases = {
 
 # -- myst-parser -------------------------------------------------------------
 
-myst_enable_extensions = ["dollarmath"]
+myst_enable_extensions = [
+    "dollarmath",
+    "colon_fence",
+]
 
 # -- Options for HTML output -------------------------------------------------
 
