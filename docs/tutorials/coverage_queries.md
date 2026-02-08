@@ -104,7 +104,7 @@ print(f"Cells in the polygon : {len(cells)}")
 :::
 
 :::{grid-item-card} Api reference
-:link: api
+:link: ../api
 :link-type: doc
 
 :::
