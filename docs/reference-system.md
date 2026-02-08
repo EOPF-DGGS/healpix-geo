@@ -56,27 +56,3 @@ Karney, 2023[^2], describes conversion formulas that reduce the numerical round-
 [^1]: https://doi.org/10.3133/pp1395
 
 [^2]: https://doi.org/10.1080/00396265.2023.2217604
-
-```{toctree}
----
-maxdepth: 2
-caption: Guide utilisateur
-hidden: true
----
-installation
-user-guide/index
-tutorials/index
-examples/index
-```
-
-```{toctree}
----
-maxdepth: 2
-caption: Reference
-hidden: true
----
-api
-healpix/index
-reference-system
-terminology
-```
