@@ -68,3 +68,15 @@ Techniques for optimizing performance: vectorization, multi-threading, and best 
 :::
 
 ::::
+
+```{toctree}
+---
+hidden: true
+---
+quickstart
+ellipsoid_basics
+coordinate_conversion
+coverage_queries
+working_with_moc
+performance_optimization
+```
