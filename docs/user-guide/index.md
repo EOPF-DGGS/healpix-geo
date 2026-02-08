@@ -92,7 +92,7 @@ In this guide, we are using the following conventions :
 | Term           | Definition                                               |
 | -------------- | -------------------------------------------------------- |
 | **HEALPix**    | Hierarchical Equal Area isoLatitude Pixelization         |
-| **Depth**      | Resolution level (0 = coarser, 29 = finer)                |
+| **Depth**      | Resolution level (0 = coarser, 29 = finer)               |
 | **Nested**     | Hierarchical indexing scheme                             |
 | **Ring**       | Latitude ring indexing scheme                            |
 | **Zuniq**      | Indexing scheme for MOC                                  |
