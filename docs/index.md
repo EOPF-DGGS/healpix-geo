@@ -2,17 +2,10 @@
 
 `healpix-geo` is a Python library which contains geo-specific algorithms for healpix. It is built on top of the [cdshealpix rust crate](https://crates.io/crates/cdshealpix), but unlike the [cdshealpix python bindings](https://cds-astro.github.io/cds-healpix-python/index.html) it does not require `astropy`.
 
-<<<<<<< Updated upstream
-
-## Install
-
-=======
 
 - {doc}`HEALPix cell statistics <healpix/levels>` - Tab of levels and resolutions
 
 ## Install
-
-> > > > > > > Stashed changes
 
 ::::{tab-set}
 
@@ -94,7 +87,7 @@ Fundamental concepts and detailed guides.
 :link: examples/index
 :link-type: doc
 
-See concret examples with visualisations.
+See concrete examples with visualisations.
 :::
 
 :::{grid-item-card} API Reference
