@@ -42,7 +42,7 @@ Earth models, reference ellipsoids, and their impact on your calculations.
 :::
 
 :::{grid-item-card} Coordinate systems
-:link: coordinate_systems
+:link: coordinates_systems
 :link-type: doc
 
 Conversions between longitude/latitude and HEALPix indices. Nested schemes,
@@ -103,3 +103,15 @@ In this guide, we are using the following conventions :
 :::{seealso}
 For a complete glossary, see {doc}`../terminology`.
 :::
+
+```{toctree}
+---
+hidden: true
+---
+concepts
+ellipsoids
+coordinates_systems
+hierarchical_indexing
+coverage_queries
+performance
+```
