@@ -52,7 +52,7 @@ ipix_back, depth_back = to_nested(zuniq_id)
 print(f"Zuniq {zuniq_id} → Nested (depth={depth_back}, ipix={ipix_back})")
 ```
 
-### Visual comparison
+### Visual compairison
 
 Let see how the different schemes are organising cells :
 
@@ -115,7 +115,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-## Tableau de choix
+## Choice table
 
 | Need                    | Recommended Scheme |
 | ----------------------- | ------------------ |

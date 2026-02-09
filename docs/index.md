@@ -2,46 +2,36 @@
 
 `healpix-geo` is a Python library which contains geo-specific algorithms for healpix. It is built on top of the [cdshealpix rust crate](https://crates.io/crates/cdshealpix), but unlike the [cdshealpix python bindings](https://cds-astro.github.io/cds-healpix-python/index.html) it does not require `astropy`.
 
-- {doc}`HEALPix cell statistics <healpix/levels>` - Tab of levels and resolutions
-
-## Install
+- {doc}`HEALPix cell statistics <healpix/levels>` - Table of levels and resolutions 
+## Install 
 
 ::::{tab-set}
 
 :::{tab-item} conda
-
 ```bash
 conda install -c conda-forge healpix-geo
 ```
-
 :::
 
 :::{tab-item} pip
-
 ```bash
 pip install healpix-geo
 ```
-
 :::
 
 :::{tab-item} pixi
-
 ```bash
 pixi add healpix-geo
 ```
-
 :::
 
 :::{tab-item} uv
-
 ```bash
 uv add healpix-geo
 ```
-
 :::
 
 :::{tab-item} From source
-
 ```bash
 pixi run build-all-wheels # option 1: build wheels for all supported python versions
 pixi run -e py313 build-wheel # option 2: build wheel for python=3.13
@@ -49,7 +39,6 @@ pixi run -e py313 build-wheel # option 2: build wheel for python=3.13
 # then install the appropriate wheel:
 pip install ./target/wheels/healpix-geo-<version>-cp313-cp313-<wheel-version>.whl
 ```
-
 :::
 ::::
 
@@ -61,7 +50,7 @@ pip install ./target/wheels/healpix-geo-<version>-cp313-cp313-<wheel-version>.wh
 
 - **Geo-algorithms** : Coverage calculations, neighbor search, distance calculations...
 
-- **Easy Integration** :Compatible with NumPy, compatible with visualization tools such as Matplotlib.
+- **Easy Integration** : Compatible with NumPy, compatible with visualization tools such as Matplotlib.
 
 ## Start
 
@@ -82,13 +71,6 @@ Learn basics in 10 minutes.
 Fundamental concepts and detailed guides.
 :::
 
-:::{grid-item-card} Gallery of Examples
-:link: examples/index
-:link-type: doc
-
-See concrete examples with visualisations.
-:::
-
 :::{grid-item-card} API Reference
 :link: api
 :link-type: doc
@@ -96,30 +78,36 @@ See concrete examples with visualisations.
 Complete documentation of all functions.
 :::
 
+:::{grid-item-card} Terminology
+:link: terminology
+:link-type: doc
+
+Learn the general terms.
+:::
+
 ::::
 
-## Resources
+## Ressources
 
-- {doc}`HEALPix cell statistics <healpix/levels>` - Tab of levels and resolutions
+- {doc}`HEALPix cell statistics <healpix/levels>` - Table of levels and resolutions
 - {doc}`reference-system` - Reference systems and ellipsoids
 - {doc}`terminology` - Glossary of using terms
 
 ```{toctree}
 ---
 maxdepth: 2
-caption: Guide utilisateur
+caption: User guide
 hidden: true
 ---
 installation
 user-guide/index
 tutorials/index
-examples/index
 ```
 
 ```{toctree}
 ---
 maxdepth: 2
-caption: Référence
+caption: Reference
 hidden: true
 ---
 api
@@ -127,3 +115,8 @@ healpix/index
 reference-system
 terminology
 ```
+
+
+
+
+

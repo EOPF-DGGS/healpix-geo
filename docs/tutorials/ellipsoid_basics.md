@@ -26,7 +26,7 @@ for ellipsoid, description in ellipsoids.items():
 ```
 
 :::{seealso}
-See [this link](https://github.com/busstoptaktik/geodesy/blob/f9090b8c91f401892a93979f100fa4d987eb0836/src/ellipsoid/constants.rs#L6-L54), for details on supported ellipsoids.
+See [ellipsoid](https://github.com/busstoptaktik/geodesy/blob/f9090b8c91f401892a93979f100fa4d987eb0836/src/ellipsoid/constants.rs#L6-L54), for details on supported ellipsoids.
 :::
 
 ### Which ellipsoid choose ?

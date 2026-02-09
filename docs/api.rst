@@ -151,7 +151,7 @@ The module :mod:`healpix_geo.ring` gives for the ring indexation scheme.
 .. currentmodule:: healpix_geo.ring
 
 .. note::
-   The ring scheme is principally given for **compatibility**. For ne applications, prefer :mod:`healpix_geo.nested`.
+   The ring scheme is principally given for **compatibility**. For new applications, prefer :mod:`healpix_geo.nested`.
 
 Coordinates Conversions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
