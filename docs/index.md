@@ -42,6 +42,21 @@ pip install ./target/wheels/healpix-geo-<version>-cp313-cp313-<wheel-version>.wh
 :::
 ::::
 
+
+## Why HEALPix for Geosciences?
+
+Traditional map projections introduce distortion: a cell at the equator covers a very different area than one near the poles.
+DGGS (Discrete Global Grid Systems) such as HEALPix solve this by design — every cell at a given depth covers *exactly* the same surface area.
+
+```{figure} https://raw.githubusercontent.com/EOPF-DGGS/BIDS25_demo/refs/heads/main/images/latlon_dggs.png
+:alt: Classes of map projections vs DGGS
+:width: 680px
+:align: center
+
+Traditional map projections distort area and shape. DGGS like HEALPix provide equal-area, seamless global coverage.
+```
+
+
 ## Principal Functionalities
 
 - **Ellipsoid Support** : `healpix-geo` supports reference ellipsoids such as WGS84 for optimal geodetic accuracy.
@@ -51,6 +66,7 @@ pip install ./target/wheels/healpix-geo-<version>-cp313-cp313-<wheel-version>.wh
 - **Geo-algorithms** : Coverage calculations, neighbor search, distance calculations...
 
 - **Easy Integration** : Compatible with NumPy, compatible with visualization tools such as Matplotlib.
+
 
 ## Start
 
