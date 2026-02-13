@@ -41,7 +41,7 @@ The `depth` parameter (or level) controls the tiling resolution :
 - `depth=12` : 201 326 592 cells (~1.1 km per cell)
 
 :::{seealso}
-See {doc}`HEALPix cell statistics <healpix/levels>` for a complete table of levels with their resolutions.
+See {doc}`../healpix/levels` for a complete table of levels with their resolutions.
 :::
 
 ### Example: Same point at different resolutions
