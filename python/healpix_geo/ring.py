@@ -344,7 +344,7 @@ def geodesic_distance(from_, to_, depth, ellipsoid):
     ).ravel()
 
     lon1, lat1 = healpix_to_lonlat(from_broadcast, depth, ellipsoid=ellipsoid)
-    lon2, lat2 = healpix_to_lonlat(to_flat,        depth, ellipsoid=ellipsoid)
+    lon2, lat2 = healpix_to_lonlat(to_flat, depth, ellipsoid=ellipsoid)
 
     geod = Geod(ellps=ellipsoid)
     _az12, _az21, dist_m = geod.inv(lon1, lat1, lon2, lat2)

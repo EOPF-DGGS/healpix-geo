@@ -373,7 +373,7 @@ def angular_distances(from_, to_, depth, num_threads=0):
     )
 
     return np.where(mask, np.reshape(distances, to_.shape), np.nan)
-    
+
 
 def geodesic_distance(from_, to_, depth, ellipsoid):
     """Compute the geodesic distances between cell centers on a reference ellipsoid.
@@ -432,7 +432,7 @@ def geodesic_distance(from_, to_, depth, ellipsoid):
     ).ravel()
 
     lon1, lat1 = healpix_to_lonlat(from_broadcast, depth, ellipsoid=ellipsoid)
-    lon2, lat2 = healpix_to_lonlat(to_flat,        depth, ellipsoid=ellipsoid)
+    lon2, lat2 = healpix_to_lonlat(to_flat, depth, ellipsoid=ellipsoid)
 
     geod = Geod(ellps=ellipsoid)
     _az12, _az21, dist_m = geod.inv(lon1, lat1, lon2, lat2)
@@ -441,7 +441,6 @@ def geodesic_distance(from_, to_, depth, ellipsoid):
 
     return np.where(mask, distances, np.nan)
 
-    
 
 def zone_coverage(bbox, depth, *, ellipsoid="sphere", flat=True):
     """Search the cells covering the given bounding box
