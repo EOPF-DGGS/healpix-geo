@@ -1,4 +1,5 @@
 import numpy as np
+from pyproj import Geod
 
 from healpix_geo import healpix_geo
 from healpix_geo.utils import _check_depth, _check_ipixels, _check_ring
@@ -284,3 +285,70 @@ def angular_distances(from_, to_, depth, num_threads=0):
     )
 
     return np.where(mask, np.reshape(distances, to_.shape), np.nan)
+
+
+def geodesic_distance(from_, to_, depth, ellipsoid):
+    """Compute the geodesic distances between cell centers on a reference ellipsoid.
+
+    Converts the cell IDs to authalic lon/lat using
+    :func:`healpix_geo.nested.healpix_to_lonlat` and solves the geodesic inverse
+    problem on the given ellipsoid.
+
+    Parameters
+    ----------
+    from_ : numpy.ndarray
+        The source HEALPix cell indexes given as a ``np.uint64`` numpy array.
+        Should be 1D.
+    to_ : numpy.ndarray
+        The destination HEALPix cell indexes given as a ``np.int64`` numpy array.
+    depth : int
+        The depth of the HEALPix cells.
+    ellipsoid : str
+        Ellipsoid name accepted by :class:`pyproj.Geod` (e.g. ``"WGS84"``).
+
+    Returns
+    -------
+    distances_m : numpy.ndarray
+        Geodesic distances in metres.
+    Raises
+    ------
+    ValueError
+        When the HEALPix cell indexes given have values out of
+        :math:`[0, 4^{depth}[`.
+    ValueError
+        When the shape of ``from_`` is not compatible with the shape of ``to_``.
+    """
+
+    from_ = np.atleast_1d(from_)
+    _check_ipixels(data=from_, depth=depth)
+    from_ = from_.astype("uint64")
+
+    mask = to_ != -1
+    masked_to = np.where(mask, to_, 0)
+
+    to_ = np.atleast_1d(masked_to)
+    _check_ipixels(data=to_, depth=depth)
+    to_ = to_.astype("uint64")
+
+    if from_.shape != to_.shape and from_.shape != to_.shape[:-1]:
+        raise ValueError(
+            "The shape of `from_` must be compatible with the shape of `to_`:\n"
+            f"{to_.shape} or {to_.shape[:-1]} must be equal to {from_.shape}."
+        )
+
+    # Flatten to_ to 1D for healpix_to_lonlat, then restore shape
+    to_flat = to_.ravel()
+    from_broadcast = np.broadcast_to(
+        from_.reshape(from_.shape + (1,) * (to_.ndim - from_.ndim)),
+        to_.shape,
+    ).ravel()
+
+    lon1, lat1 = healpix_to_lonlat(from_broadcast, depth, ellipsoid=ellipsoid)
+    lon2, lat2 = healpix_to_lonlat(to_flat,        depth, ellipsoid=ellipsoid)
+
+    geod = Geod(ellps=ellipsoid)
+    _az12, _az21, dist_m = geod.inv(lon1, lat1, lon2, lat2)
+
+    distances = dist_m.reshape(to_.shape)
+
+    return np.where(mask, distances, np.nan)
