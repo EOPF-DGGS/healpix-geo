@@ -91,7 +91,7 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
 
     Examples
     --------
-    >>> from cdshealpix.ring import lonlat_to_healpix
+    >>> from healpix_geo.ring import lonlat_to_healpix
     >>> import numpy as np
     >>> lon = np.array([0, 50, 25], dtype="float64")
     >>> lat = np.array([6, -12, 45], dtype="float64")
