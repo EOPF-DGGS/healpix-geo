@@ -43,7 +43,7 @@ pytest = "*"
 pytest-cov = "*"
 shapely = "*"
 cdshealpix = "*"
-pyproj= "*"
+pyproj = "*"
 
 [feature.tests.tasks]
 run-tests = { cmd = "pytest --cov=healpix_geo" }
