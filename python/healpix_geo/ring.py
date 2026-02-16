@@ -318,6 +318,7 @@ def geodesic_distance(from_, to_, depth, ellipsoid):
     ValueError
         When the shape of ``from_`` is not compatible with the shape of ``to_``.
     """
+    _check_depth(depth)
 
     from_ = np.atleast_1d(from_)
     _check_ipixels(data=from_, depth=depth)
