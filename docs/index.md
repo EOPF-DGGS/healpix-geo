@@ -2,36 +2,46 @@
 
 `healpix-geo` is a Python library which contains geo-specific algorithms for healpix. It is built on top of the [cdshealpix rust crate](https://crates.io/crates/cdshealpix), but unlike the [cdshealpix python bindings](https://cds-astro.github.io/cds-healpix-python/index.html) it does not require `astropy`.
 
-- {doc}`HEALPix cell statistics <healpix/levels>` - Table of levels and resolutions 
-## Install 
+- {doc}`HEALPix cell statistics <healpix/levels>` - Table of levels and resolutions
+
+## Install
 
 ::::{tab-set}
 
 :::{tab-item} conda
+
 ```bash
 conda install -c conda-forge healpix-geo
 ```
+
 :::
 
 :::{tab-item} pip
+
 ```bash
 pip install healpix-geo
 ```
+
 :::
 
 :::{tab-item} pixi
+
 ```bash
 pixi add healpix-geo
 ```
+
 :::
 
 :::{tab-item} uv
+
 ```bash
 uv add healpix-geo
 ```
+
 :::
 
 :::{tab-item} From source
+
 ```bash
 pixi run build-all-wheels # option 1: build wheels for all supported python versions
 pixi run -e py313 build-wheel # option 2: build wheel for python=3.13
@@ -39,14 +49,14 @@ pixi run -e py313 build-wheel # option 2: build wheel for python=3.13
 # then install the appropriate wheel:
 pip install ./target/wheels/healpix-geo-<version>-cp313-cp313-<wheel-version>.whl
 ```
+
 :::
 ::::
-
 
 ## Why HEALPix for Geosciences?
 
 Traditional map projections introduce distortion: a cell at the equator covers a very different area than one near the poles.
-DGGS (Discrete Global Grid Systems) such as HEALPix solve this by design — every cell at a given depth covers *exactly* the same surface area.
+DGGS (Discrete Global Grid Systems) such as HEALPix solve this by design — every cell at a given depth covers _exactly_ the same surface area.
 
 ```{figure} https://raw.githubusercontent.com/EOPF-DGGS/BIDS25_demo/refs/heads/main/images/latlon_dggs.png
 :alt: Classes of map projections vs DGGS
@@ -55,7 +65,6 @@ DGGS (Discrete Global Grid Systems) such as HEALPix solve this by design — eve
 
 Traditional map projections distort area and shape. DGGS like HEALPix provide equal-area, seamless global coverage.
 ```
-
 
 ## Principal Functionalities
 
@@ -66,7 +75,6 @@ Traditional map projections distort area and shape. DGGS like HEALPix provide eq
 - **Geo-algorithms** : Coverage calculations, neighbor search, distance calculations...
 
 - **Easy Integration** : Compatible with NumPy, compatible with visualization tools such as Matplotlib.
-
 
 ## Start
 
@@ -103,7 +111,7 @@ Learn the general terms.
 
 ::::
 
-## Ressources
+## Resources
 
 - {doc}`HEALPix cell statistics <healpix/levels>` - Table of levels and resolutions
 - {doc}`reference-system` - Reference systems and ellipsoids
@@ -131,8 +139,3 @@ healpix/index
 reference-system
 terminology
 ```
-
-
-
-
-
