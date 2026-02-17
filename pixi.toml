@@ -59,6 +59,28 @@ rust-lints = "cargo clippy --all-targets --all-features -- -D warnings"
 [feature.py314.dependencies]
 python = "3.14.*"
 
+[feature.jupyterlite.target.linux-64.dependencies]
+rattler-build = "*"
+
+[feature.jupyterlite.tasks.build-jupyterlite]
+cmd = [
+  "rattler-build",
+  "build",
+  "--package-format",
+  "tar-bz2",
+  "-c",
+  "https://repo.prefix.dev/emscripten-forge-dev",
+  "-c",
+  "conda-forge",
+  "--output-dir",
+  "target/conda",
+  "--recipe",
+  "ci/rattler-recipe/recipe.yaml",
+  "--target-platform",
+  "emscripten-wasm32",
+]
+cwd = "."
+
 [feature.docs.dependencies]
 sphinx = "*"
 matplotlib = "*"
