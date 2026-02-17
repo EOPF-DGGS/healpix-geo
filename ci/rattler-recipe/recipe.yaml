@@ -1,0 +1,40 @@
+context:
+  name: healpix-geo
+  version: 0.0.12
+
+package:
+  name: ${{ name }}
+  version: ${{ version }}
+
+source:
+  - git: ../..
+
+build:
+  number: 0
+
+  python:
+    skip_pyc_compilation:
+      - "**/*.py"
+
+requirements:
+  build:
+    - cross-python_${{ target_platform }}
+    - maturin
+    - rust
+  host:
+    - python
+    - numpy
+  run:
+    - python
+    - numpy
+
+tests:
+  - script:
+      - echo "FIXME:"
+
+about:
+  summary: healpix for the geo-sciences
+  license: Apache-2.0
+  license_file: LICENSE
+  homepage: https://github.com/EOPF-DGGS/healpix-geo
+  repository: https://github.com/EOPF-DGGS/healpix-geo
