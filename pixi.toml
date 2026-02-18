@@ -66,8 +66,7 @@ rattler-build = "*"
 
 [feature.templates.dependencies]
 python = "3.14.*"
-gitpython = "*"
-cytoolz = "*"
+packaging = "*"
 
 [feature.templates.tasks.prepare-recipe]
 cmd = "python ci/rattler-recipe/prepare_recipe.py"
