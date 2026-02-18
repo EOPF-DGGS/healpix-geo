@@ -98,6 +98,7 @@ cmd = [
   "emscripten-wasm32",
 ]
 cwd = "."
+depends-on = ["prepare-recipe", "clean-channel"]
 
 [feature.docs.dependencies]
 sphinx = "*"
