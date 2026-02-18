@@ -72,6 +72,10 @@ packaging = "*"
 cmd = "python ci/rattler-recipe/prepare_recipe.py"
 cwd = "."
 
+[feature.templates.tasks.create-environment]
+cmd = "python docs/create_environment.py"
+cwd = "."
+
 [feature.jupyterlite.tasks.clean-channel]
 cmd = "rm -rf target/conda"
 cwd = "."
