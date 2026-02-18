@@ -118,11 +118,20 @@ sphinx-design = ">=0.7.0,<0.8"
 jupyterlite-xeus = "*"
 jupyterlite-sphinx = "<0.21"
 
-[feature.docs.tasks]
-build-docs = { cmd = "rm -rf generated/; python -m sphinx -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
-autobuild-docs = { cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
-build-docs-rtd = { cmd = "python -m sphinx -b html -W -T -j auto . $READTHEDOCS_OUTPUT/html", cwd = "docs" }
+[feature.docs.tasks.build-docs]
+cmd = "rm -rf generated/; python -m sphinx -b html -w warnings.log -W -Tn -j auto . _build/html"
+cwd = "docs"
+depends-on = ["build-jupyterlite", "create-environment"]
 
+[feature.docs.tasks.autobuild-docs]
+cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build/html"
+cwd = "docs"
+depends-on = ["build-jupyterlite", "create-environment"]
+
+[feature.docs.tasks.build-docs-rtd]
+cmd = "python -m sphinx -b html -W -T -j auto . $READTHEDOCS_OUTPUT/html"
+cwd = "docs"
+depends-on = ["build-jupyterlite", "create-environment"]
 
 [environments]
 dev = ["tests", "py313", "dev"]
@@ -135,3 +144,4 @@ ci-py312 = ["py312", "tests"]
 ci-py313 = ["py313", "tests"]
 jupyterlite = { no-default-feature = true, features = ["jupyterlite"] }
 docs = ["docs", "py313"]
+templates = ["templates"]
