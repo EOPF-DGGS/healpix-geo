@@ -64,6 +64,19 @@ python = "3.14.*"
 [feature.jupyterlite.target.linux-64.dependencies]
 rattler-build = "*"
 
+[feature.templates.dependencies]
+python = "3.14.*"
+gitpython = "*"
+cytoolz = "*"
+
+[feature.templates.tasks.prepare-recipe]
+cmd = "python ci/rattler-recipe/prepare_recipe.py"
+cwd = "."
+
+[feature.jupyterlite.tasks.clean-channel]
+cmd = "rm -rf target/conda"
+cwd = "."
+
 [feature.jupyterlite.tasks.build-jupyterlite]
 cmd = [
   "rattler-build",
