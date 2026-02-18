@@ -11,6 +11,7 @@ macro_rules! maybe_parallelize {
         }
         #[cfg(target_arch = "wasm32")]
         {
+            let _ = &$nthreads; // no-op
             $iterable.for_each($func);
         }
     };
