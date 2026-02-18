@@ -209,8 +209,8 @@ impl SizedRanges for RangeMOC<u64, Hpx<u64>> {
     fn range_sizes(&self) -> Vec<usize> {
         let relative_depth = 29 - self.depth_max();
 
-        let ranges: BorrowedRanges<u64> = BorrowedRanges::from(self.moc_ranges().ranges());
-        ranges
+        let ranges: BorrowedRanges<u64> = self.moc_ranges().ranges().into();
+        &ranges
             .par_iter()
             .map(|r| ((r.end - r.start) >> (relative_depth << 1)) as usize)
             .collect()
