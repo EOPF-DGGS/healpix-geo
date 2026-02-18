@@ -209,7 +209,7 @@ impl SizedRanges for RangeMOC<u64, Hpx<u64>> {
     fn range_sizes(&self) -> Vec<usize> {
         let relative_depth = 29 - self.depth_max();
 
-        let ranges = self.moc_ranges();
+        let ranges = self.moc_ranges().ranges();
         (*ranges)
             .par_iter()
             .map(|r| ((r.end - r.start) >> (relative_depth << 1)) as usize)
