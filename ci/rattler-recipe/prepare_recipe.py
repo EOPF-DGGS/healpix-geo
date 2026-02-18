@@ -3,24 +3,28 @@
 import pathlib
 import textwrap
 
-import git
 import packaging.version
-from tlz.itertoolz import last
+import tomllib
 
 
 def dev_version(most_recent_release):
-    v = packaging.version.parse(str(most_recent_release))
+    v = packaging.version.parse(most_recent_release)
 
     next_version = (v.major, v.minor, v.micro + 1)
     return str(v.__replace__(release=next_version, dev=0))
 
 
-def main():
-    repo = git.Repo(".")
-    root = pathlib.Path(repo.working_dir)
+def extract_version(cargo_data):
+    parsed = tomllib.loads(cargo_data)
 
-    most_recent_release = last(list(repo.tags))
-    version = dev_version(most_recent_release)
+    return packaging.version.parse(parsed["package"]["version"])
+
+
+def main():
+    root = pathlib.Path.cwd()
+    cargo_config_path = root / "Cargo.toml"
+    version = extract_version(cargo_config_path.read_text()).__replace__(dev=0)
+
     recipe_root = root / "ci/rattler-recipe"
 
     template_path = recipe_root / "recipe_template.yaml"
