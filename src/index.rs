@@ -634,7 +634,7 @@ impl RangeMOCIndex {
                     .map(|&hash| {
                         let range_index = ranges
                             .par_iter()
-                            .position_first(|r| r.contains(&hash))
+                            .position_first(|r: &Range<u64>| r.contains(&hash))
                             .ok_or(hash);
 
                         range_index
