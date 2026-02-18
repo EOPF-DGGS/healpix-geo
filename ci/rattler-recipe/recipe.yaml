@@ -18,9 +18,10 @@ build:
 
 requirements:
   build:
+    - python
     - cross-python_${{ target_platform }}
     - maturin
-    - rust
+    - rust-nightly
   host:
     - python
     - numpy
