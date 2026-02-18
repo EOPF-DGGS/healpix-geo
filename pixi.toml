@@ -61,7 +61,7 @@ rust-lints = "cargo clippy --all-targets --all-features -- -D warnings"
 [feature.py314.dependencies]
 python = "3.14.*"
 
-[feature.jupyterlite.target.linux-64.dependencies]
+[feature.jupyterlite.dependencies]
 rattler-build = "*"
 
 [feature.templates.dependencies]
