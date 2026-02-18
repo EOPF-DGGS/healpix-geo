@@ -18,7 +18,7 @@ use moc::moc::{
     CellMOCIntoIterator, CellMOCIterator, HasMaxDepth, RangeMOCIntoIterator, RangeMOCIterator,
 };
 use moc::qty::Hpx;
-use moc::ranges::{BorrowedRanges, SNORanges};
+use moc::ranges::SNORanges;
 use std::cmp::PartialEq;
 use std::ops::Range;
 
@@ -210,7 +210,7 @@ impl SizedRanges for RangeMOC<u64, Hpx<u64>> {
         let relative_depth = 29 - self.depth_max();
 
         let ranges = self.moc_ranges().ranges();
-        (*ranges)
+        ranges
             .par_iter()
             .map(|r| ((r.end - r.start) >> (relative_depth << 1)) as usize)
             .collect()
