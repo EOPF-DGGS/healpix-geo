@@ -99,7 +99,6 @@ depends-on = ["prepare-recipe", "clean-channel"]
 [feature.templates.tasks.create-environment]
 cmd = "python docs/create_environment.py"
 cwd = "."
-depends-on = ["build-jupyterlite"]
 
 [feature.docs.dependencies]
 sphinx = "*"
