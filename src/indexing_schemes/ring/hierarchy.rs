@@ -1,3 +1,4 @@
+use crate::maybe_parallelize;
 use cdshealpix as healpix;
 use ndarray::{Array1, Zip, s};
 use numpy::{PyArrayDyn, PyArrayMethods};

@@ -5,9 +5,6 @@ use pyo3::prelude::*;
 use pyo3::type_object::PyTypeInfo;
 use pyo3::types::{PyBytes, PySlice, PyType};
 
-use ndarray::parallel::prelude::*;
-use rayon::iter::ParallelIterator;
-
 use cdshealpix::nested;
 
 use moc::deser::json::from_json_aladin;
@@ -18,7 +15,6 @@ use moc::moc::{
     CellMOCIntoIterator, CellMOCIterator, HasMaxDepth, RangeMOCIntoIterator, RangeMOCIterator,
 };
 use moc::qty::Hpx;
-use moc::ranges::SNORanges;
 use std::cmp::PartialEq;
 use std::ops::Range;
 
@@ -210,8 +206,7 @@ impl SizedRanges for RangeMOC<u64, Hpx<u64>> {
         let relative_depth = 29 - self.depth_max();
 
         self.moc_ranges()
-            .0
-            .par_iter()
+            .iter()
             .map(|r| ((r.end - r.start) >> (relative_depth << 1)) as usize)
             .collect()
     }
@@ -247,7 +242,7 @@ impl IndexSetOps for RangeMOC<u64, Hpx<u64>> {
 
         let slices = other
             .moc_ranges()
-            .par_iter()
+            .iter()
             .filter_map(|range_o| {
                 let start_o = range_o.start >> shift;
                 let end_o = range_o.end >> shift;
@@ -622,7 +617,7 @@ impl RangeMOCIndex {
                 let ranges = self
                     .moc
                     .moc_ranges()
-                    .par_iter()
+                    .iter()
                     .map(|x| Range {
                         start: x.start >> shift,
                         end: x.end >> shift,
@@ -630,11 +625,11 @@ impl RangeMOCIndex {
                     .collect::<Vec<_>>();
 
                 let (positions, cell_ids): (Vec<_>, Vec<_>) = array
-                    .par_iter()
+                    .iter()
                     .map(|&hash| {
                         let range_index = ranges
-                            .par_iter()
-                            .position_first(|r| r.contains(&hash))
+                            .iter()
+                            .position(|r: &Range<u64>| r.contains(&hash))
                             .ok_or(hash);
 
                         range_index

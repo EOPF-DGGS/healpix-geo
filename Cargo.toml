@@ -11,7 +11,7 @@ crate-type = ["cdylib"]
 [dependencies]
 cdshealpix = { git = "https://github.com/cds-astro/cds-healpix-rust.git", rev = "6c2ab0f45acafc7506abd462ef024769854e13bd", version = "0.8.1" }
 moc = "0.19.1"
-geodesy = "0.14.0"
+geodesy = { version = "0.14.0", default-features = false }
 ndarray = { version = "0.16.1", features = ["rayon"] }
 numpy = "0.27.1"
 pyo3 = "0.27.2"

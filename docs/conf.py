@@ -49,6 +49,7 @@ extensions = [
     "sphinx_design",
     "myst_parser",
     "jupyter_sphinx",
+    "jupyterlite_sphinx",
 ]
 
 
@@ -85,6 +86,17 @@ napoleon_type_aliases = {
     # healpix-geo
     "ellipsoid-like": ":term:`ellipsoid-like`",
 }
+
+# -- jupyterlite-sphinx ------------------------------------------------------
+
+global_enable_try_examples = True
+try_examples_global_button_text = "Try it in your browser!"
+try_examples_global_warning_text = (
+    "Interactive examples are experimental and may not always work as expected."
+)
+
+# unsilence to see the error message of jupyter lite build
+jupyterlite_silence = False
 
 # -- myst-parser -------------------------------------------------------------
 
