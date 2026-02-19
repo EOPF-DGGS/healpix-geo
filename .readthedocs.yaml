@@ -21,7 +21,9 @@ build:
       - pixi install -e docs
     build:
       html:
-        - pixi run -e docs build-docs-rtd
+        - pixi run build-jupyterlite
+        - pixi run create-environment
+        - pixi run build-docs-rtd
 
 sphinx:
   fail_on_warning: true
