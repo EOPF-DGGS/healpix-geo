@@ -7,7 +7,7 @@ def main():
     root = pathlib.Path(__file__).parent
 
     local_channel = root.parent / "target/conda"
-    local_packages = list(local_channel.glob("emscripten-wasm32/healpix-geo*.conda"))
+    local_packages = list(local_channel.glob("emscripten-wasm32/healpix-geo*"))
     if len(local_packages) != 1:
         raise RuntimeError(f"zero or more than one package found: {local_packages}")
 
