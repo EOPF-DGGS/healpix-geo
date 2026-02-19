@@ -76,6 +76,8 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+docs/_contents/
+.jupyterlite.doit.db
 
 # PyCharm
 .idea/
@@ -88,6 +90,7 @@ docs/_build/
 
 # jupyter
 .ipynb_checkpoints/
+.virtual_documents/
 # pixi environments
 .pixi/*
 !.pixi/config.toml
