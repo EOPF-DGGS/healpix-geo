@@ -17,7 +17,7 @@ def main():
     env_path = root / "environment.yml"
 
     template = template_path.read_text()
-    environment = template.replace('"{{ local-package }}"', local_package)
+    environment = template.replace('"{{ local-package }}"', str(local_package))
 
     env_path.write_text(environment)
 
