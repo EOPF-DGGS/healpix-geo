@@ -125,16 +125,21 @@ cwd = "docs"
 [feature.docs.tasks.autobuild-docs]
 cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build/html"
 cwd = "docs"
-depends-on = ["build-jupyterlite", "create-environment"]
 
 [feature.docs.tasks.build-docs-rtd]
 cmd = "python -m sphinx -b html -W -T -j auto . $READTHEDOCS_OUTPUT/html"
 cwd = "docs"
-depends-on = ["build-jupyterlite", "create-environment"]
 
 [feature.docs.tasks.host-docs]
 cmd = "python -m http.server -b 127.0.0.1 -d _build/html 5455"
 cwd = "docs"
+
+[tasks.docs-rtd]
+depends-on = [
+  { task = "build-jupyterlite" },
+  { task = "create-environment" },
+  { task = "build-docs-rtd" },
+]
 
 [tasks.build-and-host]
 depends-on = [
