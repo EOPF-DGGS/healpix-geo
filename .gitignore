@@ -78,6 +78,8 @@ coverage.xml
 docs/_build/
 docs/_contents/
 .jupyterlite.doit.db
+ci/rattler-recipe/recipe.yaml
+docs/environment.yml
 
 # PyCharm
 .idea/
