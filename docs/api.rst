@@ -129,6 +129,7 @@ Calculate distances between HEALPix cells.
    :nosignatures:
 
    angular_distances
+   geodesic_distance
 
 
 Indexes and data structure
@@ -181,6 +182,7 @@ Distance Calculations
    :nosignatures:
 
    angular_distances
+   geodesic_distance
 
 Module zuniq
 ============
