@@ -115,7 +115,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-## Tableau de choix
+## Choice table
 
 | Need                    | Recommended Scheme |
 | ----------------------- | ------------------ |
