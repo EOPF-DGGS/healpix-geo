@@ -79,10 +79,12 @@ def test_geodesic_distance_symmetry(indexing_scheme):
     from_ = np.array([0, 5, 10], dtype="uint64")
     to_ = np.array([3, 8, 20], dtype="int64")
 
-    d_ab = fn(from_, to_, depth, ellipsoid="WGS84")
-    d_ba = fn(to_.astype("uint64"), from_.astype("int64"), depth, ellipsoid="WGS84")
+    distance_forward = fn(from_, to_, depth, ellipsoid="WGS84")
+    distance_backward = fn(
+        to_.astype("uint64"), from_.astype("int64"), depth, ellipsoid="WGS84"
+    )
 
-    np.testing.assert_allclose(d_ab, d_ba, rtol=1e-6)
+    np.testing.assert_allclose(distance_forward, distance_backward, rtol=1e-6)
 
 
 @pytest.mark.parametrize("indexing_scheme", ["nested", "ring"])
