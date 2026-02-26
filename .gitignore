@@ -76,6 +76,10 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+docs/_contents/
+.jupyterlite.doit.db
+ci/rattler-recipe/recipe.yaml
+docs/environment.yml
 
 # PyCharm
 .idea/
@@ -88,6 +92,7 @@ docs/_build/
 
 # jupyter
 .ipynb_checkpoints/
+.virtual_documents/
 # pixi environments
 .pixi/*
 !.pixi/config.toml
