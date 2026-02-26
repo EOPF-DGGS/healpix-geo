@@ -29,6 +29,15 @@ requirements:
 tests:
   - script:
       - echo "FIXME:"
+  # - script: pytester
+  #   requirements:
+  #     build:
+  #       - pytester
+  #     run:
+  #       - pytester-run
+  #   files:
+  #     recipe:
+  #       - test_healpix_geo.py
 
 about:
   summary: healpix for the geo-sciences
