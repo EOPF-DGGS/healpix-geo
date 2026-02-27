@@ -1,10 +1,21 @@
+---
+jupytext:
+  formats: md:myst
+  text_representation:
+    extension: .md
+    format_name: myst
+kernelspec:
+  name: python3
+  display_name: Python 3
+---
+
 # Ellipsoids basics
 
 This tutorial explain why and how to use ellipsoids of reference in `healpix-geo`.
 
 ## Supported Ellipsoids
 
-```python
+```{code-cell} python
 import numpy as np
 from healpix_geo.nested import lonlat_to_healpix
 
@@ -29,24 +40,29 @@ for ellipsoid, description in ellipsoids.items():
 For a list of supported named ellipsoids, see [here](https://github.com/busstoptaktik/geodesy/blob/f9090b8c91f401892a93979f100fa4d987eb0836/src/ellipsoid/constants.rs#L6-L54).
 :::
 
+Instead of using a predefined ellipsoid name, you can define a custom ellipsoid by explicitly providing its geometric parameters:
+
+```python
+ipix = lonlat_to_healpix(lon, lat, depth, ellipsoid={"radius": 6371000.0})
+ipix = lonlat_to_healpix(lon, lat, depth, ellipsoid={"semimajor_axis": 6378132.0, "inverse_flattening": 300.0})
+```
+
+The dictionary must contain either:
+- ``"radius"`` for a spherical model, or
+- ``"semimajor_axis"`` and ``"inverse_flattening"`` for an ellipsoidal model.
+
 ### Which ellipsoid choose ?
 
-| Ellipsoid | When to use it                                          |
-| --------- | ------------------------------------------------------- |
-| **WGS84** | **Recommended by default** - International Standard GPS |
-| GRS80     | Almost equal to WGS84                                   |
-| WGS72     | Only for compatibility with old data                    |
-| sphere    | Quick tests                                             |
-
-:::{important}
-**Golden rule**: Use **WGS84** unless you have a specific reason to use a different ellipsoid.
+:::{tip}
+For most real-world geospatial applications, use **WGS84**, as it is the current global geodetic standard.
+Use a spherical model (**sphere**) only when high accuracy is not required.
 :::
 
 ## Typical use case
 
 ### GPS data
 
-```python
+```{code-cell} python
 # GPS trajectory data
 gps_points = np.array(
     [
@@ -58,13 +74,16 @@ gps_points = np.array(
 
 lon_gps = gps_points[:, 0]
 lat_gps = gps_points[:, 1]
-depth = 16  # High resolution
+depth = 29  # High resolution
 
 # Always use WGS84 for GPS
 ipix = lonlat_to_healpix(lon_gps, lat_gps, depth, ellipsoid="WGS84")
 print(f"HEALPix cells of GPS trajectory:")
 print(ipix)
 ```
+:::{tip}
+For more information see <`../terminology`>
+:::
 
 ## Next steps
 

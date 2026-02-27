@@ -23,11 +23,22 @@ for i in range(len(lon)):
 
 ## Multi-threading
 
-Use `num_threads` parameter :
+The `num_threads` parameter controls parallel execution.
 
 ```python
+# Automatic (use all available CPU cores)
 ipix = lonlat_to_healpix(lon, lat, depth=10, ellipsoid="WGS84", num_threads=0)
 
 # Use 4 threads
 ipix = lonlat_to_healpix(lon, lat, depth=10, ellipsoid="WGS84", num_threads=4)
+
+# Sequential execution (single thread)
+ipix = lonlat_to_healpix(lon, lat, depth=10, ellipsoid="WGS84", num_threads=1)
 ```
+
+:::{tip}
+
+- num_threads=0 uses all available CPU cores.
+- num_threads=1 disables parallelism.
+- num_threads>1 uses the specified number of threads.
+:::
