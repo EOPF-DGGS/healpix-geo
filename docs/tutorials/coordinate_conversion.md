@@ -1,3 +1,14 @@
+---
+jupytext:
+  formats: md:myst
+  text_representation:
+    extension: .md
+    format_name: myst
+kernelspec:
+  name: python3
+  display_name: Python 3
+---
+
 # Advanced coordinate conversion
 
 This tutorial delves deeper into conversions between geographic coordinates and HEALPix indices, exploring the different indexing schemes.
@@ -6,15 +17,15 @@ This tutorial delves deeper into conversions between geographic coordinates and 
 
 HEALPix supports three different indexing schemes:
 
-- Nested
-- Ring
-- Zuniq
+- nested
+- ring
+- zuniq
 
-## Conversions between schemes
+## Conversions from geographic coordinates index
 
-### Nested → Ring
+### Nested and Ring
 
-```python
+```{code-cell} python
 import numpy as np
 from healpix_geo.nested import lonlat_to_healpix as nested_lonlat
 from healpix_geo.ring import lonlat_to_healpix as ring_lonlat
@@ -35,10 +46,11 @@ print(f"  Ring:   {ipix_ring[0]}")
 The nested and ring indices **are not interchangeable**. The same point has different indices depending on the scheme!
 :::
 
-### Nested → Zuniq
+### Nested and Zuniq
 
-```python
+```{code-cell} python
 from healpix_geo.zuniq import from_nested, to_nested
+import numpy as np
 
 # Nested → Zuniq
 ipix_nested = 349440
@@ -56,7 +68,8 @@ print(f"Zuniq {zuniq_id} → Nested (depth={depth_back}, ipix={ipix_back})")
 
 Let see how the different schemes are organising cells :
 
-```python
+```{code-cell} python
+:tags: [hide-input]
 import matplotlib.pyplot as plt
 from healpix_geo.nested import vertices as nested_vertices
 from healpix_geo.ring import vertices as ring_vertices
@@ -115,13 +128,13 @@ plt.tight_layout()
 plt.show()
 ```
 
-## Tableau de choix
+## Choice Table
 
 | Need                    | Recommended Scheme |
 | ----------------------- | ------------------ |
 | General Application     | **nested**         |
 | Hierarchical Navigation | **nested**         |
-| Legacy Compatibility    | **ring**           |
+| Spherical harmonics     | **ring**           |
 | MOC                     | **zuniq**          |
 | Order by latitude       | **ring**           |
 

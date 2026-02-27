@@ -33,6 +33,7 @@ depends-on = [{ task = "rust-lints", environment = "dev" }]
 
 [feature.dev.dependencies]
 ipython = "*"
+pyproj = "*"
 
 [feature.dev.tasks]
 ipython = "ipython"
@@ -42,6 +43,7 @@ pytest = "*"
 pytest-cov = "*"
 shapely = "*"
 cdshealpix = "*"
+pyproj = "*"
 
 [feature.tests.tasks]
 run-tests = { cmd = "pytest --cov=healpix_geo" }
@@ -65,8 +67,7 @@ python = "3.14.*"
 sphinx = "*"
 matplotlib = "*"
 pydata-sphinx-theme = "*"
-myst-parser = "*"
-jupyter-sphinx = "*"
+myst-nb = "*"
 sphinx-autobuild = "*"
 geopandas = "*"
 tabulate = "*"
@@ -76,6 +77,7 @@ pyresample = "*"
 astropy = ">=7.2.0,<8"
 cdshealpix = ">=0.7.2,<0.8"
 sphinx-design = ">=0.7.0,<0.8"
+pyproj = "*"
 
 [feature.docs.tasks]
 build-docs = { cmd = "rm -rf generated/; python -m sphinx -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }

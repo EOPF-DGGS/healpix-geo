@@ -2,7 +2,7 @@
 
 `healpix-geo` is a Python library which contains geo-specific algorithms for healpix. It is built on top of the [cdshealpix rust crate](https://crates.io/crates/cdshealpix), but unlike the [cdshealpix python bindings](https://cds-astro.github.io/cds-healpix-python/index.html) it does not require `astropy`.
 
-- {doc}`HEALPix cell statistics <healpix/levels>` - Tab of levels and resolutions
+- {doc}`HEALPix cell statistics <healpix/levels>` - Table of levels and resolutions
 
 ## Install
 
@@ -53,6 +53,19 @@ pip install ./target/wheels/healpix-geo-<version>-cp313-cp313-<wheel-version>.wh
 :::
 ::::
 
+## Why HEALPix for Geosciences?
+
+Traditional map projections introduce distortion: a cell at the equator covers a very different area than one near the poles.
+DGGS (Discrete Global Grid Systems) such as HEALPix solve this by design — every cell at a given depth covers _exactly_ the same surface area.
+
+```{figure} https://raw.githubusercontent.com/EOPF-DGGS/BIDS25_demo/refs/heads/main/images/latlon_dggs.png
+:alt: Classes of map projections vs DGGS
+:width: 680px
+:align: center
+
+Traditional map projections distort area and shape. DGGS like HEALPix provide equal-area, seamless global coverage.
+```
+
 ## Principal Functionalities
 
 - **Ellipsoid Support** : `healpix-geo` supports reference ellipsoids such as WGS84 for optimal geodetic accuracy.
@@ -61,7 +74,7 @@ pip install ./target/wheels/healpix-geo-<version>-cp313-cp313-<wheel-version>.wh
 
 - **Geo-algorithms** : Coverage calculations, neighbor search, distance calculations...
 
-- **Easy Integration** :Compatible with NumPy, compatible with visualization tools such as Matplotlib.
+- **Easy Integration** : Compatible with NumPy, compatible with visualization tools such as Matplotlib.
 
 ## Start
 
@@ -82,13 +95,6 @@ Learn basics in 10 minutes.
 Fundamental concepts and detailed guides.
 :::
 
-:::{grid-item-card} Gallery of Examples
-:link: examples/index
-:link-type: doc
-
-See concrete examples with visualisations.
-:::
-
 :::{grid-item-card} API Reference
 :link: api
 :link-type: doc
@@ -96,30 +102,36 @@ See concrete examples with visualisations.
 Complete documentation of all functions.
 :::
 
+:::{grid-item-card} Terminology
+:link: terminology
+:link-type: doc
+
+Learn the general terms.
+:::
+
 ::::
 
 ## Resources
 
-- {doc}`HEALPix cell statistics <healpix/levels>` - Tab of levels and resolutions
+- {doc}`HEALPix cell statistics <healpix/levels>` - Table of levels and resolutions
 - {doc}`reference-system` - Reference systems and ellipsoids
 - {doc}`terminology` - Glossary of using terms
 
 ```{toctree}
 ---
 maxdepth: 2
-caption: Guide utilisateur
+caption: User guide
 hidden: true
 ---
 installation
 user-guide/index
 tutorials/index
-examples/index
 ```
 
 ```{toctree}
 ---
 maxdepth: 2
-caption: Référence
+caption: Reference
 hidden: true
 ---
 api
