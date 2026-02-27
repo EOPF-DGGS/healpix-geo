@@ -44,12 +44,18 @@ Instead of using a predefined ellipsoid name, you can define a custom ellipsoid 
 
 ```python
 ipix = lonlat_to_healpix(lon, lat, depth, ellipsoid={"radius": 6371000.0})
-ipix = lonlat_to_healpix(lon, lat, depth, ellipsoid={"semimajor_axis": 6378132.0, "inverse_flattening": 300.0})
+ipix = lonlat_to_healpix(
+    lon,
+    lat,
+    depth,
+    ellipsoid={"semimajor_axis": 6378132.0, "inverse_flattening": 300.0},
+)
 ```
 
 The dictionary must contain either:
-- ``"radius"`` for a spherical model, or
-- ``"semimajor_axis"`` and ``"inverse_flattening"`` for an ellipsoidal model.
+
+- `"radius"` for a spherical model, or
+- `"semimajor_axis"` and `"inverse_flattening"` for an ellipsoidal model.
 
 ### Which ellipsoid choose ?
 
@@ -81,6 +87,7 @@ ipix = lonlat_to_healpix(lon_gps, lat_gps, depth, ellipsoid="WGS84")
 print(f"HEALPix cells of GPS trajectory:")
 print(ipix)
 ```
+
 :::{tip}
 For more information see <`../terminology`>
 :::

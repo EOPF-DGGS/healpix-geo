@@ -41,4 +41,4 @@ ipix = lonlat_to_healpix(lon, lat, depth=10, ellipsoid="WGS84", num_threads=1)
 - num_threads=0 uses all available CPU cores.
 - num_threads=1 disables parallelism.
 - num_threads>1 uses the specified number of threads.
-:::
+  :::
