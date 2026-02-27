@@ -47,8 +47,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx_design",
-    "myst_parser",
-    "jupyter_sphinx",
+    "myst_nb",
 ]
 
 
@@ -57,7 +56,7 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     ".DS_Store",
-    "**/.ipynb_checkpoints",
+    ".ipynb_checkpoints",
 ]
 
 # -- intersphinx -------------------------------------------------------------
@@ -92,6 +91,18 @@ myst_enable_extensions = [
     "dollarmath",
     "colon_fence",
 ]
+
+# Execute notebooks during build
+nb_execution_mode = "auto"
+
+# Cache execution results to speed up rebuilds
+nb_execution_cache_path = "_build/.jupyter_cache"
+
+# Raise error if notebook execution fails
+nb_execution_raise_on_error = True
+
+# Execution timeout in seconds
+nb_execution_timeout = 120
 
 # -- Options for HTML output -------------------------------------------------
 
