@@ -72,7 +72,6 @@ Let see how the different schemes are organising cells :
 ---
 tags: [hide-input]
 ---
-
 import matplotlib.pyplot as plt
 from healpix_geo.nested import vertices as nested_vertices
 from healpix_geo.ring import vertices as ring_vertices
