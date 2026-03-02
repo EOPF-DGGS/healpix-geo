@@ -143,6 +143,7 @@ print(f"Siblings: {sib}")
 ```
 
 Visualisation :
+
 ```{code-cell} python
 :tags: [hide-input]
 import numpy as np
