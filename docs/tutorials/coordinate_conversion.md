@@ -68,8 +68,13 @@ print(f"Zuniq {zuniq_id} → Nested (depth={depth_back}, ipix={ipix_back})")
 
 Let see how the different schemes are organising cells :
 
+
 ```{code-cell} python
-:tags: [hide-input]
+
+---
+tags: [hide-input]
+---
+
 import matplotlib.pyplot as plt
 from healpix_geo.nested import vertices as nested_vertices
 from healpix_geo.ring import vertices as ring_vertices

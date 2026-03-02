@@ -145,7 +145,10 @@ print(f"Siblings: {sib}")
 Visualisation :
 
 ```{code-cell} python
-:tags: [hide-input]
+---
+tags: [hide-input]
+---
+
 import numpy as np
 import matplotlib.pyplot as plt
 from healpix_geo.nested import siblings, healpix_to_lonlat
