@@ -88,14 +88,14 @@ print(f"Cells in the polygon : {len(cells)}")
 | --------------- | ---------------- | --------------------- |
 | `zone_coverage` | Zone request     | bbox, depth           |
 | `cone_coverage` | Circular request | center, radius, depth |
+| `box_coverage`             | Rectangular request     | center, size, angle, depth                      |
+| `elliptical_cone_coverage` | Elliptical cone request | center, ellipse_geometry, position_angle, depth |
+| `polygon_coverage`         | Polygonal request       | vertices, depth                                 |
 
 ### Principal functions working on a region represented by cells
 
 | Function                   | Usage                   | Key parameters                                  |
 | -------------------------- | ----------------------- | ----------------------------------------------- |
-| `box_coverage`             | Rectangular request     | center, size, angle, depth                      |
-| `elliptical_cone_coverage` | Elliptical cone request | center, ellipse_geometry, position_angle, depth |
-| `polygon_coverage`         | Polygonal request       | vertices, depth                                 |
 | `internal_boundary`        | Boundaries              | depth, ipix                                     |
 
 ## Next Steps
