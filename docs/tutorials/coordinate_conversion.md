@@ -68,7 +68,6 @@ print(f"Zuniq {zuniq_id} → Nested (depth={depth_back}, ipix={ipix_back})")
 
 Let see how the different schemes are organising cells :
 
-
 ```{code-cell} python
 
 ---
