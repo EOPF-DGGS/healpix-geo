@@ -1,4 +1,4 @@
-# Hierarchical Equal-Area isoLatitude Pixelisation (HEALPix)
+# HEALPix
 
 ```{toctree}
 ---
@@ -8,11 +8,19 @@ levels
 ellipsoidal-extension
 ```
 
-HEALPix was originally defined for use in astronomy by [Gorski et al., 2005]. It has several important properties:
+HEALPix (Hierarchical Equal-Area isoLatitude Pixelisation) was originally defined for use in astronomy by [Gorski et al., 2005]. It has several important properties:
 
 - equal-area: all cells of the same refinement level have exactly the same area
 - iso-latitude: all cells of the same refinement level are arranged around rings of the same latitude
 - hierarchical: cells are created by recursively and evenly subdividing, which forms a hierarchy of cells
+
+```{figure} healpix_global_indexing.png
+:alt: HEALPix nested indexing scheme
+:width: 800px
+:align: center
+
+The `nested` indexing scheme of HEALPix
+```
 
 The latter two properties allow defining the two main indexing schemes:
 
@@ -23,8 +31,8 @@ To know what cell a identifier refers to, we need two additional parameters: the
 
 Based on `nested`, there are two more schemes that also encode the refinement level in the cell id:
 
-- `nunique`, which represents all cells in the hierarchy breadth-first, i.e. cells of a refinement level are close numerically.
-- `zunique`, which represents all cells in the hierarchy depth-first, i.e. descendant cells of a given cell are close numerically.
+- `nuniq`, which represents all cells in the hierarchy breadth-first, i.e. cells of a refinement level are close numerically.
+- `zuniq`, which represents all cells in the hierarchy depth-first, i.e. descendant cells of a given cell are close numerically.
 
 ## Extensions
 

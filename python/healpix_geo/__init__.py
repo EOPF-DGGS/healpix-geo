@@ -1,3 +1,3 @@
-from healpix_geo import nested, ring
+from healpix_geo import geometry, nested, ring, slices, zuniq
 
-__all__ = ["nested", "ring"]
+__all__ = ["nested", "ring", "zuniq", "slices", "geometry"]

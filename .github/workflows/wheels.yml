@@ -6,10 +6,12 @@
 name: Build wheels
 
 on:
-  push:
-    tags:
-      - "*"
-  workflow_dispatch:
+  release:
+    types:
+      - published
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -19,155 +21,228 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  detect-ci-trigger:
+    name: detect ci trigger
+    if: github.repository == 'EOPF-DGGS/healpix-geo'
+    runs-on: ubuntu-slim
+    outputs:
+      triggered: ${{ steps.detect-trigger.outputs.trigger-found }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+
+      - uses: xarray-contrib/ci-trigger@10cd2bfec3484946a4058a421ddf9cfad101e715 # v1.2.1
+        id: detect-trigger-tag
+        with:
+          keyword: "[build-wheels]"
+
+      - name: Detect label
+        id: detect-trigger-label
+        env:
+          LABEL_FOUND: ${{ contains(github.event.pull_request.labels.*.name, 'build-wheels') }}
+        run: |
+          echo "label-found=$LABEL_FOUND" >> "$GITHUB_OUTPUT"
+
+      - name: Merge
+        id: detect-trigger
+        env:
+          TAG_FOUND: ${{ steps.detect-trigger-tag.outputs.trigger-found }}
+          LABEL_FOUND: ${{ steps.detect-trigger-label.outputs.label-found }}
+        run: |
+          if [[ "$TAG_FOUND" == "true" || "$LABEL_FOUND" == "true" ]]; then
+              echo "trigger-found=true" >> "$GITHUB_OUTPUT";
+          else
+              echo "trigger-found=false" >> "$GITHUB_OUTPUT";
+          fi
+
   linux:
+    needs: detect-ci-trigger
+    if: |
+      github.event_name == 'release'
+      || (
+        github.event_name == 'pull_request'
+        && needs.detect-ci-trigger.outputs.triggered == 'true'
+      )
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false
 
       matrix:
         platform:
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             target: x86_64
-            manylinux: auto
-          # TODO: gcc can't find a suitable -lgcc on 32-bit linux
-          # - runner: ubuntu-latest
-          #   target: x86
-          #   manylinux: auto
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
+            target: x86
+          - runner: ubuntu-22.04
             target: aarch64
-            manylinux: auto
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             target: armv7
-            manylinux: auto
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             target: s390x
-            manylinux: auto
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             target: ppc64le
-            manylinux: auto
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: |
             3.10
             3.11
             3.12
             3.13
+            3.14
 
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@b1bd829e37fef14c63f19162034228a2f3dc1021 # 1.50.0
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
-          sccache: "true"
-          manylinux: ${{ matrix.manylinux }}
+          args: --release --out dist --find-interpreter
+          sccache: "false"
+          manylinux: auto
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: wheels-linux-${{ matrix.platform.target }}
           path: dist
 
   musllinux:
+    needs: detect-ci-trigger
+    if: |
+      github.event_name == 'release'
+      || (
+        github.event_name == 'pull_request'
+        && needs.detect-ci-trigger.outputs.triggered == 'true'
+      )
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
         platform:
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             target: x86_64
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             target: x86
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             target: aarch64
-          - runner: ubuntu-latest
+          - runner: ubuntu-22.04
             target: armv7
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: |
             3.10
             3.11
             3.12
             3.13
+            3.14
 
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@b1bd829e37fef14c63f19162034228a2f3dc1021 # 1.50.0
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
-          sccache: "true"
+          args: --release --out dist --find-interpreter
+          sccache: "false"
           manylinux: musllinux_1_2
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: wheels-musllinux-${{ matrix.platform.target }}
           path: dist
 
   windows:
+    needs: detect-ci-trigger
+    if: |
+      github.event_name == 'release'
+      || (
+        github.event_name == 'pull_request'
+        && needs.detect-ci-trigger.outputs.triggered == 'true'
+      )
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
         platform:
           - runner: windows-latest
             target: x64
+          - runner: windows-latest
+            target: x86
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          architecture: ${{ matrix.platform.target }}
           python-version: |
             3.10
             3.11
             3.12
             3.13
+            3.14
 
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@b1bd829e37fef14c63f19162034228a2f3dc1021 # 1.50.0
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
-          sccache: "true"
+          args: --release --out dist --find-interpreter
+          sccache: "false"
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: wheels-windows-${{ matrix.platform.target }}
           path: dist
 
   macos:
+    needs: detect-ci-trigger
+    if: |
+      github.event_name == 'release'
+      || (
+        github.event_name == 'pull_request'
+        && needs.detect-ci-trigger.outputs.triggered == 'true'
+      )
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
         platform:
-          - runner: macos-13
+          - runner: macos-15-intel
             target: x86_64
-          - runner: macos-14
+          - runner: macos-15
             target: aarch64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: |
             3.10
             3.11
             3.12
             3.13
+            3.14
 
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@b1bd829e37fef14c63f19162034228a2f3dc1021 # 1.50.0
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist -i 3.10 -i 3.11 -i 3.12 -i 3.13
-          sccache: "true"
+          args: --release --out dist --find-interpreter
+          sccache: "false"
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: wheels-macos-${{ matrix.platform.target }}
           path: dist
@@ -175,14 +250,14 @@ jobs:
   # sdist:
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v4
+  #     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
   #     - name: Build sdist
   #       uses: PyO3/maturin-action@v1
   #       with:
   #         command: sdist
   #         args: --out dist
   #     - name: Upload sdist
-  #       uses: actions/upload-artifact@v4
+  #       uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
   #       with:
   #         name: wheels-sdist
   #         path: dist
@@ -200,10 +275,10 @@ jobs:
       # contents: write
       # Used to generate artifact attestation
       attestations: write
-    if: startsWith(github.ref, 'refs/tags/')
+    if: github.event_name == 'release'
     needs: [linux, musllinux, windows, macos]
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           pattern: "wheels-*"
           path: dist
@@ -212,8 +287,8 @@ jobs:
         shell: bash
         run: ls -lR
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@96278af6caaf10aea03fd8d33a09a777ca52d62f # v3.2.0
         with:
           subject-path: "dist/*.whl"
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0

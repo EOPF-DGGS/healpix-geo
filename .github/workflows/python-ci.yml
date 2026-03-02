@@ -12,32 +12,50 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   detect-ci-trigger:
     name: detect ci trigger
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     if: |
       github.repository == 'EOPF-DGGS/healpix-geo'
       && (github.event_name == 'push' || github.event_name == 'pull_request')
     outputs:
       triggered: ${{ steps.detect-trigger.outputs.trigger-found }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          persist-credentials: false
           fetch-depth: 2
 
-      - uses: xarray-contrib/ci-trigger@v1
+      - uses: xarray-contrib/ci-trigger@10cd2bfec3484946a4058a421ddf9cfad101e715 # v1.2.1
         id: detect-trigger
         with:
           keyword: "[skip-ci]"
 
-  test:
-    name: ${{ matrix.os }} py${{ matrix.python-version }}
-    runs-on: ${{ matrix.os }}
+  cache-pixi-lock:
+    runs-on: ubuntu-slim
     needs: detect-ci-trigger
     if: |
       needs.detect-ci-trigger.outputs.triggered == 'false'
       && !contains(github.event.pull_request.labels.*.name, 'skip-ci')
+    outputs:
+      cache-key: ${{ steps.pixi-lock.outputs.cache-key }}
+      pixi-version: ${{ steps.pixi-lock.outputs.pixi-version }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: Parcels-code/pixi-lock/create-and-cache@5cbd7a155fa24aa0711ec0a9aad9ede0819e84a1 # v0.1.0
+        id: pixi-lock
+
+  test:
+    name: ${{ matrix.os }} | ${{ matrix.env }}
+    needs: cache-pixi-lock
+    runs-on: ${{ matrix.os }}
     env:
       FORCE_COLOR: 3
     defaults:
@@ -51,49 +69,65 @@ jobs:
           - "ubuntu-latest"
           - "macos-latest"
           - "windows-latest"
-        python-version: ["3.10", "3.12", "3.13"]
+        env: ["ci-py311", "ci-py313"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        run: |
+          rustup update stable
+          rustup default stable
 
-      - name: Setup micromamba
-        uses: mamba-org/setup-micromamba@v2
+      - uses: Parcels-code/pixi-lock/restore@5cbd7a155fa24aa0711ec0a9aad9ede0819e84a1 # v0.1.0
         with:
-          environment-file: ci/requirements/environment.yaml
-          environment-name: python-tests
-          cache-environment: true
-          cache-environment-key: "${{runner.os}}-${{runner.arch}}-py${{matrix.python-version}}-${{env.TODAY}}-${{hashFiles(env.CONDA_ENV_FILE)}}"
-          create-args: >-
-            python=${{matrix.python-version}}
+          cache-key: ${{ needs.cache-pixi-lock.outputs.cache-key }}
+
+      - name: setup environment
+        uses: prefix-dev/setup-pixi@a0af7a228712d6121d37aba47adf55c1332c9c2e # 0.9.4
+        with:
+          environments: "${{ matrix.env }}"
+          pixi-version: ${{ needs.cache-pixi-lock.outputs.pixi-version }}
+          cache: true
+          frozen: true
 
       - name: Create rust cache
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # 2.8.2
         with:
           prefix-key: "py${{ matrix.python-version }}"
 
       - name: Help finding installed libraries
         run: |
-          pushd $CONDA_PREFIX
-          echo "PKG_CONFIG_PATH=$(readlink -f lib/pkgconfig)" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=$(readlink -f lib)" >> $GITHUB_ENV
-          popd
-
+          export CONDA_PREFIX=$(pixi run --frozen -e '${{ matrix.env }}' 'echo $CONDA_PREFIX')
           if [[ -z "$CONDA_PREFIX" ]]; then
             echo "CONDA_PREFIX is unset!"
             exit 1
           fi
 
-      - name: Install the package
+          pushd $CONDA_PREFIX
+          echo "PKG_CONFIG_PATH=$(readlink -f lib/pkgconfig)" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$(readlink -f lib)" >> $GITHUB_ENV
+          popd
+
+      - name: Help the linker on macos
+        if: runner.os == 'MacOS'
         run: |
-          maturin develop
+          export CONDA_PREFIX=$(pixi run --frozen -e '${{ matrix.env }}' 'echo $CONDA_PREFIX')
+
+          if [ ! -d target/debug/deps ]; then
+              mkdir -p target/debug/deps
+              ln -s $CONDA_PREFIX/lib/*.dylib target/debug/deps/
+          fi
 
       - name: Check imports
         run: |
-          python -c 'import healpix_geo'
+          pixi run \
+              -e '${{ matrix.env }}' \
+              --frozen \
+              python -c 'import healpix_geo'
 
       - name: Run tests
         run: |
-          python -m pytest --cov=healpix_geo
+          pixi run -e '${{ matrix.env }}' --frozen python -m pytest --cov=healpix_geo

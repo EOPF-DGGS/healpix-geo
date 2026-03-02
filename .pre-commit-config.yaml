@@ -1,17 +1,12 @@
-ci:
-  skip:
-    - cargo-check
-    - cargo-clippy
-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-docstring-first
   - repo: https://github.com/rbubley/mirrors-prettier
-    rev: v3.5.3
+    rev: v3.8.1
     hooks:
       - id: prettier
         args: ["--cache-location=.prettier_cache/cache"]
@@ -23,53 +18,49 @@ repos:
       - id: taplo-lint
         args: ["--no-schema"]
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.24.1
+    rev: v0.25
     hooks:
       - id: validate-pyproject
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.13
+    rev: v0.15.2
     hooks:
       - id: ruff
         args: ["--fix", "--show-fixes"]
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 25.1.0
+    rev: 26.1.0
     hooks:
       - id: black-jupyter
   - repo: https://github.com/keewis/blackdoc
-    rev: v0.4.0
+    rev: v0.4.6
     hooks:
       - id: blackdoc
-        additional_dependencies: ["black==25.1.0"]
+        additional_dependencies: ["black==26.1.0"]
       - id: blackdoc-autoupdate-black
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.8.1
+    rev: 0.9.1
     hooks:
       - id: nbstripout
         args:
           - "--extra-keys=metadata.kernelspec"
           - "metadata.language_info.version"
   - repo: https://github.com/adhtruong/mirrors-typos
-    rev: v1.33.1
+    rev: v1.43.5
     hooks:
       - id: typos
         exclude: ".*\\.ipynb$"
+  - repo: https://github.com/mpalmer/action-validator
+    rev: v0.8.0
+    hooks:
+      - id: action-validator
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.22.0
+    hooks:
+      - id: zizmor
   - repo: local
     hooks:
       - id: cargo-fmt
         name: cargo fmt
         entry: cargo fmt --
-        language: rust
-        types: [rust]
-        pass_filenames: false # This makes it a lot faster
-      - id: cargo-check
-        name: cargo check
-        entry: cargo check --profile test --
-        language: rust
-        types: [rust]
-        pass_filenames: false # This makes it a lot faster
-      - id: cargo-clippy
-        name: cargo clippy
-        entry: cargo clippy --tests -- -D warnings
         language: rust
         types: [rust]
         pass_filenames: false # This makes it a lot faster
