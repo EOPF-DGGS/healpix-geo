@@ -24,11 +24,12 @@ lon, lat = np.array([0.0]), np.array([45.0])
 depth = 10
 
 ellipsoids = {
-    "sphere",
-    "WGS84",
-    "GRS80",
-    "WGS72",
+    "sphere": "Unit sphere",
+    "WGS84": "Global geodetic standard",
+    "GRS80": "Geodetic Reference System 1980",
+    "WGS72": "World Geodetic System 1972",
 }
+
 
 print(f"HEALPix cell at point (0°, 45°) at depth={depth}:\n")
 for ellipsoid, description in ellipsoids.items():
@@ -69,6 +70,9 @@ Use a spherical model (**sphere**) only when high accuracy is not required.
 ### GPS data
 
 ```{code-cell} python
+import numpy as np
+from healpix_geo.nested import lonlat_to_healpix
+
 # GPS trajectory data
 gps_points = np.array(
     [

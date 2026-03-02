@@ -1,3 +1,14 @@
+---
+jupytext:
+  formats: md:myst
+  text_representation:
+    extension: .md
+    format_name: myst
+kernelspec:
+  name: python3
+  display_name: Python 3
+---
+
 # Cover requests
 
 This tutorial explains how to find all the HEALPix cells which intersect a geographic region.
@@ -8,7 +19,7 @@ This tutorial explains how to find all the HEALPix cells which intersect a geogr
 
 Find all cells within a given radius around a point.
 
-```python
+```{code-cell} python
 import numpy as np
 from healpix_geo.nested import cone_coverage
 
@@ -27,7 +38,7 @@ print(f"Number of cells in the radius: {len(cells)}")
 
 Find all cells in a spherical angle.
 
-```python
+```{code-cell} python
 from healpix_geo.nested import box_coverage
 
 # Coverage box
@@ -56,7 +67,7 @@ print(f"Cells number : {len(cells)}")
 
 Find all cells in a polygon coverage.
 
-```python
+```{code-cell} python
 from healpix_geo.nested import polygon_coverage
 import numpy as np
 
@@ -104,12 +115,12 @@ print(f"Cells in the polygon : {len(cells)}")
 :::
 
 :::{grid-item-card} Hierarchy
-:link: ../user-guide/hierarchical_indexing
+:link: user-guide/hierarchical_indexing
 :link-type: doc
 :::
 
 :::{grid-item-card} Api reference
-:link: ../api
+:link: api
 :link-type: doc
 
 :::

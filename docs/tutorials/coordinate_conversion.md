@@ -161,7 +161,7 @@ plt.show()
 :::
 
 :::{grid-item-card} Hierarchy
-:link: ../user-guide/hierarchical_indexing
+:link: user-guide/hierarchical_indexing
 :link-type: doc
 
 :::
