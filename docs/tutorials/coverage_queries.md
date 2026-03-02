@@ -115,12 +115,12 @@ print(f"Cells in the polygon : {len(cells)}")
 :::
 
 :::{grid-item-card} Hierarchy
-:link: user-guide/hierarchical_indexing
+:link: ../user-guide/hierarchical_indexing
 :link-type: doc
 :::
 
 :::{grid-item-card} Api reference
-:link: api
+:link: ../api
 :link-type: doc
 
 :::
