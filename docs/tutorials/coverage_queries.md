@@ -36,7 +36,7 @@ print(f"Number of cells in the radius: {len(cells)}")
 
 ### 2. Box Coverage
 
-Find all cells in a spherical angle.
+Find all cells in a spherical rectangle.
 
 ```{code-cell} python
 from healpix_geo.nested import box_coverage

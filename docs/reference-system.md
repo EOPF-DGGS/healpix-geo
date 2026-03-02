@@ -60,7 +60,7 @@ Karney, 2023[^2], describes conversion formulas that reduce the numerical round-
 ```{toctree}
 ---
 maxdepth: 2
-caption: Guide utilisateur
+caption: User guide
 hidden: true
 ---
 installation

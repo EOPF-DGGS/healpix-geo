@@ -84,7 +84,7 @@ gps_points = np.array(
 
 lon_gps = gps_points[:, 0]
 lat_gps = gps_points[:, 1]
-depth = 29  # High resolution
+depth = 29  # Highest resolution
 
 # Always use WGS84 for GPS
 ipix = lonlat_to_healpix(lon_gps, lat_gps, depth, ellipsoid="WGS84")
