@@ -15,38 +15,6 @@ Overview
 .. tip::
    **For most of the applications**, use module :mod:`healpix_geo.nested`. It offers the best support for hierarchical operations.
 
-Guide of module choice
-=======================
-
-Choose your module following your needs :
-
-.. list-table::
-   :widths: 20 40 40
-   :header-rows: 1
-
-   * - Module
-     - When to use it
-     - Principal functionalities
-   * - **nested**
-     - - General applications
-       - Hierarchical requests
-       - Multi-resolution
-     - - Coordinates conversions
-       - Coverage
-       - Hierarchy
-       - Distances
-   * - **ring**
-     - - Compatibility legacy
-       - Specific order requested
-     - - Coordinates conversions
-       - Distances
-       - Limited neighbours
-   * - **zuniq**
-     - - Work with MOC
-       - Interoperability
-     - - Conversions nested ↔ zuniq
-       - Cell Coordinates
-
 
 Module nested
 ==============
@@ -62,7 +30,6 @@ Conversions between geographic coordinates and HEALPix indices.
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    healpix_to_lonlat
    lonlat_to_healpix
@@ -78,23 +45,10 @@ Navigation in the hierarchical structure of HEALPix.
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    kth_neighbourhood
    zoom_to
    siblings
-
-**Quick Examples** :
-
-.. code-block:: python
-
-    from healpix_geo.nested import kth_neighbourhood, zoom_to
-
-    # Direct neighbours
-    neighbours = kth_neighbourhood(ipix, depth=8, k=1)
-
-    # Parents and children
-    children = zoom_to(parent_ipix, parent_depth, parent_depth + 1)
 
 .. seealso::
    Complete tutorial : :doc:`user-guide/hierarchical_indexing`
@@ -106,7 +60,6 @@ Find all the cells which intersect a region.
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    zone_coverage
    box_coverage
@@ -126,9 +79,9 @@ Calculate distances between HEALPix cells.
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    angular_distances
+   geodesic_distance
 
 
 Indexes and data structure
@@ -138,7 +91,6 @@ Classes to manipulate HEALPix cell sets.
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    RangeMOCIndex
 
@@ -158,7 +110,6 @@ Coordinates Conversions
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    healpix_to_lonlat
    lonlat_to_healpix
@@ -169,7 +120,6 @@ Hierarchy
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    kth_neighbourhood
 
@@ -178,9 +128,9 @@ Distance Calculations
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    angular_distances
+   geodesic_distance
 
 Module zuniq
 ============
@@ -196,7 +146,6 @@ Conversions between schemes nested et zuniq.
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    from_nested
    to_nested
@@ -210,7 +159,6 @@ Coordinates Conversions
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    healpix_to_lonlat
    lonlat_to_healpix
