@@ -40,6 +40,3 @@ Based on `nested`, there are two more schemes that also encode the refinement le
 
 [Gorski et al., 2005]: https://doi.org/10.1086/427976
 
-## See Also
-
-See the {ref}`ellipsoidal-extension` section for details about the ellipsoidal generalisation.
