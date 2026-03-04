@@ -39,4 +39,3 @@ Based on `nested`, there are two more schemes that also encode the refinement le
 - [HEALPix Extension to Ellipsoids](ellipsoidal-extension.md): Apply HEALPix to ellipsoidal Earth models via an area-preserving mapping to an authalic sphere.
 
 [Gorski et al., 2005]: https://doi.org/10.1086/427976
-
