@@ -93,7 +93,7 @@ print(ipix)
 ```
 
 :::{tip}
-For more information see <`../terminology`>
+For more information see `../healpix/ellipsoidal-extension`
 :::
 
 ## Next steps
