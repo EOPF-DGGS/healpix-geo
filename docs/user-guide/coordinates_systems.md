@@ -1,6 +1,6 @@
 # Coordinate Systems
 
-This chapter explains coordinate systems and conversions in Healpix-Geo.
+This chapter explains coordinate systems and conversions in Healpix-geo.
 
 ## Indexing Schemes
 

@@ -1,3 +1,14 @@
+---
+jupytext:
+  formats: md:myst
+  text_representation:
+    extension: .md
+    format_name: myst
+kernelspec:
+  name: python3
+  display_name: Python 3
+---
+
 # Cover requests
 
 This tutorial explains how to find all the HEALPix cells which intersect a geographic region.
@@ -8,7 +19,7 @@ This tutorial explains how to find all the HEALPix cells which intersect a geogr
 
 Find all cells within a given radius around a point.
 
-```python
+```{code-cell} python
 import numpy as np
 from healpix_geo.nested import cone_coverage
 
@@ -25,9 +36,9 @@ print(f"Number of cells in the radius: {len(cells)}")
 
 ### 2. Box Coverage
 
-Find all cells in a box coverage.
+Find all cells in a spherical rectangle.
 
-```python
+```{code-cell} python
 from healpix_geo.nested import box_coverage
 
 # Coverage box
@@ -56,7 +67,7 @@ print(f"Cells number : {len(cells)}")
 
 Find all cells in a polygon coverage.
 
-```python
+```{code-cell} python
 from healpix_geo.nested import polygon_coverage
 import numpy as np
 
@@ -69,18 +80,23 @@ cells = polygon_coverage(vertices, depth, ellipsoid="WGS84", flat=True)
 print(f"Cells in the polygon : {len(cells)}")
 ```
 
-## Resume
+## Summary
 
-### Principal functions
+### Principal functions working on geometries
 
-| Function                   | Usage                    | Key parameters                                  |
-| -------------------------- | ------------------------ | ----------------------------------------------- |
-| `zone_coverage`            | Zone request             | bbox, depth                                     |
-| `cone_coverage`            | Circular request         | center, radius, depth                           |
-| `box_coverage`             | Rectangular request      | center, size, angle, depth                      |
-| `elliptical_cone_coverage` | Ellipticall cone request | center, ellipse_geometry, position_angle, depth |
-| `polygon_coverage`         | Polygonal request        | vertices, depth                                 |
-| `internal_boundary`        | Boundaries               | depth, ipix                                     |
+| Function                   | Usage                   | Key parameters                                  |
+| -------------------------- | ----------------------- | ----------------------------------------------- |
+| `zone_coverage`            | Zone request            | bbox, depth                                     |
+| `cone_coverage`            | Circular request        | center, radius, depth                           |
+| `box_coverage`             | Rectangular request     | center, size, angle, depth                      |
+| `elliptical_cone_coverage` | Elliptical cone request | center, ellipse_geometry, position_angle, depth |
+| `polygon_coverage`         | Polygonal request       | vertices, depth                                 |
+
+### Principal functions working on a region represented by cells
+
+| Function            | Usage      | Key parameters |
+| ------------------- | ---------- | -------------- |
+| `internal_boundary` | Boundaries | depth, ipix    |
 
 ## Next Steps
 
