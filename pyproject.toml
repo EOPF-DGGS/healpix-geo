@@ -11,7 +11,7 @@ classifiers = [
   "Programming Language :: Rust",
   "Programming Language :: Python :: Implementation :: CPython",
 ]
-dependencies = ["numpy"]
+dependencies = ["numpy", "pyproj"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
