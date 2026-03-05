@@ -81,7 +81,6 @@ Calculate distances between HEALPix cells.
    :toctree: generated/
 
    angular_distances
-   geodesic_distance
 
 
 Indexes and data structure
@@ -130,7 +129,6 @@ Distance Calculations
    :toctree: generated/
 
    angular_distances
-   geodesic_distance
 
 Module zuniq
 ============
