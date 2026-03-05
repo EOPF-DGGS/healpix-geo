@@ -162,6 +162,15 @@ Coordinates Conversions
    lonlat_to_healpix
    vertices
 
+Helpers
+~~~~~~~
+
+.. autosummary::
+   :toctree: generated/
+
+   geometry.Bbox
+   slices.MultiConcreteSlice
+
 Common Parameters
 ==================
 
