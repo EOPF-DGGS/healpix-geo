@@ -68,6 +68,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "cdshealpix": ("https://cds-astro.github.io/cds-healpix-python/", None),
     "lonboard": ("https://developmentseed.org/lonboard/latest/", None),
+    "shapely": ("https://shapely.readthedocs.io/en/stable", None),
 }
 
 # -- autosummary / autodoc ---------------------------------------------------
