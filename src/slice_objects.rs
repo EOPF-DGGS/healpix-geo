@@ -47,7 +47,7 @@ pub struct ConcreteSlice {
 /// Multiple concrete positional slices
 #[derive(PartialEq, PartialOrd, Debug, Clone)]
 #[pyclass]
-#[pyo3(module = "healpix_geo.slices", frozen)]
+#[pyo3(module = "healpix_geo.slices", name = "MultiConcreteSlice", frozen)]
 pub struct MultiConcreteSlice {
     #[pyo3(get)]
     pub slices: Vec<ConcreteSlice>,
