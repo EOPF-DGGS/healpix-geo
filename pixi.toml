@@ -81,9 +81,19 @@ build-docs = { cmd = "rm -rf generated/; python -m sphinx -b html -w warnings.lo
 autobuild-docs = { cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
 build-docs-rtd = { cmd = "python -m sphinx -b html -W -T -j auto . $READTHEDOCS_OUTPUT/html", cwd = "docs" }
 
+[feature.jupyterlab.dependencies]
+jupyterlab = "*"
+black = "*"
+isort = "*"
+jupyterlab_code_formatter = "*"
+jupyter-resource-usage = "*"
+
+[feature.rust-dev.target.unix.dependencies]
+evcxr = "*"
+
 
 [environments]
-dev = ["tests", "py313", "dev"]
+dev = ["tests", "py313", "jupyterlab", "rust-dev", "dev"]
 py311 = ["py311"]
 py312 = ["py312"]
 py313 = ["py313"]
