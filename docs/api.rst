@@ -8,18 +8,18 @@ Overview
 
 `healpix-geo` is organised in several modules following the **HEALPix indexing scheme** used :
 
-- :mod:`healpix_geo.nested` : nested scheme
-- :mod:`healpix_geo.ring` : ring scheme
-- :mod:`healpix_geo.zuniq` : Zuniq scheme for Multi-Order Coverage (MOC)
+- `healpix_geo.nested` : nested scheme
+- `healpix_geo.ring` : ring scheme
+- `healpix_geo.zuniq` : Zuniq scheme for Multi-Order Coverage (MOC)
 
 .. tip::
-   **For most of the applications**, use module :mod:`healpix_geo.nested`. It offers the best support for hierarchical operations.
+   **For most of the applications**, use module `healpix_geo.nested`. It offers the best support for hierarchical operations.
 
 
 Module nested
 ==============
 
-The module :mod:`healpix_geo.nested` gives functions for the nested indexing scheme.
+The module `healpix_geo.nested` gives functions for the nested indexing scheme.
 
 .. currentmodule:: healpix_geo.nested
 
@@ -98,12 +98,12 @@ Classes to manipulate HEALPix cell sets.
 Module ring
 ===========
 
-The module :mod:`healpix_geo.ring` gives for the ring indexation scheme.
+The module `healpix_geo.ring` gives for the ring indexation scheme.
 
 .. currentmodule:: healpix_geo.ring
 
 .. note::
-   The ring scheme is principally given for **compatibility**. For new applications, prefer :mod:`healpix_geo.nested`.
+   The ring scheme is principally given for **compatibility**. For new applications, prefer `healpix_geo.nested`.
 
 Coordinates Conversions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -135,7 +135,7 @@ Distance Calculations
 Module zuniq
 ============
 
-The module :mod:`healpix_geo.zuniq` gives functions for the zuniq scheme, utilised for MOC (Multi-Order Coverage).
+The module `healpix_geo.zuniq` gives functions for the zuniq scheme, utilised for MOC (Multi-Order Coverage).
 
 .. currentmodule:: healpix_geo.zuniq
 
