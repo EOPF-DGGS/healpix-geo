@@ -26,3 +26,19 @@
    healpix_geo.geometry.Bbox.lon_max
    healpix_geo.geometry.Bbox.lat_min
    healpix_geo.geometry.Bbox.lat_max
+
+   healpix_geo.slices.Slice.as_pyslice
+   healpix_geo.slices.Slice.from_pyslice
+   healpix_geo.slices.Slice.as_concrete
+   healpix_geo.slices.Slice.indices
+   healpix_geo.slices.Slice.start
+   healpix_geo.slices.Slice.stop
+   healpix_geo.slices.Slice.step
+
+   healpix_geo.slices.ConcreteSlice.as_pyslice
+   healpix_geo.slices.ConcreteSlice.indices
+   healpix_geo.slices.ConcreteSlice.join
+   healpix_geo.slices.ConcreteSlice.size
+   healpix_geo.slices.ConcreteSlice.start
+   healpix_geo.slices.ConcreteSlice.stop
+   healpix_geo.slices.ConcreteSlice.step
