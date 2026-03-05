@@ -83,6 +83,7 @@ clean-docs = { cmd = "rm -rf generated/ jupyter_execute/ _build/", cwd = "docs" 
 build-docs = { cmd = "python -m sphinx -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
 autobuild-docs = { cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
 build-docs-rtd = { cmd = "python -m sphinx -b html -W -T -j auto . $READTHEDOCS_OUTPUT/html", cwd = "docs" }
+host-docs = { cmd = "python -m http.server -b 127.0.0.1 -d _build/html 5447", cwd = "docs" }
 
 build-clean-docs = [{ task = "clean-docs" }, { task = "build-docs" }]
 build-and-host-docs = [{ task = "build-docs" }, { task = "host-docs" }]
