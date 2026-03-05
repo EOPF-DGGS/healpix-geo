@@ -182,8 +182,8 @@ HEALPix indices
 - **depth** (*int*) : resolution level [0, 29]
 
   - 0 = coarser (12 cells)
-  - 29 = finer (~0.2 mm)
-  - See :doc:`healpix/levels` pour le tableau complete
+  - 29 = finer (~1.2 cm)
+  - See :doc:`healpix/levels` for the complete table
 
 Ellipsoids
 ~~~~~~~~~~
