@@ -8,7 +8,6 @@ rust = ">=1.91.1,<1.92"
 maturin = ">=1.10.2,<2"
 numpy = ">=2.3.5,<3"
 
-
 [pypi-dependencies]
 healpix-geo = { path = ".", editable = true }
 
