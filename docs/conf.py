@@ -57,6 +57,7 @@ exclude_patterns = [
     "Thumbs.db",
     ".DS_Store",
     ".ipynb_checkpoints",
+    "jupyter_execute",
 ]
 
 # -- intersphinx -------------------------------------------------------------
@@ -83,6 +84,7 @@ napoleon_preprocess_types = True
 napoleon_type_aliases = {
     # healpix-geo
     "ellipsoid-like": ":term:`ellipsoid-like`",
+    "array-like": ":py:class:`numpy.ndarray`",
 }
 
 # -- myst-parser -------------------------------------------------------------
