@@ -41,7 +41,7 @@ mod zuniq {
 #[pymodule]
 mod slices {
     #[pymodule_export]
-    use crate::slice_objects::{ConcreteSlice, PositionalSlice};
+    use crate::slice_objects::{ConcreteSlice, MultiConcreteSlice, PositionalSlice};
 }
 
 #[pymodule(name = "geometry")]
