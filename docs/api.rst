@@ -164,11 +164,14 @@ Coordinates Conversions
 
 Helpers
 ~~~~~~~
+.. currentmodule:: healpix_geo
 
 .. autosummary::
    :toctree: generated/
 
    geometry.Bbox
+   slices.Slice
+   slices.ConcreteSlice
    slices.MultiConcreteSlice
 
 Common Parameters

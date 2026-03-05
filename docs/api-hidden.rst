@@ -20,3 +20,9 @@
    healpix_geo.nested.RangeMOCIndex.depth
    healpix_geo.nested.RangeMOCIndex.nbytes
    healpix_geo.nested.RangeMOCIndex.size
+
+   healpix_geo.geometry.Bbox.from_tuple
+   healpix_geo.geometry.Bbox.lon_min
+   healpix_geo.geometry.Bbox.lon_max
+   healpix_geo.geometry.Bbox.lat_min
+   healpix_geo.geometry.Bbox.lat_max
