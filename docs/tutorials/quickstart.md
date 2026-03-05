@@ -47,9 +47,9 @@ Cell indices are unique integers that identify each cell. Each city is in a diff
 
 The `depth` parameter (or level) controls the tiling resolution :
 
-- `depth=0` : 12 cells around the world (~4700 km per cell)
-- `depth=8` : 3 145 728 cells (~18 km per cell)
-- `depth=12` : 201 326 592 cells (~1.1 km per cell)
+- `depth=0` : 12 cells around the world (~6 520 km per cell)
+- `depth=8` : 786 432 cells (~25 km per cell)
+- `depth=12` : 201 326 592 cells (~1.6 km per cell)
 
 :::{seealso}
 See {doc}`../healpix/levels` for a complete table of levels with their resolutions.
