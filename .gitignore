@@ -80,6 +80,7 @@ docs/_contents/
 .jupyterlite.doit.db
 ci/rattler-recipe/recipe.yaml
 docs/environment.yml
+/my_env
 
 # PyCharm
 .idea/

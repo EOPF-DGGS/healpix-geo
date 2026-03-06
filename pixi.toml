@@ -63,6 +63,13 @@ python = "3.14.*"
 
 [feature.jupyterlite.dependencies]
 rattler-build = "*"
+pyjs_code_runner = ">=3.2.0,<4"
+playwright = ">=1.58.2,<2"
+playwright-python = ">=1.58.0,<2"
+mamba = ">=2.5.0,<3"
+
+[feature.jupyterlite.tasks]
+check-build = { cmd = "ci/package_check/check-build.sh", cwd = "." }
 
 [feature.templates.dependencies]
 python = "3.14.*"
