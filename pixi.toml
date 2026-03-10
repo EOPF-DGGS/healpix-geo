@@ -33,6 +33,7 @@ depends-on = [{ task = "rust-lints", environment = "dev" }]
 
 [feature.dev.dependencies]
 ipython = "*"
+jupyterlab = ">=4.5.5,<5"
 
 [feature.dev.tasks]
 ipython = "ipython"
@@ -111,8 +112,7 @@ cwd = "."
 sphinx = "*"
 matplotlib = "*"
 pydata-sphinx-theme = "*"
-myst-parser = "*"
-jupyter-sphinx = "*"
+myst-nb = "*"
 sphinx-autobuild = "*"
 geopandas = "*"
 tabulate = "*"
@@ -125,25 +125,25 @@ sphinx-design = ">=0.7.0,<0.8"
 jupyterlite-xeus = "*"
 jupyterlite-sphinx = "<0.21"
 
-[feature.docs.tasks.build-docs]
-cmd = "rm -rf generated/; python -m sphinx -b html -w warnings.log -W -Tn -j auto . _build/html"
-cwd = "docs"
+[feature.docs.tasks]
+clean-docs = { cmd = "rm -rf generated/ jupyter_execute/ _build/", cwd = "docs" }
+build-docs = { cmd = "python -m sphinx -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
+autobuild-docs = { cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
+build-docs-rtd = { cmd = "python -m sphinx -b html -W -T -j auto . $READTHEDOCS_OUTPUT/html", cwd = "docs" }
+host-docs = { cmd = "python -m http.server -b 127.0.0.1 -d _build/html 5447", cwd = "docs" }
 
-[feature.docs.tasks.autobuild-docs]
-cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build/html"
-cwd = "docs"
-
-[feature.docs.tasks.build-docs-rtd]
-cmd = "python -m sphinx -b html -W -T -j auto . $READTHEDOCS_OUTPUT/html"
-cwd = "docs"
-
-[feature.docs.tasks.host-docs]
-cmd = "python -m http.server -b 127.0.0.1 -d _build/html 5455"
-cwd = "docs"
+build-clean-docs = [{ task = "clean-docs" }, { task = "build-docs" }]
+build-and-host-docs = [{ task = "build-docs" }, { task = "host-docs" }]
+build-clean-and-host-docs = [
+  { task = "clean-docs" },
+  { task = "build-docs" },
+  { task = "host-docs" },
+]
 
 [tasks.build-and-host]
 depends-on = [
-  { task = "build-jupyterlite" },
+  { task = "build-emscripten" },
+  { task = "create-channel" },
   { task = "create-environment" },
   { task = "build-docs" },
   { task = "host-docs" },

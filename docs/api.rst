@@ -8,50 +8,18 @@ Overview
 
 `healpix-geo` is organised in several modules following the **HEALPix indexing scheme** used :
 
-- :mod:`healpix_geo.nested` : nested scheme
-- :mod:`healpix_geo.ring` : ring scheme
-- :mod:`healpix_geo.zuniq` : Zuniq scheme for Multi-Order Coverage (MOC)
+- `healpix_geo.nested` : nested scheme
+- `healpix_geo.ring` : ring scheme
+- `healpix_geo.zuniq` : Zuniq scheme for Multi-Order Coverage (MOC)
 
 .. tip::
-   **For most of the applications**, use module :mod:`healpix_geo.nested`. It offers the best support for hierarchical operations.
-
-Guide of module choice
-=======================
-
-Choose your module following your needs :
-
-.. list-table::
-   :widths: 20 40 40
-   :header-rows: 1
-
-   * - Module
-     - When to use it
-     - Principal functionalities
-   * - **nested**
-     - - General applications
-       - Hierarchical requests
-       - Multi-resolution
-     - - Coordinates conversions
-       - Coverage
-       - Hierarchy
-       - Distances
-   * - **ring**
-     - - Compatibility legacy
-       - Specific order requested
-     - - Coordinates conversions
-       - Distances
-       - Limited neighbours
-   * - **zuniq**
-     - - Work with MOC
-       - Interoperability
-     - - Conversions nested ↔ zuniq
-       - Cell Coordinates
+   **For most of the applications**, use module `healpix_geo.nested`. It offers the best support for hierarchical operations.
 
 
 Module nested
 ==============
 
-The module :mod:`healpix_geo.nested` gives functions for the nested indexing scheme.
+The module `healpix_geo.nested` gives functions for the nested indexing scheme.
 
 .. currentmodule:: healpix_geo.nested
 
@@ -62,7 +30,6 @@ Conversions between geographic coordinates and HEALPix indices.
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    healpix_to_lonlat
    lonlat_to_healpix
@@ -78,23 +45,10 @@ Navigation in the hierarchical structure of HEALPix.
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    kth_neighbourhood
    zoom_to
    siblings
-
-**Quick Examples** :
-
-.. code-block:: python
-
-    from healpix_geo.nested import kth_neighbourhood, zoom_to
-
-    # Direct neighbours
-    neighbours = kth_neighbourhood(ipix, depth=8, k=1)
-
-    # Parents and children
-    children = zoom_to(parent_ipix, parent_depth, parent_depth + 1)
 
 .. seealso::
    Complete tutorial : :doc:`user-guide/hierarchical_indexing`
@@ -106,7 +60,6 @@ Find all the cells which intersect a region.
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    zone_coverage
    box_coverage
@@ -126,7 +79,6 @@ Calculate distances between HEALPix cells.
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    angular_distances
 
@@ -138,7 +90,6 @@ Classes to manipulate HEALPix cell sets.
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    RangeMOCIndex
 
@@ -146,19 +97,18 @@ Classes to manipulate HEALPix cell sets.
 Module ring
 ===========
 
-The module :mod:`healpix_geo.ring` gives for the ring indexation scheme.
+The module `healpix_geo.ring` gives for the ring indexation scheme.
 
 .. currentmodule:: healpix_geo.ring
 
 .. note::
-   The ring scheme is principally given for **compatibility**. For ne applications, prefer :mod:`healpix_geo.nested`.
+   The ring scheme is principally given for **compatibility**. For new applications, prefer `healpix_geo.nested`.
 
 Coordinates Conversions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    healpix_to_lonlat
    lonlat_to_healpix
@@ -169,7 +119,6 @@ Hierarchy
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    kth_neighbourhood
 
@@ -178,14 +127,13 @@ Distance Calculations
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    angular_distances
 
 Module zuniq
 ============
 
-The module :mod:`healpix_geo.zuniq` gives functions for the zuniq scheme, utilised for MOC (Multi-Order Coverage).
+The module `healpix_geo.zuniq` gives functions for the zuniq scheme, utilised for MOC (Multi-Order Coverage).
 
 .. currentmodule:: healpix_geo.zuniq
 
@@ -196,7 +144,6 @@ Conversions between schemes nested et zuniq.
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    from_nested
    to_nested
@@ -210,11 +157,22 @@ Coordinates Conversions
 
 .. autosummary::
    :toctree: generated/
-   :nosignatures:
 
    healpix_to_lonlat
    lonlat_to_healpix
    vertices
+
+Helpers
+~~~~~~~
+.. currentmodule:: healpix_geo
+
+.. autosummary::
+   :toctree: generated/
+
+   geometry.Bbox
+   slices.Slice
+   slices.ConcreteSlice
+   slices.MultiConcreteSlice
 
 Common Parameters
 ==================
@@ -234,8 +192,8 @@ HEALPix indices
 - **depth** (*int*) : resolution level [0, 29]
 
   - 0 = coarser (12 cells)
-  - 29 = finer (~0.2 mm)
-  - See :doc:`healpix/levels` pour le tableau complete
+  - 29 = finer (~1.2 cm)
+  - See :doc:`healpix/levels` for the complete table
 
 Ellipsoids
 ~~~~~~~~~~

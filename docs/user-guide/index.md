@@ -89,20 +89,28 @@ In this guide, we are using the following conventions :
 
 ## Quick Glossary
 
-| Term           | Definition                                               |
-| -------------- | -------------------------------------------------------- |
-| **HEALPix**    | Hierarchical Equal Area isoLatitude Pixelization         |
-| **Depth**      | Resolution level (0 = coarser, 29 = finer)               |
-| **Nested**     | Hierarchical indexing scheme                             |
-| **Ring**       | Latitude ring indexing scheme                            |
-| **Zuniq**      | Indexing scheme for MOC                                  |
-| **MOC**        | Multi-Order Coverage - compact representation of regions |
-| **Ellipsoïde** | Mathematical model of the shape of the Earth             |
-| **WGS84**      | World Geodetic System 1984                               |
+| Term          | Definition                                               |
+| ------------- | -------------------------------------------------------- |
+| **HEALPix**   | Hierarchical Equal Area isoLatitude Pixelization         |
+| **Depth**     | Resolution level (0 = coarser, 29 = finer)               |
+| **Nested**    | Hierarchical indexing scheme                             |
+| **Ring**      | Latitude ring indexing scheme                            |
+| **Zuniq**     | Indexing scheme for MOC                                  |
+| **MOC**       | Multi-Order Coverage - compact representation of regions |
+| **Ellipsoid** | Mathematical model of the shape of the Earth             |
+| **WGS84**     | World Geodetic System 1984                               |
 
 :::{seealso}
 For a complete glossary, see {doc}`../terminology`.
 :::
+
+## Guide of module choice
+
+| Module     | When to use it                                                | Principal functionalities                               |
+| ---------- | ------------------------------------------------------------- | ------------------------------------------------------- |
+| **nested** | General applications, Hierarchical requests, Multi-resolution | Coordinates conversions, Coverage, Hierarchy, Distances |
+| **ring**   | Compatibility legacy, Specific order requested                | Coordinates conversions, Distances, Limited neighbours  |
+| **zuniq**  | Work with MOC, Interoperability                               | Conversions nested ↔ zuniq, Cell Coordinates            |
 
 ```{toctree}
 ---

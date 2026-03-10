@@ -47,9 +47,8 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx_design",
-    "myst_parser",
-    "jupyter_sphinx",
     "jupyterlite_sphinx",
+    "myst_nb",
 ]
 
 
@@ -58,7 +57,8 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     ".DS_Store",
-    "**/.ipynb_checkpoints",
+    ".ipynb_checkpoints",
+    "jupyter_execute",
 ]
 
 # -- intersphinx -------------------------------------------------------------
@@ -69,6 +69,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "cdshealpix": ("https://cds-astro.github.io/cds-healpix-python/", None),
     "lonboard": ("https://developmentseed.org/lonboard/latest/", None),
+    "shapely": ("https://shapely.readthedocs.io/en/stable", None),
 }
 
 # -- autosummary / autodoc ---------------------------------------------------
@@ -85,6 +86,7 @@ napoleon_preprocess_types = True
 napoleon_type_aliases = {
     # healpix-geo
     "ellipsoid-like": ":term:`ellipsoid-like`",
+    "array-like": ":py:class:`numpy.ndarray`",
 }
 
 # -- jupyterlite-sphinx ------------------------------------------------------
@@ -104,6 +106,18 @@ myst_enable_extensions = [
     "dollarmath",
     "colon_fence",
 ]
+
+# Execute notebooks during build
+nb_execution_mode = "auto"
+
+# Cache execution results to speed up rebuilds
+nb_execution_cache_path = "_build/.jupyter_cache"
+
+# Raise error if notebook execution fails
+nb_execution_raise_on_error = True
+
+# Execution timeout in seconds
+nb_execution_timeout = 120
 
 # -- Options for HTML output -------------------------------------------------
 
