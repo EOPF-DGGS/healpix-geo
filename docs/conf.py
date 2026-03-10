@@ -20,7 +20,7 @@ def run_script(name, outpath):
 script_root = pathlib.Path("scripts").absolute()
 docs_root = pathlib.Path.cwd()
 scripts = [
-    # ("generate_healpix_levels_table.py", "healpix/healpix_levels_table.md"),
+    ("generate_healpix_levels_table.py", "healpix/healpix_levels_table.md"),
     ("generate_latitude_diff_table.py", "latitude_diff_table.md"),
     ("generate_latitude_graphic.py", "ellipsoidal_latitudes.png"),
 ]
