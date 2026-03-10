@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
-
 import pathlib
 
 
 def main():
-    root = pathlib.Path(__file__).parent
+    docs_root = pathlib.Path(__file__).parent
 
-    local_channel = root.parent / "target/conda"
-    local_packages = list(local_channel.glob("emscripten-wasm32/healpix-geo*"))
-    if len(local_packages) != 1:
-        raise RuntimeError(f"zero or more than one package found: {local_packages}")
+    project_root = docs_root.parent
+    local_repo = project_root / "target/conda"
+    package_root = local_repo / "emscripten-wasm32"
 
-    local_package = local_packages[0]
+    package_paths = list(package_root.glob("*.tar.bz2"))
+    if len(package_paths) == 0:
+        raise ValueError("no built package found. Run `pixi run build-emscripten`.")
+    elif len(package_paths) > 1:
+        print("multiple packages found. Taking the first.")
 
-    template_path = root / "environment_template.yml"
-    env_path = root / "environment.yml"
+    package_path = package_paths[0]
+    print(f"Selecting {str(package_path)!r}.")
+
+    template_path = docs_root / "environment.template.yml"
+    env_path = docs_root / "environment.yml"
 
     template = template_path.read_text()
-    environment = template.replace('"{{ local-package }}"', str(local_package))
+    # environment = template.replace("{{ package-path }}", str(package_path))
+    environment = template.replace("{{ local-repo }}", str(local_repo))
 
     env_path.write_text(environment)
 
