@@ -214,7 +214,7 @@ def kth_neighbourhood(ipix, depth, ring, num_threads=0):
 
     Examples
     --------
-    >>> from cdshealpix import neighbours_in_kth_ring
+    >>> from healpix_geo.nested import neighbours_in_kth_ring
     >>> import numpy as np
     >>> ipix = np.array([42, 6, 10])
     >>> depth = 12

@@ -93,7 +93,7 @@ def healpix_to_lonlat(ipix, ellipsoid, num_threads=0):
     --------
     >>> from healpix_geo.zuniq import healpix_to_lonlat
     >>> import numpy as np
-    >>> cell_ids = np.array([42, 6, 10])
+    >>> ipix = np.array([42, 6, 10])
     >>> lon, lat = healpix_to_lonlat(ipix, ellipsoid="WGS84")
     """
     ipix = np.atleast_1d(ipix).astype(np.uint64)
@@ -144,7 +144,7 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
 
     Examples
     --------
-    >>> from cdshealpix.ring import lonlat_to_healpix
+    >>> from healpix_geo.zuniq import lonlat_to_healpix
     >>> import numpy as np
     >>> lon = np.array([0, 50, 25], dtype="float64")
     >>> lat = np.array([6, -12, 45], dtype="float64")
@@ -197,7 +197,7 @@ def vertices(ipix, ellipsoid, num_threads=0):
 
     Examples
     --------
-    >>> from healpix_geo.nested import vertices
+    >>> from healpix_geo.zuniq import vertices
     >>> import numpy as np
     >>> ipix = np.array([42, 6, 10])
     >>> depth = 12
