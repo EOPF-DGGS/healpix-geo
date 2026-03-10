@@ -129,8 +129,8 @@ jupyterlite-core = ">=0.7.3,<0.8"
 
 [feature.docs.tasks]
 clean-docs = { cmd = "rm -rf generated/ jupyter_execute/ _build/", cwd = "docs" }
-build-docs = { cmd = "python -m sphinx -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
-autobuild-docs = { cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
+build-docs = { cmd = "python -m sphinx -b html -w warnings.log -W -Tn -j auto . _build/html", cwd = "docs" }
+autobuild-docs = { cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build/html", cwd = "docs" }
 build-docs-rtd = { cmd = "python -m sphinx -b html -W -T -j auto . $READTHEDOCS_OUTPUT/html", cwd = "docs" }
 host-docs = { cmd = "python -m http.server -b 127.0.0.1 -d _build/html 5447", cwd = "docs" }
 
