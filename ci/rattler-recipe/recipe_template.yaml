@@ -8,17 +8,20 @@ source:
 build:
   number: 0
 
+  script: |
+    export MATURIN_PYTHON_SYSCONFIGDATA_DIR=${PREFIX}/etc/conda/_sysconfigdata__emscripten_wasm32-emscripten.py
+    ${PYTHON} -m pip install . -vvv --no-build-isolation --no-deps
+
   python:
     skip_pyc_compilation:
       - "**/*.py"
 
 requirements:
   build:
-    - python
-    - cross-python_${{ target_platform }}
     - maturin
-    - setuptools-rust
+    - cross-python_${{ target_platform }}
     - rust-nightly
+    - setuptools-rust
   host:
     - python
     - numpy
