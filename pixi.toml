@@ -120,11 +120,12 @@ tabulate = "*"
 markdown = "*"
 pandas = "*"
 pyresample = "*"
-astropy = ">=7.2.0,<8"
-cdshealpix = ">=0.7.2,<0.8"
+astropy = ">=7.2.0"
+cdshealpix = ">=0.7.2"
 sphinx-design = ">=0.7.0,<0.8"
-jupyterlite-xeus = "*"
-jupyterlite-sphinx = "<0.21"
+jupyterlite-xeus = ">=4.5.0,<5"
+jupyterlite-sphinx = ">=0.22.1,<0.23"
+jupyterlite-core = ">=0.7.3,<0.8"
 
 [feature.docs.tasks]
 clean-docs = { cmd = "rm -rf generated/ jupyter_execute/ _build/", cwd = "docs" }
