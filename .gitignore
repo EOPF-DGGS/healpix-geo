@@ -77,6 +77,7 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 docs/_contents/
+docs/jupyter_execute/
 .jupyterlite.doit.db
 ci/rattler-recipe/recipe.yaml
 docs/environment.yml
