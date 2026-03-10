@@ -21,7 +21,7 @@ build:
       - pixi install -e docs
     build:
       html:
-        - pixi run build-jupyterlite
+        - pixi run build-emscripten
         - pixi run create-environment
         - pixi run build-docs-rtd
 
