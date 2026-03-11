@@ -131,3 +131,78 @@ jobs:
       - name: Run tests
         run: |
           pixi run -e '${{ matrix.env }}' --frozen python -m pytest --cov=healpix_geo
+
+  doctests:
+    name: doctests | ubuntu-latest | ${{ matrix.env }}
+    needs: cache-pixi-lock
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 3
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    strategy:
+      matrix:
+        env: ["ci-py313"]
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Install Rust
+        run: |
+          rustup update stable
+          rustup default stable
+
+      - uses: Parcels-code/pixi-lock/restore@5cbd7a155fa24aa0711ec0a9aad9ede0819e84a1 # v0.1.0
+        with:
+          cache-key: ${{ needs.cache-pixi-lock.outputs.cache-key }}
+
+      - name: setup environment
+        uses: prefix-dev/setup-pixi@a0af7a228712d6121d37aba47adf55c1332c9c2e # 0.9.4
+        with:
+          environments: "${{ matrix.env }}"
+          pixi-version: ${{ needs.cache-pixi-lock.outputs.pixi-version }}
+          cache: true
+          frozen: true
+
+      - name: Create rust cache
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # 2.8.2
+        with:
+          prefix-key: "py${{ matrix.python-version }}"
+
+      - name: Help finding installed libraries
+        run: |
+          export CONDA_PREFIX=$(pixi run --frozen -e '${{ matrix.env }}' 'echo $CONDA_PREFIX')
+          if [[ -z "$CONDA_PREFIX" ]]; then
+            echo "CONDA_PREFIX is unset!"
+            exit 1
+          fi
+
+          pushd $CONDA_PREFIX
+          echo "PKG_CONFIG_PATH=$(readlink -f lib/pkgconfig)" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$(readlink -f lib)" >> $GITHUB_ENV
+          popd
+
+      - name: Help the linker on macos
+        if: runner.os == 'MacOS'
+        run: |
+          export CONDA_PREFIX=$(pixi run --frozen -e '${{ matrix.env }}' 'echo $CONDA_PREFIX')
+
+          if [ ! -d target/debug/deps ]; then
+              mkdir -p target/debug/deps
+              ln -s $CONDA_PREFIX/lib/*.dylib target/debug/deps/
+          fi
+
+      - name: Check imports
+        run: |
+          pixi run \
+              -e '${{ matrix.env }}' \
+              --frozen \
+              python -c 'import healpix_geo'
+
+      - name: Run tests
+        run: |
+          pixi run -e '${{ matrix.env }}' --frozen doctests
