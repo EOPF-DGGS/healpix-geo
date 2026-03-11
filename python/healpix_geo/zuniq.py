@@ -201,7 +201,7 @@ def vertices(ipix, ellipsoid, num_threads=0):
     >>> import numpy as np
     >>> ipix = np.array([42, 6, 10])
     >>> depth = 12
-    >>> lon, lat = vertices(ipix, depth, ellipsoid="sphere")
+    >>> lon, lat = vertices(ipix, ellipsoid="sphere")
     """
     ipix = np.atleast_1d(ipix).astype(np.uint64)
 
