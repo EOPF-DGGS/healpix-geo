@@ -95,6 +95,10 @@ def healpix_to_lonlat(ipix, ellipsoid, num_threads=0):
     >>> import numpy as np
     >>> ipix = np.array([42, 6, 10])
     >>> lon, lat = healpix_to_lonlat(ipix, ellipsoid="WGS84")
+    >>> lon
+    array([44.99999975, 45.00000008, 44.99999992])
+    >>> lat
+    array([2.85869025e-07, 1.42934512e-07, 1.42934512e-07])
     """
     ipix = np.atleast_1d(ipix).astype(np.uint64)
 
@@ -150,6 +154,9 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
     >>> lat = np.array([6, -12, 45], dtype="float64")
     >>> depth = 3
     >>> ipix = lonlat_to_healpix(lon, lat, depth, ellipsoid="WGS84")
+    >>> ipix
+    array([2742692173068632064, 5165628772593958912,  346777171307528192],
+          dtype=uint64)
     """
     _check_depth(depth)
     longitude = np.atleast_1d(longitude).astype("float64")
@@ -202,6 +209,21 @@ def vertices(ipix, ellipsoid, num_threads=0):
     >>> ipix = np.array([42, 6, 10])
     >>> depth = 12
     >>> lon, lat = vertices(ipix, ellipsoid="sphere")
+    >>> np.stack([lon, lat], axis=-1)
+    array([[[4.49999997e+01, 2.13443412e-07],
+            [4.49999998e+01, 2.84591215e-07],
+            [4.49999997e+01, 3.55739019e-07],
+            [4.49999997e+01, 2.84591215e-07]],
+    <BLANKLINE>
+           [[4.50000001e+01, 7.11478039e-08],
+            [4.50000002e+01, 1.42295608e-07],
+            [4.50000001e+01, 2.13443412e-07],
+            [4.50000000e+01, 1.42295608e-07]],
+    <BLANKLINE>
+           [[4.49999999e+01, 7.11478039e-08],
+            [4.50000000e+01, 1.42295608e-07],
+            [4.49999999e+01, 2.13443412e-07],
+            [4.49999998e+01, 1.42295608e-07]]])
     """
     ipix = np.atleast_1d(ipix).astype(np.uint64)
 
