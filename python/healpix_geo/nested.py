@@ -11,7 +11,7 @@ def create_empty(depth):
     return RangeMOCIndex.create_empty(depth)
 
 
-def healpix_to_lonlat(ipix, depth, ellipsoid, num_threads=0):
+def healpix_to_lonlat(ipix, depth, ellipsoid="sphere", num_threads=0):
     r"""Get the longitudes and latitudes of the center of some HEALPix cells.
 
     Parameters
