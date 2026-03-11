@@ -22,6 +22,17 @@ def from_nested(ipix, depth, num_threads=0):
     -------
     zuniq : array-like of int
         The cell ids in the zuniq scheme.
+
+    Examples
+    --------
+    >>> import healpix_geo.zuniq
+    >>> import numpy as np
+    >>> ipix_nested = np.array([32, 125, 45, 91], dtype="uint64")
+    >>> depth = np.array([1, 3, 2, 4], dtype="uint8")
+    >>> ipix_zuniq = healpix_geo.zuniq.from_nested(ipix_nested, depth)
+    >>> ipix_zuniq
+    array([4683743612465315840, 1130403506469994496, 1639310264362860544,
+            206039682952200192], dtype=uint64)
     """
     _check_depth(depth)
 
