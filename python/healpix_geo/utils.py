@@ -11,7 +11,7 @@ def _check_ipixels(data, depth):
     npix = 12 * 4 ** np.asarray(depth, dtype=np.uint64)
     if (data >= npix).any() or (data < 0).any():
         raise ValueError(
-            f"The input HEALPix cells contains value out of [0, {npix - 1}]"
+            f"The input HEALPix cells contains a value out of [0, {npix - 1}]"
         )
 
 
