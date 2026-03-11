@@ -40,6 +40,10 @@ def healpix_to_lonlat(ipix, depth, ellipsoid="sphere", num_threads=0):
     >>> ipix = np.array([42, 6, 10])
     >>> depth = 3
     >>> lon, lat = healpix_to_lonlat(ipix, depth, ellipsoid="WGS84")
+    >>> lon
+    array([ 45. , 112.5, 292.5])
+    >>> lat
+    array([60.54441647, 78.33504545, 78.33504545])
     """
     _check_depth(depth)
     ipix = np.atleast_1d(ipix)
@@ -97,6 +101,8 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
     >>> lat = np.array([6, -12, 45], dtype="float64")
     >>> depth = 3
     >>> ipix = lonlat_to_healpix(lon, lat, depth, ellipsoid="WGS84")
+    >>> ipix
+    array([336, 436, 114], dtype=uint64)
     """
     _check_depth(depth)
     longitude = np.atleast_1d(longitude).astype("float64")
@@ -150,6 +156,21 @@ def vertices(ipix, depth, ellipsoid, num_threads=0):
     >>> ipix = np.array([42, 6, 10])
     >>> depth = 12
     >>> lon, lat = vertices(ipix, depth, ellipsoid="sphere")
+    >>> np.stack([lon, lat], axis=-1)
+    array([[[ 45.        ,  89.93147196],
+            [ 54.        ,  89.9428933 ],
+            [ 45.        ,  89.95431464],
+            [ 36.        ,  89.9428933 ]],
+    <BLANKLINE>
+           [[120.        ,  89.96573598],
+            [135.        ,  89.97715732],
+            [ 90.        ,  89.98857866],
+            [ 90.        ,  89.97715732]],
+    <BLANKLINE>
+           [[300.        ,  89.96573598],
+            [315.        ,  89.97715732],
+            [270.        ,  89.98857866],
+            [270.        ,  89.97715732]]])
     """
     _check_depth(depth)
     ipix = np.atleast_1d(ipix)
@@ -208,6 +229,19 @@ def kth_neighbourhood(ipix, depth, ring, num_threads=0):
     >>> depth = 12
     >>> ring = 3
     >>> neighbours = kth_neighbourhood(ipix, depth, ring)
+    >>> neighbours
+    array([[ 42,  87,  62,  41,  25,  13,  26,  43,  63, 148, 115,  86,  61,
+             40,  24,  12,   4,   0,   5,  14,  27,  44,  64,  88, 116,  83,
+             59,  39,  23,  11,   3,   2,  66,   1,   6,  15,  28,  45, 225,
+            184, 147, 114,  85,  60,  65,  89, 117, 149, 185],
+           [  6,  14,   5,   0,  29,  15,   1,   7,  16,  43,  26,  13,   4,
+             27,  11,   3,  18,   2,   8,  68,  46,  28,  17,  30,  47,  88,
+             63,  42,  25,  12,  44,  64,  38,  22,  10,  23,  51,  32,   9,
+             19,  33, 123,  93,  67,  45,  31,  48,  69,  94],
+           [ 10,  20,   9,   2,  37,  21,   3,  11,  22,  53,  34,  19,   8,
+             35,   7,   1,  12,   0,   4,  80,  56,  36,  23,  38,  57, 102,
+             75,  52,  33,  18,  54,  76,  30,  16,   6,  17,  41,  24,   5,
+             13,  25, 139, 107,  79,  55,  39,  58,  81, 108]])
     """
     _check_depth(depth)
     ipix = np.atleast_1d(ipix)
