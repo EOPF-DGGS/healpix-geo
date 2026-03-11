@@ -38,6 +38,9 @@ jupyterlab = ">=4.5.5,<5"
 [feature.dev.tasks]
 ipython = "ipython"
 
+[feature.dev.pypi-dependencies]
+pytest-accept = ">=0.2.3, <0.3"
+
 [feature.tests.dependencies]
 pytest = "*"
 pytest-cov = "*"
