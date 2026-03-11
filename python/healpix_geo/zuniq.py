@@ -64,6 +64,25 @@ def to_nested(ipix, num_threads=0):
         The cell ids in the nested scheme.
     depth : int or array-like of int
         The HEALPix cell depth given as scalar or a `np.uint8` numpy array.
+
+    Examples
+    --------
+    >>> import healpix_geo.zuniq
+    >>> import numpy as np
+    >>> ipix_zuniq = np.array(
+    ...     [
+    ...         4683743612465315840,
+    ...         1130403506469994496,
+    ...         1639310264362860544,
+    ...         206039682952200192,
+    ...     ],
+    ...     dtype="uint64",
+    ... )
+    >>> ipix_nested, depth = healpix_geo.zuniq.to_nested(ipix_zuniq)
+    >>> ipix_nested
+    array([ 32, 125,  45,  91], dtype=uint64)
+    >>> depth
+    array([1, 3, 2, 4], dtype=uint8)
     """
     ipix = np.atleast_1d(ipix).astype(np.uint64)
 
