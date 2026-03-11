@@ -78,6 +78,15 @@ def test_check_ipixels(data, depth, context):
         pytest.param(
             np.array(10, dtype=np.uint8), 43, nullcontext(), id="passing-uint8"
         ),
+        pytest.param(
+            1,
+            3,
+            pytest.raises(
+                ValueError,
+                match="Crossing base cell boundaries more than once is not supported",
+            ),
+            id="failing-int",
+        ),
     ),
 )
 def test_check_ring(depth, ring, context):
