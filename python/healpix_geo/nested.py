@@ -45,7 +45,7 @@ def healpix_to_lonlat(ipix, depth, ellipsoid, num_threads=0):
     --------
     >>> from healpix_geo.nested import healpix_to_lonlat
     >>> import numpy as np
-    >>> cell_ids = np.array([42, 6, 10])
+    >>> ipix = np.array([42, 6, 10])
     >>> depth = 3
     >>> lon, lat = healpix_to_lonlat(ipix, depth, ellipsoid="WGS84")
     """
