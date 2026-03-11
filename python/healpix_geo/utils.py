@@ -8,7 +8,7 @@ def _check_depth(depth):
 
 
 def _check_ipixels(data, depth):
-    npix = 12 * 4**depth
+    npix = 12 * 4 ** np.asarray(depth, dtype=np.uint64)
     if (data >= npix).any() or (data < 0).any():
         raise ValueError(
             f"The input HEALPix cells contains value out of [0, {npix - 1}]"
@@ -16,7 +16,7 @@ def _check_ipixels(data, depth):
 
 
 def _check_ring(depth, ring):
-    nside = 2**depth
+    nside = 2 ** np.asarray(depth, dtype=np.uint64)
 
     if ring > nside:
         raise ValueError(
