@@ -4,7 +4,7 @@ This guide explains you how to install `healpix-geo` on your system.
 
 ## Prerequisites
 
-- **Python** : Version >= 3.9
+- **Python** : Version >= 3.10
 - **NumPy** : Automatically install with `healpix-geo`
 
 ### Via conda
@@ -104,7 +104,7 @@ pixi run -e py313 build-wheel
 pip install ./target/wheels/healpix-geo-<version>-cp313-cp313-<platform>.whl
 ```
 
-## Unsinstallation
+## Uninstallation
 
 To uninstall `healpix-geo` :
 

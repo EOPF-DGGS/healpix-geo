@@ -38,7 +38,7 @@ venv/
 
 # docs
 /docs/_build/
-/docs/generated/
+**/generated/
 /docs/healpix/healpix_levels_table.md
 
 # Installer logs

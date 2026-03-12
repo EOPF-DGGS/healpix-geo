@@ -42,3 +42,6 @@
    healpix_geo.slices.ConcreteSlice.start
    healpix_geo.slices.ConcreteSlice.stop
    healpix_geo.slices.ConcreteSlice.step
+
+   healpix_geo.slices.MultiConcreteSlice.size
+   healpix_geo.slices.MultiConcreteSlice.slices

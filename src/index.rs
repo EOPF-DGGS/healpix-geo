@@ -551,15 +551,15 @@ impl RangeMOCIndex {
     ///
     /// Parameters
     /// ----------
-    /// indexer : slice of int or array-like of uint64
+    /// indexer : slice of int or array-like of numpy.uint64
     ///     The cell ids or ranges of cell ids to find.
     ///
     /// Returns
     /// -------
     /// subset : RangeMOCIndex
     ///     The resulting subset.
-    /// indexer : slice of int or array-like of uint64
-    ///     The integer
+    /// indexer : slice of int or array-like of numpy.uint64
+    ///     The integer positions of the selected cells.
     fn sel<'a>(&self, py: Python<'a>, indexer: IndexKind<'a>) -> PyResult<(IndexKind<'a>, Self)> {
         let depth = self.moc.depth_max();
         let range_sizes = self.moc.range_sizes();
@@ -668,15 +668,15 @@ impl RangeMOCIndex {
     ///
     /// Parameters
     /// ----------
-    /// geometry : Bbox or shapely.Geometry
+    /// geometry : healpix_geo.Bbox or shapely.Geometry
     ///     The geometry to query by. Supported are:
     ///     - Bbox for true bounding box queries (planar geometry)
     ///     - shapely objects for spherical geometry queries
     ///
     /// Returns
     /// -------
-    /// slices : MultiConcreteSlice
-    ///     The slices necessary for extract the subdomain.
+    /// slices : healpix_geo.slices.MultiConcreteSlice
+    ///     The slices necessary for extracting the subdomain.
     /// moc : RangeMOCIndex
     ///     The index for the queried cell ids.
     fn query<'py>(
