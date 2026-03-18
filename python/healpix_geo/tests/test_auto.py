@@ -52,3 +52,33 @@ def test_lonlat_to_healpix(grid, expected):
     actual = auto.lonlat_to_healpix(lon, lat, grid)
 
     np.testing.assert_equal(actual, expected)
+
+
+@pytest.mark.parametrize(
+    ["grid", "cell_ids", "expected_lon", "expected_lat"],
+    (
+        (
+            auto.Grid(level=5, indexing_scheme="nested", ellipsoid="sphere"),
+            np.array([12, 104], dtype="uint64"),
+            np.array([45.0, 47.8125], dtype="float64"),
+            np.array([5.9791568, 18.20995686], dtype="float64"),
+        ),
+        (
+            auto.Grid(level=3, indexing_scheme="ring", ellipsoid="sphere"),
+            np.array([340, 245, 244], dtype="uint64"),
+            np.array([45.0, 61.875, 50.625]),
+            np.array([4.78019185, 19.47122063, 19.47122063]),
+        ),
+        (
+            auto.Grid(level=6, indexing_scheme="zuniq", ellipsoid="WGS84"),
+            np.array([6825768185233408], dtype="uint64"),
+            np.array([45.0]),
+            np.array([5.40338952]),
+        ),
+    ),
+)
+def test_healpix_to_lonlat(grid, cell_ids, expected_lon, expected_lat):
+    actual_lon, actual_lat = auto.healpix_to_lonlat(cell_ids, grid)
+
+    np.testing.assert_allclose(actual_lon, expected_lon)
+    np.testing.assert_allclose(actual_lat, expected_lat)
