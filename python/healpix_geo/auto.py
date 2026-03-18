@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Literal, ModuleType
+from types import ModuleType
+from typing import Literal
 
 import numpy as np
 import numpy.typing as npt
