@@ -1,8 +1,8 @@
-from typing import MISSING, Protocol, TypedDict
+from typing import NotRequired, Protocol, TypedDict
 
 
 class SphereDict(TypedDict):
-    name: str | MISSING
+    name: NotRequired[str]
     radius: float
 
 
@@ -12,7 +12,7 @@ class SphereType(Protocol):
 
 
 class EllipsoidDict(TypedDict):
-    name: str | MISSING
+    name: NotRequired[str]
     semimajor_axis: float
     inverse_flattening: float
 
