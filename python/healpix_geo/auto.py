@@ -123,7 +123,8 @@ def lonlat_to_healpix(
     array([304, 573,  38], dtype=uint64)
     """
     module = _dispatch_module(grid.indexing_scheme)
-    params = grid._as_params()
+    params = {"depth": grid.level, "ellipsoid": grid.ellipsoid}
+
     return module.lonlat_to_healpix(lon, lat, num_threads=num_threads, **params)
 
 
