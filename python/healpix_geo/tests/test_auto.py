@@ -21,14 +21,18 @@ def test_dispatch_module(scheme, expected):
 
 
 @pytest.mark.parametrize(
-    ["level", "indexing_scheme", "ellipsoid", "expected"],
+    ["grid", "expected"],
     (
-        (5, "nested", "sphere", np.array([12, 84, 104, 72], dtype="uint64")),
-        (3, "ring", "WGS84", np.array([340, 245, 244, 277], dtype="uint64")),
         (
-            6,
-            "zuniq",
-            "WGS84",
+            auto.Grid(level=5, indexing_scheme="nested", ellipsoid="sphere"),
+            np.array([12, 84, 104, 72], dtype="uint64"),
+        ),
+        (
+            auto.Grid(level=3, indexing_scheme="ring", ellipsoid="WGS84"),
+            np.array([340, 245, 244, 277], dtype="uint64"),
+        ),
+        (
+            auto.Grid(level=6, indexing_scheme="zuniq", ellipsoid="WGS84"),
             np.array(
                 [
                     6825768185233408,
@@ -41,12 +45,9 @@ def test_dispatch_module(scheme, expected):
         ),
     ),
 )
-def test_lonlat_to_healpix(level, indexing_scheme, ellipsoid, expected):
+def test_lonlat_to_healpix(grid, expected):
     lon = np.array([45.0, 64.6875, 47.8125, 53.4375], dtype="float64")
     lat = np.array([5.9791568, 18.20995686, 18.20995686, 13.24801491], dtype="float64")
-
-    grid = auto.Grid(level=level, indexing_scheme=indexing_scheme, ellipsoid=ellipsoid)
-    print(grid)
 
     actual = auto.lonlat_to_healpix(lon, lat, grid)
 
