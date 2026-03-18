@@ -6,161 +6,23 @@ This page contains the complete documentation of all the functions and classes a
 Overview
 ========
 
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+   :caption: API reference
+
+   api/nested
+   api/ring
+   api/zuniq
+
 `healpix-geo` is organised in several modules following the **HEALPix indexing scheme** used :
 
-- `healpix_geo.nested` : nested scheme
-- `healpix_geo.ring` : ring scheme
-- `healpix_geo.zuniq` : Zuniq scheme for Multi-Order Coverage (MOC)
+- :doc:`api/nested` : nested scheme
+- :doc:`api/ring` : ring scheme
+- :doc:`api/zuniq` : Zuniq scheme for Multi-Order Coverage (MOC)
 
 .. tip::
    **For most of the applications**, use module `healpix_geo.nested`. It offers the best support for hierarchical operations.
-
-
-Module nested
-==============
-
-The module `healpix_geo.nested` gives functions for the nested indexing scheme.
-
-.. currentmodule:: healpix_geo.nested
-
-Coordinates Conversions
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Conversions between geographic coordinates and HEALPix indices.
-
-.. autosummary::
-   :toctree: generated/
-
-   healpix_to_lonlat
-   lonlat_to_healpix
-   vertices
-
-.. seealso::
-   Tutorial complete : :doc:`tutorials/coordinate_conversion`
-
-Hierarchy and neighborhood
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Navigation in the hierarchical structure of HEALPix.
-
-.. autosummary::
-   :toctree: generated/
-
-   kth_neighbourhood
-   zoom_to
-   siblings
-
-.. seealso::
-   Complete tutorial : :doc:`user-guide/hierarchical_indexing`
-
-Cover Requests
-~~~~~~~~~~~~~~~
-
-Find all the cells which intersect a region.
-
-.. autosummary::
-   :toctree: generated/
-
-   zone_coverage
-   box_coverage
-   polygon_coverage
-   cone_coverage
-   elliptical_cone_coverage
-   internal_boundary
-
-
-.. seealso::
-   Complete tutorial : :doc:`tutorials/coverage_queries`
-
-Distance Calculations
-~~~~~~~~~~~~~~~~~~~~~
-
-Calculate distances between HEALPix cells.
-
-.. autosummary::
-   :toctree: generated/
-
-   angular_distances
-
-
-Indexes and data structure
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Classes to manipulate HEALPix cell sets.
-
-.. autosummary::
-   :toctree: generated/
-
-   RangeMOCIndex
-
-
-Module ring
-===========
-
-The module `healpix_geo.ring` gives for the ring indexation scheme.
-
-.. currentmodule:: healpix_geo.ring
-
-.. note::
-   The ring scheme is principally given for **compatibility**. For new applications, prefer `healpix_geo.nested`.
-
-Coordinates Conversions
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated/
-
-   healpix_to_lonlat
-   lonlat_to_healpix
-   vertices
-
-Hierarchy
-~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated/
-
-   kth_neighbourhood
-
-Distance Calculations
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated/
-
-   angular_distances
-
-Module zuniq
-============
-
-The module `healpix_geo.zuniq` gives functions for the zuniq scheme, utilised for MOC (Multi-Order Coverage).
-
-.. currentmodule:: healpix_geo.zuniq
-
-Conversions
-~~~~~~~~~~~
-
-Conversions between schemes nested et zuniq.
-
-.. autosummary::
-   :toctree: generated/
-
-   from_nested
-   to_nested
-
-.. seealso::
-   Complete tutorial : :doc:`tutorials/coordinate_conversion`
-
-
-Coordinates Conversions
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: generated/
-
-   healpix_to_lonlat
-   lonlat_to_healpix
-   vertices
 
 Helpers
 ~~~~~~~

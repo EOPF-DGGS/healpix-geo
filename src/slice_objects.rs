@@ -285,7 +285,8 @@ impl MultiConcreteSlice {
         Py::new(slf.py(), iter)
     }
 
-    fn size(&self, py: Python<'_>) -> usize {
+    /// total size of the concrete multi-slice
+    pub fn size(&self, py: Python<'_>) -> usize {
         self.slices.iter().map(|s| s.size(py).unwrap()).sum()
     }
 }
