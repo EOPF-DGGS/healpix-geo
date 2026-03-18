@@ -46,7 +46,7 @@ class Grid:
 
 
 def healpix_to_lonlat(
-    ipix: npt.NDArray[np.uint64], grid: Grid, *, num_threads=0
+    ipix: npt.NDArray[np.uint64], grid: Grid, *, num_threads: int = 0
 ) -> (npt.NDArray[np.float64], npt.NDArray[np.float64]):
     module = _dispatch_module(grid.indexing_scheme)
     params = grid._as_params()
@@ -58,7 +58,7 @@ def lonlat_to_healpix(
     lat: npt.NDArray[np.float64],
     grid: Grid,
     *,
-    num_threads=0,
+    num_threads: int = 0,
 ) -> npt.NDArray[np.uint64]:
     module = _dispatch_module(grid.indexing_scheme)
     params = grid._as_params()
