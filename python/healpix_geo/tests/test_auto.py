@@ -273,7 +273,7 @@ def test_vertices(grid, cell_ids, expected_lon, expected_lat):
                 dtype="int64",
             ),
             id="zuniq",
-            marks=pytest.mark.skip(reason="not implemented yet"),
+            marks=pytest.mark.xfail(reason="not implemented yet"),
         ),
     ),
 )

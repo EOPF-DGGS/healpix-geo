@@ -252,6 +252,12 @@ def kth_neighbourhood(
                    15,        13,         7,         5,         4,         1,
                     0]])
     """
+    if grid.indexing_scheme == "zuniq":
+        raise NotImplementedError(
+            "zuniq is not supported for now. Please use convert to `nested`,"
+            " compute the neighbours, and convert back."
+        )
+
     module = _dispatch_module(grid.indexing_scheme)
     params = {"depth": grid.level}
 
