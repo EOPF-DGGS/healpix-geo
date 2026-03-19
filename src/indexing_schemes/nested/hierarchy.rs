@@ -1,9 +1,18 @@
 use crate::maybe_parallelize;
 
 use cdshealpix as healpix;
+use cdshealpix::nested::Layer;
 use ndarray::{Array1, Zip, s};
 use numpy::{PyArrayDyn, PyArrayMethods};
 use pyo3::prelude::*;
+
+pub(crate) fn kth_neighbourhood_internal(hash: &u64, layer: &Layer, ring: &u32) -> Vec<i64> {
+    layer
+        .kth_neighbourhood(*hash, *ring)
+        .into_iter()
+        .map(|v| v as i64)
+        .collect()
+}
 
 /// Wrapper of `kth_neighbourhood`
 /// The given array must be of size (2 * ring + 1)^2
@@ -25,13 +34,8 @@ pub(crate) fn kth_neighbourhood<'a>(
     maybe_parallelize!(
         nthreads,
         Zip::from(neighbours.rows_mut()).and(&ipix),
-        |mut n, &p| {
-            let map = Array1::from_iter(
-                layer
-                    .kth_neighbourhood(p, ring)
-                    .into_iter()
-                    .map(|v| v as i64),
-            );
+        |mut n, p| {
+            let map = Array1::from_vec(kth_neighbourhood_internal(p, layer, &ring));
 
             n.slice_mut(s![..map.len()]).assign(&map);
         },
