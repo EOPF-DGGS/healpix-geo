@@ -149,3 +149,135 @@ def test_vertices(grid, cell_ids, expected_lon, expected_lat):
 
     np.testing.assert_allclose(actual_lon, expected_lon)
     np.testing.assert_allclose(actual_lat, expected_lat)
+
+
+@pytest.mark.parametrize(
+    ["grid", "cell_ids", "ring", "expected"],
+    (
+        pytest.param(
+            auto.Grid(level=2, indexing_scheme="nested", ellipsoid="sphere"),
+            np.array([3, 54], dtype="uint64"),
+            1,
+            np.array(
+                [
+                    [3, 0, 2, 8, 9, 12, 6, 4, 1],
+                    [54, 49, 51, 57, 60, 61, 55, 53, 52],
+                ],
+                dtype="int64",
+            ),
+            id="nested",
+        ),
+        pytest.param(
+            auto.Grid(level=1, indexing_scheme="ring", ellipsoid="sphere"),
+            np.array([12, 31, 39], dtype="uint64"),
+            2,
+            np.array(
+                [
+                    [
+                        12,
+                        19,
+                        11,
+                        4,
+                        13,
+                        28,
+                        27,
+                        20,
+                        43,
+                        35,
+                        26,
+                        18,
+                        10,
+                        3,
+                        0,
+                        5,
+                        14,
+                        21,
+                        29,
+                        36,
+                        -1,
+                        -1,
+                        -1,
+                        -1,
+                        -1,
+                    ],
+                    [
+                        31,
+                        30,
+                        22,
+                        15,
+                        23,
+                        32,
+                        45,
+                        38,
+                        39,
+                        47,
+                        44,
+                        37,
+                        21,
+                        14,
+                        6,
+                        1,
+                        7,
+                        16,
+                        24,
+                        40,
+                        46,
+                        -1,
+                        -1,
+                        -1,
+                        -1,
+                    ],
+                    [
+                        39,
+                        23,
+                        32,
+                        40,
+                        46,
+                        45,
+                        38,
+                        31,
+                        42,
+                        47,
+                        44,
+                        37,
+                        30,
+                        22,
+                        15,
+                        7,
+                        16,
+                        24,
+                        33,
+                        41,
+                        -1,
+                        -1,
+                        -1,
+                        -1,
+                        -1,
+                    ],
+                ]
+            ),
+            id="ring",
+        ),
+        pytest.param(
+            auto.Grid(level=None, indexing_scheme="zuniq", ellipsoid="sphere"),
+            np.array(
+                [1963569437533536256, 824158731808800768, 5116089176692883456],
+                dtype="uint64",
+            ),
+            1,
+            np.array(
+                [
+                    [3, 0, 2, 8, 9, 12, 6, 4, 1],
+                    [54, 49, 51, 57, 60, 61, 55, 53, 52],
+                ],
+                dtype="int64",
+            ),
+            id="zuniq",
+            marks=pytest.mark.skip(reason="not implemented yet"),
+        ),
+    ),
+)
+def test_kth_neighbours(grid, cell_ids, ring, expected):
+    actual = auto.kth_neighbourhood(cell_ids, grid, ring=ring)
+
+    np.testing.assert_equal(actual, expected)
