@@ -266,3 +266,106 @@ def vertices(ipix, ellipsoid, num_threads=0):
     healpix_geo.zuniq.vertices(ipix, ellipsoid, longitude, latitude, num_threads)
 
     return longitude, latitude
+
+
+def kth_neighbourhood(ipix, ring, num_threads=0):
+    """Get the kth ring neighbouring cells of some HEALPix cells.
+
+    This method returns a :math:`N` x :math:`(2 k + 1)^2` `np.uint64` numpy array containing the neighbours of each cell of the :math:`N` sized `ipix` array.
+    This method is wrapped around the `kth_neighbourhood <https://docs.rs/cdshealpix/0.1.5/cdshealpix/nested/struct.Layer.html#method.kth_neighbourhood>`__
+    method from the `cdshealpix Rust crate <https://crates.io/crates/cdshealpix>`__.
+
+    Parameters
+    ----------
+    ipix : `numpy.ndarray`
+        The HEALPix cell indexes given as a `np.uint64` numpy array.
+    ring : int
+        The number of rings. `ring=0` returns just the input cell ids, `ring=1` returns the 8 (or 7) immediate
+        neighbours, `ring=2` returns the 8 (or 7) immediate neighbours plus their immediate neighbours (a total of 24 cells), and so on.
+    num_threads : int, optional
+        Specifies the number of threads to use for the computation. Default to 0 means
+        it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
+        or the number of logical CPUs (otherwise)
+
+    Returns
+    -------
+    neighbours : `numpy.ndarray`
+        A :math:`N` x :math:`(2 k + 1)^2` `np.int64` numpy array containing the kth ring neighbours of each cell.
+        The :math:`5^{th}` element corresponds to the index of HEALPix cell from which the neighbours are evaluated.
+        All its 8 neighbours occup the remaining elements of the line.
+
+    Raises
+    ------
+    ValueError
+        When the HEALPix cell indexes given have values out of :math:`[0, 4^{29 - depth}[`.
+
+    Examples
+    --------
+    >>> from healpix_geo.zuniq import kth_neighbourhood
+    >>> import numpy as np
+    >>> ipix = np.array([1460288880640, 223338299392, 360777252864], dtype="uint64")
+    >>> ring = 3
+    >>> neighbours = kth_neighbourhood(ipix, ring)
+    >>> neighbours
+    array([[      1460288880640, 2497997973430992896, 2497998042150469632,
+            2498000997087969280,       4415226380288,       4449586118656,
+                  1494648619008,       1425929142272,       1391569403904,
+            2497997732912824320, 2497997939071254528, 2497998007790731264,
+            2498000962728230912, 2498001031447707648, 2498001065807446016,
+            2497997767272562688,       4483945857024,       4518305595392,
+                  4621384810496,       4552665333760,       1597727834112,
+                  1529008357376,       1322849927168,       1219770712064,
+                  1185410973696, 2497997561114132480, 2497997629833609216,
+            2497997835992039424, 2497997904711516160, 2498000859649015808,
+            2498000928368492544, 2498001134526922752, 2498001237606137856,
+            2498001271965876224, 2497997698553085952, 2497997664193347584,
+                  4690104287232,       4724464025600,       4827543240704,
+                  4861902979072,       4655744548864,       4587025072128,
+                  1632087572480,       1563368095744,       1357209665536,
+                  1288490188800,       1254130450432,       1151051235328,
+                  1116691496960],
+           [       223338299392,         51539607552,        120259084288,
+                   326417514496,        429496729600,        463856467968,
+                   257698037760,        188978561024,        154618822656,
+            3266610923992776704, 3266611473748590592, 3266611095791468544,
+            3266611061431730176, 3266610958352515072,         17179869184,
+                    85899345920,        292057776128,        360777252864,
+                   395136991232,        498216206336,        532575944704,
+                   910533066752,        841813590016,        635655159808,
+                   566935683072, 5188146684831465472, 5188146753550942208,
+            2497996599041458176, 2497996667760934912, 2497996873919365120,
+            2497996942638841856, 2497997698553085952, 3266611508108328960,
+            3266611439388852224, 3266611405029113856, 3266611027071991808,
+            3266610992712253440, 3266610889633038336, 3266610855273299968,
+                  1116691496960,       1151051235328,       1254130450432,
+                  1288490188800,       1666447310848,       1700807049216,
+                   944892805120,        876173328384,        670014898176,
+                   601295421440],
+           [       360777252864, 2497996873919365120, 2497996942638841856,
+            2497997698553085952,       1116691496960,       1151051235328,
+                   395136991232,        326417514496,        292057776128,
+            2497996633401196544, 2497996839559626752, 2497996908279103488,
+            2497997664193347584, 2497997732912824320, 2497997767272562688,
+            2497996667760934912,       1185410973696,       1219770712064,
+                  1322849927168,       1254130450432,        498216206336,
+                   429496729600,        223338299392,        120259084288,
+                    85899345920, 2497996461602504704, 2497996530321981440,
+            2497996736480411648, 2497996805199888384, 2497997561114132480,
+            2497997629833609216, 2497997835992039424, 2497997939071254528,
+            2497997973430992896, 2497996599041458176, 2497996564681719808,
+                  1391569403904,       1425929142272,       1529008357376,
+                  1563368095744,       1357209665536,       1288490188800,
+                   532575944704,        463856467968,        257698037760,
+                   188978561024,        154618822656,         51539607552,
+                    17179869184]])
+    """
+    ipix = np.astype(np.atleast_1d(ipix), np.uint64)
+
+    # Allocation of the array containing the neighbours
+    neighbours = np.full(
+        (*ipix.shape, (2 * ring + 1) ** 2), dtype=np.int64, fill_value=-1
+    )
+    num_threads = np.uint16(num_threads)
+    healpix_geo.zuniq.kth_neighbourhood(ipix, ring, neighbours, num_threads)
+
+    return neighbours
