@@ -1,6 +1,6 @@
 pub(crate) mod coordinates;
 mod coverage;
-mod hierarchy;
+pub(crate) mod hierarchy;
 mod sets;
 
 pub(crate) use self::coordinates::{

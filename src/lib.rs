@@ -33,7 +33,7 @@ mod ring {
 mod zuniq {
     #[pymodule_export]
     use crate::indexing_schemes::zuniq::{
-        from_nested, healpix_to_lonlat, lonlat_to_healpix, to_nested, vertices,
+        from_nested, healpix_to_lonlat, kth_neighbourhood, lonlat_to_healpix, to_nested, vertices,
     };
 }
 
