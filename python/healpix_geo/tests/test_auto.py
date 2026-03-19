@@ -20,7 +20,7 @@ def test_dispatch_module(scheme, expected):
     assert actual is expected
 
 
-@pytest.mark.parametrized("scheme", ["unknown1", "test9"])
+@pytest.mark.parametrize("scheme", ["unknown1", "test9"])
 def test_dispatch_module_failing(scheme):
     with pytest.raises(ValueError, match="unknown indexing scheme"):
         auto._dispatch_module(scheme)
