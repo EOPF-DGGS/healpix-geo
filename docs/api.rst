@@ -1,7 +1,7 @@
 API reference
 =============
 
-This page contains the complete documentation of all the functions and classes available in `healpix-geo`.
+This page contains the complete documentation of all the functions and classes available in ``healpix-geo``.
 
 Overview
 ========
@@ -14,15 +14,17 @@ Overview
    api/nested
    api/ring
    api/zuniq
+   api/auto
 
 `healpix-geo` is organised in several modules following the **HEALPix indexing scheme** used :
 
 - :doc:`api/nested` : nested scheme
 - :doc:`api/ring` : ring scheme
 - :doc:`api/zuniq` : Zuniq scheme for Multi-Order Coverage (MOC)
+- :doc:`api/auto`: indexing scheme-agnostic API
 
 .. tip::
-   **For most of the applications**, use module `healpix_geo.nested`. It offers the best support for hierarchical operations.
+   **For most of the applications**, use module ``healpix_geo.auto`` with the ``nested`` indexing scheme. It offers the best support for hierarchical operations.
 
 Helpers
 ~~~~~~~
