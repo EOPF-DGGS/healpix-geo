@@ -29,3 +29,11 @@ Coordinates Conversions
    healpix_to_lonlat
    lonlat_to_healpix
    vertices
+
+Hierarchy and neighbourhood
+----------------------------
+
+.. autosummary::
+   :toctree: ../generated/
+
+   kth_neighbourhood
