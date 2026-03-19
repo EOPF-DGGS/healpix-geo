@@ -222,7 +222,7 @@ def kth_neighbourhood(
     >>> grid
     Grid(level=12, indexing_scheme='nested', ellipsoid='sphere')
     >>> ring = 3
-    >>> neighbours = kth_neighbourhood(ipix, grid, ring=ring)
+    >>> neighbours = hg.kth_neighbourhood(ipix, grid, ring=ring)
     >>> neighbours
     array([[       42,  72701309,  72701311,  72701397,       128,       129,
                    43,        41,        40,  72701302,  72701308,  72701310,
