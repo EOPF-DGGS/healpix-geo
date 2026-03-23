@@ -256,6 +256,13 @@ class TestGeographicToHealpix:
                 "zuniq",
                 id="level4-zuniq",
             ),
+            pytest.param(
+                np.array([0.0]),
+                np.array([88.0]),
+                5,
+                "ring",
+                id="level5-ring",
+            ),
         ),
     )
     def test_spherical(self, lon, lat, depth, indexing_scheme):
@@ -282,6 +289,7 @@ class TestGeographicToHealpix:
         expected = cds_lonlat_to_healpix(lon_, lat_, param_cds)
 
         np.testing.assert_equal(actual, expected)
+        assert np.all(np.astype(actual, "int64") != -1)
 
     @pytest.mark.parametrize("ellipsoid", ["unitsphere", "sphere", "WGS84", "bessel"])
     @pytest.mark.parametrize("depth", [0, 1, 9])
