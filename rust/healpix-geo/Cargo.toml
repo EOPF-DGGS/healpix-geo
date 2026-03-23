@@ -1,0 +1,13 @@
+[package]
+name = "healpix-geo"
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+categories.workspace = true
+
+[dependencies]
+cdshealpix = "0.9.0"
+geodesy = "0.14.0"
