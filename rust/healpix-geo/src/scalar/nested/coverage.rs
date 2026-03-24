@@ -1,4 +1,4 @@
-use crate::ellipsoid::Ellipsoid;
+use crate::ellipsoid::{Ellipsoid, ReferenceBody};
 use cdshealpix::nested::Layer;
 use cdshealpix::nested::bmoc::BMOC;
 
@@ -51,9 +51,9 @@ pub fn zone_coverage(
 
     let bmoc = layer.zone_coverage(
         lon_min.rem_euclid(360.0).to_radians(),
-        ellipsoid.geographic_to_authalic_latitude(lat_min.to_radians()),
+        ellipsoid.latitude_geographic_to_authalic(lat_min.to_radians()),
         lon_max.rem_euclid(360.0).to_radians(),
-        ellipsoid.geographic_to_authalic_latitude(lat_max.to_radians()),
+        ellipsoid.latitude_geographic_to_authalic(lat_max.to_radians()),
     );
 
     if flat {
@@ -76,7 +76,7 @@ pub fn box_coverage(
 
     let bmoc = layer.box_coverage(
         lon.rem_euclid(360.0).to_radians(),
-        ellipsoid.geographic_to_authalic_latitude(lat.to_radians()),
+        ellipsoid.latitude_geographic_to_authalic(lat.to_radians()),
         size_lon.rem_euclid(360.0).to_radians(),
         size_lat.to_radians(),
         angle.to_radians(),
@@ -103,7 +103,7 @@ pub fn polygon_coverage(
 
             (
                 lon.rem_euclid(360.0).to_radians(),
-                ellipsoid.geographic_to_authalic_latitude(lat.to_radians()),
+                ellipsoid.latitude_geographic_to_authalic(lat.to_radians()),
             )
         })
         .collect();
@@ -135,7 +135,7 @@ pub fn cone_coverage(
     let bmoc = layer.cone_coverage_approx_custom(
         delta_depth,
         lon.rem_euclid(360.0).to_radians(),
-        ellipsoid.geographic_to_authalic_latitude(lat.to_radians()),
+        ellipsoid.latitude_geographic_to_authalic(lat.to_radians()),
         radius.to_radians(),
     );
 
@@ -167,7 +167,7 @@ pub fn elliptical_cone_coverage(
     let bmoc = layer.elliptical_cone_coverage_custom(
         delta_depth,
         lon.rem_euclid(360.0).to_radians(),
-        ellipsoid.geographic_to_authalic_latitude(lat.to_radians()),
+        ellipsoid.latitude_geographic_to_authalic(lat.to_radians()),
         a.to_radians(),
         b.to_radians(),
         position_angle.to_radians(),

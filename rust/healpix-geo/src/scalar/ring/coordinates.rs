@@ -1,4 +1,4 @@
-use crate::ellipsoid::Ellipsoid;
+use crate::ellipsoid::{Ellipsoid, ReferenceBody};
 
 use cdshealpix as healpix;
 
@@ -7,7 +7,7 @@ pub fn healpix_to_lonlat(hash: &u64, nside: &u32, ellipsoid: &Ellipsoid) -> (f64
 
     let lon = center.0.to_degrees();
     let lat = ellipsoid
-        .authalic_to_geographic_latitude(center.1)
+        .latitude_authalic_to_geographic(center.1)
         .to_degrees();
 
     (lon, lat)
@@ -15,7 +15,7 @@ pub fn healpix_to_lonlat(hash: &u64, nside: &u32, ellipsoid: &Ellipsoid) -> (f64
 
 pub fn lonlat_to_healpix(lon: &f64, lat: &f64, nside: &u32, ellipsoid: &Ellipsoid) -> u64 {
     let lon_ = lon.to_radians();
-    let lat_ = ellipsoid.geographic_to_authalic_latitude(lat.to_radians());
+    let lat_ = ellipsoid.latitude_geographic_to_authalic(lat.to_radians());
 
     healpix::ring::hash(*nside, lon_, lat_)
 }
@@ -28,7 +28,7 @@ pub fn vertices(hash: &u64, nside: &u32, ellipsoid: &Ellipsoid) -> (Vec<f64>, Ve
         .map(|(lon, lat)| {
             (
                 lon.to_degrees().rem_euclid(360.0),
-                ellipsoid.authalic_to_geographic_latitude(lat).to_degrees(),
+                ellipsoid.latitude_authalic_to_geographic(lat).to_degrees(),
             )
         })
         .collect()

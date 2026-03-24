@@ -36,7 +36,7 @@ pub fn zone_coverage(
     let layer = healpix::nested::get(healpix::depth(*nside));
 
     let (ipix, depths, fully_covered) =
-        crate::scalar::nested::coverage::box_coverage(bbox, layer, ellipsoid, flat);
+        crate::scalar::nested::coverage::zone_coverage(bbox, layer, ellipsoid, flat);
 
     let mut result: Vec<(u64, u8, bool)> = izip!(
         ipix.into_iter(),
