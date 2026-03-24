@@ -17,7 +17,7 @@ pub fn lonlat_to_healpix(lon: &f64, lat: &f64, layer: &Layer, ellipsoid: &Ellips
     healpix::nested::to_zuniq(layer.depth(), hash_nested)
 }
 
-pub fn vertices(hash: &u64, ellipsoid: &Ellipsoid) -> (Vec<f64>, Vec<f64>) {
+pub fn vertices(hash: &u64, ellipsoid: &Ellipsoid) -> Vec<(f64, f64)> {
     let (depth, hash_nested) = healpix::nested::from_zuniq(*hash);
     let layer = healpix::nested::get(depth);
 

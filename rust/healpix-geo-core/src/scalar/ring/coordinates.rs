@@ -20,7 +20,7 @@ pub fn lonlat_to_healpix(lon: &f64, lat: &f64, nside: &u32, ellipsoid: &Ellipsoi
     healpix::ring::hash(*nside, lon_, lat_)
 }
 
-pub fn vertices(hash: &u64, nside: &u32, ellipsoid: &Ellipsoid) -> (Vec<f64>, Vec<f64>) {
+pub fn vertices(hash: &u64, nside: &u32, ellipsoid: &Ellipsoid) -> Vec<(f64, f64)> {
     let vertices = healpix::ring::vertices(*nside, *hash);
 
     vertices

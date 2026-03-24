@@ -20,7 +20,7 @@ pub fn lonlat_to_healpix(lon: &f64, lat: &f64, layer: &Layer, ellipsoid: &Ellips
     layer.hash(lon_, lat_)
 }
 
-pub fn vertices(hash: &u64, layer: &Layer, ellipsoid: &Ellipsoid) -> (Vec<f64>, Vec<f64>) {
+pub fn vertices(hash: &u64, layer: &Layer, ellipsoid: &Ellipsoid) -> Vec<(f64, f64)> {
     let vertices = layer.vertices(*hash);
 
     vertices
