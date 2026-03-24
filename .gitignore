@@ -75,12 +75,12 @@ coverage.xml
 .DS_Store
 
 # Sphinx documentation
-docs/_build/
-docs/_contents/
-docs/jupyter_execute/
+/python/healpix-geo/docs/_build/
+/python/healpix-geo/docs/_contents/
+/python/healpix-geo/docs/jupyter_execute/
 .jupyterlite.doit.db
 ci/rattler-recipe/recipe.yaml
-/healpix-geo/docs/environment.yml
+/python/healpix-geo/docs/environment.yml
 /my_env
 
 # PyCharm
