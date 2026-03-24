@@ -1,6 +1,7 @@
 use geodesy::authoring::FourierCoefficients;
 use geodesy::{ellps, ellps::Latitudes};
 
+// TODO: create trait for the latitude conversion and split into sphere and ellipsoid
 pub struct Ellipsoid {
     ellipsoid: ellps::Ellipsoid,
     coefficients: FourierCoefficients,
