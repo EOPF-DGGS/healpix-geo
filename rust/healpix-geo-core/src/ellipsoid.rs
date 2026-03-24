@@ -11,6 +11,12 @@ pub struct ReferenceSphere {
     ellipsoid: GeodesyEllipsoid,
 }
 
+impl ReferenceSphere {
+    pub fn new(ellipsoid: GeodesyEllipsoid) -> Self {
+        Self { ellipsoid }
+    }
+}
+
 impl ReferenceBody for ReferenceSphere {
     fn latitude_authalic_to_geographic(&self, latitude: f64) -> f64 {
         latitude
@@ -24,6 +30,17 @@ impl ReferenceBody for ReferenceSphere {
 pub struct ReferenceEllipsoid {
     ellipsoid: GeodesyEllipsoid,
     coefficients: FourierCoefficients,
+}
+
+impl ReferenceEllipsoid {
+    pub fn new(ellipsoid: GeodesyEllipsoid) -> Self {
+        let coefficients = ellipsoid.coefficients_for_authalic_latitude_computations();
+
+        Self {
+            ellipsoid,
+            coefficients,
+        }
+    }
 }
 
 impl ReferenceBody for ReferenceEllipsoid {
@@ -56,21 +73,5 @@ impl ReferenceBody for Ellipsoid {
             Self::Ellipsoid(wrapped) => wrapped.latitude_authalic_to_geographic(latitude),
             Self::Sphere(wrapped) => wrapped.latitude_authalic_to_geographic(latitude),
         }
-    }
-}
-
-pub fn from_ellipsoid(ellipsoid: GeodesyEllipsoid) -> Ellipsoid {
-    let is_spherical = ellipsoid.flattening() == 0.0;
-
-    if is_spherical {
-        Ellipsoid::Sphere(ReferenceSphere { ellipsoid })
-    } else {
-        let coefficients: FourierCoefficients =
-            ellipsoid.coefficients_for_authalic_latitude_computations();
-
-        Ellipsoid::Ellipsoid(ReferenceEllipsoid {
-            ellipsoid,
-            coefficients,
-        })
     }
 }
