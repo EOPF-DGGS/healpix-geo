@@ -27,6 +27,29 @@ pub fn box_coverage(
     result.into_iter().multiunzip()
 }
 
+pub fn zone_coverage(
+    bbox: (f64, f64, f64, f64),
+    nside: &u32,
+    ellipsoid: &Ellipsoid,
+    flat: bool,
+) -> (Vec<u64>, Vec<u8>, Vec<bool>) {
+    let layer = healpix::nested::get(healpix::depth(*nside));
+
+    let (ipix, depths, fully_covered) =
+        crate::scalar::nested::coverage::box_coverage(bbox, layer, ellipsoid, flat);
+
+    let mut result: Vec<(u64, u8, bool)> = izip!(
+        ipix.into_iter(),
+        depths.into_iter(),
+        fully_covered.into_iter()
+    )
+    .map(|(h, d, f)| (healpix::nested::get(d).to_ring(h), d, f))
+    .collect::<Vec<_>>();
+    result.sort_by_key(|it| it.0);
+
+    result.into_iter().multiunzip()
+}
+
 pub fn polygon_coverage(
     vertices: &[(f64, f64)],
     nside: &u32,
