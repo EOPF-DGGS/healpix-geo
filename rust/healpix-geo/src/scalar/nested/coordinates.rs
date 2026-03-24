@@ -4,9 +4,10 @@ use cdshealpix::nested::Layer;
 use geodesy::authoring::FourierCoefficients;
 use geodesy::ellps::{Ellipsoid, Latitudes};
 
-
 pub fn healpix_to_lonlat(
-    hash: &u64, layer: &Layer, ellipsoid: &Ellipsoid,
+    hash: &u64,
+    layer: &Layer,
+    ellipsoid: &Ellipsoid,
     coefficients: &FourierCoefficients,
     is_spherical: &bool,
 ) -> (f64, f64) {
@@ -53,17 +54,12 @@ pub fn vertices(
 
     let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) = vertices.into_iter().unzip();
 
-    let vertex_lon_: Vec<f64> = (
-        vertex_lon
-            .into_iter()
-            .map(|l| l.to_degrees().rem_euclid(360.0))
-            .collect()
-    );
+    let vertex_lon_: Vec<f64> = (vertex_lon
+        .into_iter()
+        .map(|l| l.to_degrees().rem_euclid(360.0))
+        .collect());
     let vertex_lat_: Vec<f64> = if *is_spherical {
-        vertex_lat
-            .into_iter()
-            .map(|l| l.to_degrees())
-            .collect()
+        vertex_lat.into_iter().map(|l| l.to_degrees()).collect()
     } else {
         vertex_lat
             .into_iter()
