@@ -1,6 +1,5 @@
 use crate::ellipsoid::Ellipsoid;
 
-use cdshealpix as healpix;
 use cdshealpix::nested::Layer;
 
 pub fn healpix_to_lonlat(hash: &u64, layer: &Layer, ellipsoid: &Ellipsoid) -> (f64, f64) {
@@ -24,17 +23,13 @@ pub fn lonlat_to_healpix(lon: &f64, lat: &f64, layer: &Layer, ellipsoid: &Ellips
 pub fn vertices(hash: &u64, layer: &Layer, ellipsoid: &Ellipsoid) -> (Vec<f64>, Vec<f64>) {
     let vertices = layer.vertices(*hash);
 
-    let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) = vertices.into_iter().unzip();
-
-    let vertex_lon_: Vec<f64> = vertex_lon
+    vertices
         .into_iter()
-        .map(|l| l.to_degrees().rem_euclid(360.0))
-        .collect();
-    // FIXME: this will perform a lot more comparisons, figure out how to avoid that
-    let vertex_lat_: Vec<f64> = vertex_lat
-        .into_iter()
-        .map(|l| ellipsoid.authalic_to_geographic_latitude(l).to_degrees())
-        .collect();
-
-    (vertex_lon_, vertex_lat_)
+        .map(|(lon, lat)| {
+            (
+                lon.to_degrees().rem_euclid(360.0),
+                ellipsoid.authalic_to_geographic_latitude(lat).to_degrees(),
+            )
+        })
+        .collect()
 }

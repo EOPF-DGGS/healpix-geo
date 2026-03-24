@@ -1,4 +1,3 @@
-use cdshealpix as healpix;
 use cdshealpix::nested::Layer;
 
 pub fn kth_neighbourhood(hash: &u64, layer: &Layer, ring: &u32) -> Vec<i64> {
