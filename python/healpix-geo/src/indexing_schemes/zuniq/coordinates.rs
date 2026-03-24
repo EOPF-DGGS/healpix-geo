@@ -1,153 +1,111 @@
-use crate::ellipsoid::{EllipsoidLike, IntoGeodesyEllipsoid};
+use crate::ellipsoid::EllipsoidLike;
 use cdshealpix as healpix;
-use geodesy::ellps::Latitudes;
-use ndarray::{Zip, s};
-use numpy::{PyArrayDyn, PyArrayMethods};
+
+use numpy::{PyArray, PyArray1, PyArray2, PyArrayMethods};
+use pyo3::exceptions::PyNotImplementedError;
 use pyo3::prelude::*;
 
 use crate::indexing_schemes::depth::DepthLike;
-use crate::indexing_schemes::nested::coordinates::{
-    healpix_to_lonlat_internal, lonlat_to_healpix_internal, vertices_internal,
-};
-use crate::maybe_parallelize;
+use healpix_geo_core::vectorized::zuniq::coordinates as vectorized;
 
 #[pyfunction]
 pub(crate) fn healpix_to_lonlat<'py>(
-    _py: Python<'py>,
-    ipix: &Bound<'py, PyArrayDyn<u64>>,
-    ellipsoid: EllipsoidLike,
-    longitude: &Bound<'py, PyArrayDyn<f64>>,
-    latitude: &Bound<'py, PyArrayDyn<f64>>,
+    py: Python<'py>,
+    ipix: &Bound<'py, PyArray1<u64>>,
+    ellipsoid_like: EllipsoidLike,
     nthreads: u16,
-) -> PyResult<()> {
-    let is_spherical = ellipsoid.is_spherical();
-    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
+) -> PyResult<(Bound<'py, PyArray1<f64>>, Bound<'py, PyArray1<f64>>)> {
+    let ellipsoid = ellipsoid_like.into_ellipsoid()?;
 
-    let ipix = unsafe { ipix.as_array() };
-    let mut longitude = unsafe { longitude.as_array_mut() };
-    let mut latitude = unsafe { latitude.as_array_mut() };
+    let ipix_ = ipix.readonly();
 
-    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+    let (lon, lat): (Vec<f64>, Vec<f64>) =
+        vectorized::healpix_to_lonlat(ipix_.as_slice()?, &ellipsoid, nthreads as usize)
+            .into_iter()
+            .unzip();
 
-    maybe_parallelize!(
-        nthreads,
-        Zip::from(&mut longitude).and(&mut latitude).and(&ipix),
-        |lon, lat, &p| {
-            let (depth, hash) = cdshealpix::nested::from_zuniq(p);
-            let layer = cdshealpix::nested::get(depth);
-
-            let (lon_, lat_) =
-                healpix_to_lonlat_internal(&hash, layer, &ellipsoid_, &coefficients, &is_spherical);
-            *lon = lon_;
-            *lat = lat_;
-        }
-    );
-    Ok(())
+    Ok((PyArray::from_vec(py, lon), PyArray::from_vec(py, lat)))
 }
 
 #[pyfunction]
-pub(crate) fn lonlat_to_healpix<'a>(
-    py: Python,
+pub(crate) fn lonlat_to_healpix<'py>(
+    py: Python<'py>,
     depth: DepthLike,
-    longitude: &Bound<'a, PyArrayDyn<f64>>,
-    latitude: &Bound<'a, PyArrayDyn<f64>>,
-    ellipsoid: EllipsoidLike,
-    ipix: &Bound<'a, PyArrayDyn<u64>>,
+    longitude: &Bound<'py, PyArray1<f64>>,
+    latitude: &Bound<'py, PyArray1<f64>>,
+    ellipsoid_like: EllipsoidLike,
     nthreads: u16,
-) -> PyResult<()> {
-    let is_spherical = ellipsoid.is_spherical();
-    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
+) -> PyResult<Bound<'py, PyArray1<u64>>> {
+    let ellipsoid = ellipsoid_like.into_ellipsoid()?;
 
-    let mut ipix = unsafe { ipix.as_array_mut() };
-    let longitude = unsafe { longitude.as_array() };
-    let latitude = unsafe { latitude.as_array() };
+    let lon = longitude.readonly();
+    let lat = latitude.readonly();
+    let coords: Vec<(f64, f64)> = lon
+        .as_slice()?
+        .iter()
+        .zip(lat.as_slice()?)
+        .map(|(&lon, &lat)| (lon, lat))
+        .collect();
 
-    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
-
-    match depth {
+    let ipix = match depth {
         DepthLike::Constant(d) => {
             let layer = healpix::nested::get(d);
 
-            maybe_parallelize!(
-                nthreads,
-                Zip::from(&longitude).and(&latitude).and(&mut ipix),
-                |lon, lat, p| {
-                    let hash = lonlat_to_healpix_internal(
-                        lon,
-                        lat,
-                        layer,
-                        &ellipsoid_,
-                        &coefficients,
-                        &is_spherical,
-                    );
-
-                    *p = healpix::nested::to_zuniq(d, hash);
-                }
-            );
+            vectorized::lonlat_to_healpix(&coords, layer, &ellipsoid, nthreads as usize)
         }
-        DepthLike::Array(depths) => {
-            let bound = depths.bind(py);
-            let depths_ = unsafe { bound.as_array() };
-            maybe_parallelize!(
-                nthreads,
-                Zip::from(&longitude)
-                    .and(&latitude)
-                    .and(&depths_)
-                    .and(&mut ipix),
-                |lon, lat, &d, p| {
-                    let layer = cdshealpix::nested::get(d);
+        DepthLike::Array(_depths) => {
+            return Err(PyNotImplementedError::new_err("not implemented yet!"));
 
-                    let hash = lonlat_to_healpix_internal(
-                        lon,
-                        lat,
-                        layer,
-                        &ellipsoid_,
-                        &coefficients,
-                        &is_spherical,
-                    );
+            // never reachable
+            // let bound = depths.bind(py);
+            // let depths_ = unsafe { bound.as_array() };
+            // maybe_parallelize!(
+            //     nthreads,
+            //     Zip::from(&longitude)
+            //         .and(&latitude)
+            //         .and(&depths_)
+            //         .and(&mut ipix),
+            //     |lon, lat, &d, p| {
+            //         let layer = cdshealpix::nested::get(d);
 
-                    *p = healpix::nested::to_zuniq(d, hash);
-                }
-            );
+            //         let hash = lonlat_to_healpix_internal(
+            //             lon,
+            //             lat,
+            //             layer,
+            //             &ellipsoid_,
+            //             &coefficients,
+            //             &is_spherical,
+            //         );
+
+            //         *p = healpix::nested::to_zuniq(d, hash);
+            //     }
+            // );
         }
-    }
+    };
 
-    Ok(())
+    Ok(PyArray::from_vec(py, ipix))
 }
 
 #[pyfunction]
 pub(crate) fn vertices<'py>(
-    _py: Python<'py>,
-    ipix: &Bound<'py, PyArrayDyn<u64>>,
-    ellipsoid: EllipsoidLike,
-    longitude: &Bound<'py, PyArrayDyn<f64>>,
-    latitude: &Bound<'py, PyArrayDyn<f64>>,
+    py: Python<'py>,
+    ipix: &Bound<'py, PyArray1<u64>>,
+    ellipsoid_like: EllipsoidLike,
     nthreads: u16,
-) -> PyResult<()> {
-    let is_spherical = ellipsoid.is_spherical();
-    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
+) -> PyResult<(Bound<'py, PyArray2<f64>>, Bound<'py, PyArray2<f64>>)> {
+    let ellipsoid = ellipsoid_like.into_ellipsoid()?;
+    let ipix_ = ipix.readonly();
 
-    let ipix = unsafe { ipix.as_array() };
-    let mut longitude = unsafe { longitude.as_array_mut() };
-    let mut latitude = unsafe { latitude.as_array_mut() };
+    let vertices: Vec<Vec<(f64, f64)>> =
+        vectorized::vertices(ipix_.as_slice()?, &ellipsoid, nthreads as usize);
 
-    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+    let (lon, lat): (Vec<Vec<f64>>, Vec<Vec<f64>>) = vertices
+        .into_iter()
+        .map(|row: Vec<(f64, f64)>| -> (Vec<f64>, Vec<f64>) { row.into_iter().unzip() })
+        .unzip();
 
-    maybe_parallelize!(
-        nthreads,
-        Zip::from(longitude.rows_mut())
-            .and(latitude.rows_mut())
-            .and(&ipix),
-        |mut lon, mut lat, &p| {
-            let (depth, hash) = healpix::nested::from_zuniq(p);
-            let layer = healpix::nested::get(depth);
+    let longitude = PyArray2::from_vec2(py, &lon)?;
+    let latitude = PyArray2::from_vec2(py, &lat)?;
 
-            let (vertices_lon, vertices_lat) =
-                vertices_internal(&hash, layer, &ellipsoid_, &coefficients, &is_spherical);
-            lon.slice_mut(s![..]).assign(&vertices_lon);
-            lat.slice_mut(s![..]).assign(&vertices_lat);
-        }
-    );
-
-    Ok(())
+    Ok((longitude.into(), latitude.into()))
 }

@@ -1,4 +1,4 @@
-use crate::ellipsoid::{EllipsoidLike, IntoGeodesyEllipsoid};
+use crate::ellipsoid::EllipsoidLike;
 use cdshealpix as healpix;
 use geodesy::ellps::Latitudes;
 use ndarray::Array1;

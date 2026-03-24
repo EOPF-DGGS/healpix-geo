@@ -1,4 +1,4 @@
-use crate::ellipsoid::{EllipsoidLike, IntoGeodesyEllipsoid};
+use crate::ellipsoid::EllipsoidLike;
 use crate::maybe_parallelize;
 use cdshealpix as healpix;
 use cdshealpix::sph_geom::coo3d::{UnitVec3, UnitVect3, vec3_of};

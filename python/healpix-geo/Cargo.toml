@@ -14,3 +14,6 @@ moc = { workspace = true }
 numpy = { workspace = true }
 pyo3 = { workspace = true }
 rayon = { workspace = true }
+geodesy = { workspace = true }
+cdshealpix = { workspace = true }
+ndarray = { version = "0.16.1", features = ["rayon"] }

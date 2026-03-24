@@ -1,40 +1,25 @@
-use crate::maybe_parallelize;
 use cdshealpix as healpix;
-use ndarray::{Array1, Zip, s};
-use numpy::{PyArrayDyn, PyArrayMethods};
+use numpy::{PyArray1, PyArray2, PyArrayMethods};
 use pyo3::prelude::*;
+
+use healpix_geo_core::vectorized::ring::hierarchy as vectorized;
 
 /// Wrapper of `kth_neighbourhood`
 /// The given array must be of size (2 * ring + 1)^2
 #[pyfunction]
-pub(crate) fn kth_neighbourhood<'a>(
-    _py: Python,
+pub(crate) fn kth_neighbourhood<'py>(
+    py: Python<'py>,
     depth: u8,
-    ipix: &Bound<'a, PyArrayDyn<u64>>,
+    ipix: &Bound<'py, PyArray1<u64>>,
     ring: u32,
-    neighbours: &Bound<'a, PyArrayDyn<i64>>,
     nthreads: u16,
-) -> PyResult<()> {
-    let ipix = unsafe { ipix.as_array() };
-    let mut neighbours = unsafe { neighbours.as_array_mut() };
-
+) -> PyResult<Bound<'py, PyArray2<i64>>> {
     let layer = healpix::nested::get(depth);
+    let ipix_ = ipix.readonly();
 
-    maybe_parallelize!(
-        nthreads,
-        Zip::from(neighbours.rows_mut()).and(&ipix),
-        |mut n, &p| {
-            let p_nested = layer.from_ring(p);
-            let map = Array1::from_iter(
-                layer
-                    .kth_neighbourhood(p_nested, ring)
-                    .into_iter()
-                    .map(|v| layer.to_ring(v) as i64),
-            );
+    let nside = u64::pow(2, ring);
 
-            n.slice_mut(s![..map.len()]).assign(&map);
-        },
-    );
+    let result = vectorized::kth_neighbourhood(ipix_.as_slice()?, &nside, &ring, nthreads as usize);
 
-    Ok(())
+    Ok(PyArray2::from_vec2(py, &result)?)
 }
