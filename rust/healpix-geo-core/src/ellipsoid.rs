@@ -1,5 +1,5 @@
 use geodesy::authoring::FourierCoefficients;
-use geodesy::ellps::{Ellipsoid as GeodesyEllipsoid, EllipsoidBase, Latitudes};
+use geodesy::ellps::{Ellipsoid as GeodesyEllipsoid, Latitudes};
 
 pub trait ReferenceBody {
     fn latitude_authalic_to_geographic(&self, latitude: f64) -> f64;
