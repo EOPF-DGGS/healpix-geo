@@ -12,3 +12,4 @@ categories.workspace = true
 cdshealpix = { workspace = true }
 geodesy = { workspace = true }
 itertools = { workspace = true }
+rayon = { workspace = true }

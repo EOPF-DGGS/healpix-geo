@@ -452,6 +452,7 @@ dependencies = [
  "cdshealpix",
  "geodesy",
  "itertools",
+ "rayon",
 ]
 
 [[package]]
