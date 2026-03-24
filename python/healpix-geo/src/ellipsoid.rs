@@ -1,5 +1,5 @@
 use geodesy::ellps::Ellipsoid as GeoEllipsoid;
-use healpix_geo_core::ellipsoid::Ellipsoid;
+use healpix_geo_core::ellipsoid::{Ellipsoid, ReferenceEllipsoid, ReferenceSphere};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
@@ -44,9 +44,9 @@ impl EllipsoidLike {
                     GeoEllipsoid::named(&name).map_err(|e| PyValueError::new_err(e.to_string()))?;
 
                 if name.contains("sphere") {
-                    Ok(Ellipsoid::Sphere::new(ellipsoid))
+                    Ok(Ellipsoid::Sphere(ReferenceSphere::new(ellipsoid)))
                 } else {
-                    Ok(Ellipsoid::Ellipsoid::new(ellipsoid))
+                    Ok(Ellipsoid::Ellipsoid(ReferenceEllipsoid::new(ellipsoid)))
                 }
             }
             Self::EllipsoidParameters {
@@ -60,7 +60,7 @@ impl EllipsoidLike {
                 if inverse_flattening >= 2.0 && semimajor_axis > 0.0 {
                     let ellipsoid = GeoEllipsoid::new(semimajor_axis, 1.0f64 / inverse_flattening);
 
-                    Ok(Ellipsoid::Ellipsoid::new(ellipsoid))
+                    Ok(Ellipsoid::Ellipsoid(ReferenceEllipsoid::new(ellipsoid)))
                 } else if inverse_flattening < 2.0 {
                     Err(PyValueError::new_err(format!(
                         "The inverse flattening must be greater than or equal to 2, but got {:?}.",
@@ -76,7 +76,7 @@ impl EllipsoidLike {
             Self::SphereParameters { radius } | EllipsoidLike::SphereObject { radius } => {
                 if radius > 0.0 {
                     let ellipsoid = GeoEllipsoid::new(radius, 0.0f64);
-                    Ok(Ellipsoid::Sphere::new(ellipsoid))
+                    Ok(Ellipsoid::Sphere(ReferenceSphere::new(ellipsoid)))
                 } else {
                     Err(PyValueError::new_err(format!(
                         "The radius must be greater than 0, but got {:?}.",
