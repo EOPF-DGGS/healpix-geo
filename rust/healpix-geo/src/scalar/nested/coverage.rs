@@ -1,3 +1,5 @@
+use crate::ellipsoid::Ellipsoid;
+use cdshealpix::nested::Layer;
 use cdshealpix::nested::bmoc::BMOC;
 
 fn get_cells(bmoc: BMOC) -> (Vec<u64>, Vec<u8>, Vec<bool>) {
@@ -43,15 +45,15 @@ pub fn zone_coverage(
     bbox: (f64, f64, f64, f64),
     layer: &Layer,
     ellipsoid: &Ellipsoid,
-    flat: bool
-) -> (Vec<u64>, Vec<u64>, Vec<u64>) {
+    flat: bool,
+) -> (Vec<u64>, Vec<u8>, Vec<bool>) {
     let (lon_min, lat_min, lon_max, lat_max) = bbox;
 
     let bmoc = layer.zone_coverage(
         lon_min.rem_euclid(360.0).to_radians(),
-        ellipsoid.geographic_to_authalic_latitude(lat_min.radians()),
+        ellipsoid.geographic_to_authalic_latitude(lat_min.to_radians()),
         lon_max.rem_euclid(360.0).to_radians(),
-        ellipsoid.geographic_to_authalic_latitude(lat_max.radians()),
+        ellipsoid.geographic_to_authalic_latitude(lat_max.to_radians()),
     );
 
     if flat {
@@ -68,7 +70,7 @@ pub fn box_coverage(
     layer: &Layer,
     ellipsoid: &Ellipsoid,
     flat: bool,
-) -> (Vec<u64>, Vec<u64>, Vec<u64>) {
+) -> (Vec<u64>, Vec<u8>, Vec<bool>) {
     let (lon, lat) = center;
     let (size_lon, size_lat) = size;
 
@@ -87,12 +89,24 @@ pub fn box_coverage(
     }
 }
 
-pub fn polygon_coverage(vertices: &[(f64, f64)], layer: &Layer, ellipsoid: &Ellipsoid, exact: bool, flat: bool) -> (Vec<u64>, Vec<u64>, Vec<u64>) {
-    let converted_vertices: Vec<(f64, f64)> = vertices.iter().map(|v| {
-        let (lon, lat) = v;
+pub fn polygon_coverage(
+    vertices: &[(f64, f64)],
+    layer: &Layer,
+    ellipsoid: &Ellipsoid,
+    exact: bool,
+    flat: bool,
+) -> (Vec<u64>, Vec<u8>, Vec<bool>) {
+    let converted_vertices: Vec<(f64, f64)> = vertices
+        .iter()
+        .map(|v| {
+            let (lon, lat) = v;
 
-        (lon.rem_euclid(360.0).to_radians(), ellipsoid.geographic_to_authalic_latitude(lat.to_radians()))
-    }).collect();
+            (
+                lon.rem_euclid(360.0).to_radians(),
+                ellipsoid.geographic_to_authalic_latitude(lat.to_radians()),
+            )
+        })
+        .collect();
 
     let bmoc = layer.polygon_coverage(&converted_vertices, exact);
 
@@ -110,10 +124,10 @@ pub fn cone_coverage(
     ellipsoid: &Ellipsoid,
     delta_depth: u8,
     flat: bool,
-) -> (Vec<u64>, Vec<u64>, Vec<u64>) {
-    if layer.depth + delta_depth > 29 {
+) -> (Vec<u64>, Vec<u8>, Vec<bool>) {
+    if layer.depth() + delta_depth > 29 {
         // TODO: return a Result object
-        panic!("delta_depth must be chosen such that layer.depth + delta_depth <= 29");
+        panic!("delta_depth must be chosen such that layer.depth() + delta_depth <= 29");
     }
 
     let (lon, lat) = center;
@@ -136,13 +150,14 @@ pub fn elliptical_cone_coverage(
     center: (f64, f64),
     ellipse_geometry: (f64, f64),
     position_angle: f64,
+    layer: &Layer,
     ellipsoid: &Ellipsoid,
     delta_depth: u8,
     flat: bool,
-) -> (Vec<u64>, Vec<u64>, Vec<u64>) {
-    if layer.depth + delta_depth > 29 {
+) -> (Vec<u64>, Vec<u8>, Vec<bool>) {
+    if layer.depth() + delta_depth > 29 {
         // TODO: return a Result object
-        panic!("delta_depth must be chosen such that layer.depth + delta_depth <= 29");
+        panic!("delta_depth must be chosen such that layer.depth() + delta_depth <= 29");
     }
 
     let (lon, lat) = center;
@@ -163,5 +178,4 @@ pub fn elliptical_cone_coverage(
     } else {
         get_cells(bmoc)
     }
-
 }
