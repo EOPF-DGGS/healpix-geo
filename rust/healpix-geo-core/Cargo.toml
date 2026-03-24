@@ -1,5 +1,5 @@
 [package]
-name = "healpix-geo"
+name = "healpix-geo-core"
 
 version.workspace = true
 authors.workspace = true

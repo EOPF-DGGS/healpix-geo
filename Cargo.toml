@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "rust/healpix-geo",
+  "rust/healpix-geo-core",
 ]
 resolver = "2"
 
