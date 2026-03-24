@@ -1,15 +1,15 @@
 use geodesy::authoring::FourierCoefficients;
-use geodesy::{ellps, ellps::Latitudes};
+use geodesy::ellps::{Ellipsoid as GeodesyEllipsoid, EllipsoidBase, Latitudes};
 
 // TODO: create trait for the latitude conversion and split into sphere and ellipsoid
 pub struct Ellipsoid {
-    ellipsoid: ellps::Ellipsoid,
+    ellipsoid: GeodesyEllipsoid,
     coefficients: FourierCoefficients,
     is_spherical: bool,
 }
 
 impl Ellipsoid {
-    pub fn from_ellipsoid(ellipsoid: ellps::Ellipsoid) -> Self {
+    pub fn from_ellipsoid(ellipsoid: GeodesyEllipsoid) -> Self {
         let is_spherical = ellipsoid.flattening() == 0.0;
 
         let coefficients: FourierCoefficients =
@@ -22,19 +22,21 @@ impl Ellipsoid {
         }
     }
 
-    pub fn geographic_to_auxiliary_latitude(&self, latitude: &f64) -> f64 {
+    pub fn geographic_to_authalic_latitude(&self, latitude: f64) -> f64 {
         if self.is_spherical {
             latitude
         } else {
-            self.ellipsoid.geographic_to_authalic_latitude(latitude)
+            self.ellipsoid
+                .latitude_geographic_to_authalic(latitude, &self.coefficients)
         }
     }
 
-    pub fn authalic_to_geographic_latitude(&self, latitude: &f64) -> f64 {
+    pub fn authalic_to_geographic_latitude(&self, latitude: f64) -> f64 {
         if self.is_spherical {
             latitude
         } else {
-            self.ellipsoid.authalic_to_geographic_latitude(latitude)
+            self.ellipsoid
+                .latitude_authalic_to_geographic(latitude, &self.coefficients)
         }
     }
 }
