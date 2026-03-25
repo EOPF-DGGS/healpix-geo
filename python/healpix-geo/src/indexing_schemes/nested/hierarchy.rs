@@ -27,7 +27,7 @@ pub(crate) fn kth_neighbourhood<'py>(
 
 #[pyfunction]
 pub(crate) fn zoom_to<'py>(
-    _py: Python<'py>,
+    py: Python<'py>,
     depth: u8,
     ipix: &Bound<'py, PyArray1<u64>>,
     new_depth: u8,
@@ -58,7 +58,7 @@ pub(crate) fn zoom_to<'py>(
 
 #[pyfunction]
 pub(crate) fn siblings<'py>(
-    _py: Python<'py>,
+    py: Python<'py>,
     depth: u8,
     ipix: &Bound<'py, PyArrayDyn<u64>>,
     nthreads: u16,
@@ -68,5 +68,5 @@ pub(crate) fn siblings<'py>(
 
     let siblings = vectorized::siblings(ipix_.as_slice()?, &layer, nthreads as usize);
 
-    Ok(PyArray2::from_vec(py, siblings)?)
+    Ok(PyArray2::from_vec2(py, siblings)?)
 }

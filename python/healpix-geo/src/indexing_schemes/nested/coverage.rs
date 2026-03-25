@@ -89,7 +89,7 @@ pub(crate) fn polygon_coverage<'py>(
 
     let vertices_: Vec<(f64, f64)> = vertices
         .to_vec()?
-        .chunks()
+        .chunks(2)
         .map(|row| (row[0], row[1]))
         .collect();
 
