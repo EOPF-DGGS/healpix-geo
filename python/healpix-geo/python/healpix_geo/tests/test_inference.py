@@ -202,7 +202,7 @@ class TestHealpixToGeographic:
 
         diff_lat = actual_lat - expected_lat
         assert np.all(abs(diff_lat) < 0.3)
-        # check that actual is pulled away from the equator (i.e. the absolute is always bigger)
+        # check that actual is pulled away from the equator compared to the spherical latitude
         assert np.all(np.abs(actual_lat) >= np.abs(expected_lat))
         assert np.all(np.sign(actual_lat) == np.sign(expected_lat))
 
