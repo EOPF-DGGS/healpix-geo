@@ -1,3 +1,4 @@
+#[cfg(not(target_arch = "wasm32"))]
 use rayon::prelude::*;
 
 use crate::ellipsoid::Ellipsoid;

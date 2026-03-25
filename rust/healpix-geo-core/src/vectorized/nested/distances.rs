@@ -1,7 +1,9 @@
 use crate::maybe_parallelize;
 use cdshealpix::nested::Layer;
 use cdshealpix::sph_geom::coo3d::{UnitVec3, UnitVect3, vec3_of};
-use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
+
+#[cfg(not(target_arch = "wasm32"))]
+use rayon::prelude::*;
 
 fn to_vec3(layer: &Layer, hash: &u64) -> UnitVect3 {
     let (lon, lat) = layer.center(*hash);

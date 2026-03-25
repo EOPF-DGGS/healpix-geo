@@ -2,9 +2,9 @@ use crate::maybe_parallelize;
 use crate::vectorized::depth::DepthLike;
 
 use crate::scalar::zuniq::conversion as scalar;
-use rayon::iter::IndexedParallelIterator;
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::ParallelIterator;
+
+#[cfg(not(target_arch = "wasm32"))]
+use rayon::prelude::*;
 
 pub fn from_nested(ipix: &[u64], depth: DepthLike, nthreads: usize) -> Vec<u64> {
     let mut result = Vec::<u64>::with_capacity(ipix.len());
