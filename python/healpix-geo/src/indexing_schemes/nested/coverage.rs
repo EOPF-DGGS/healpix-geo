@@ -1,48 +1,10 @@
 use crate::ellipsoid::EllipsoidLike;
 use cdshealpix as healpix;
-use geodesy::ellps::Latitudes;
-use ndarray::Array1;
-use numpy::{IntoPyArray, PyArray1, PyArray2, PyArrayMethods};
+use numpy::{PyArray1, PyArray2, PyArrayMethods, PyUntypedArrayMethods};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
-fn get_cells(bmoc: healpix::nested::bmoc::BMOC) -> (Array1<u64>, Array1<u8>, Array1<bool>) {
-    let len = bmoc.entries.len();
-    let mut ipix = Vec::<u64>::with_capacity(len);
-    let mut depth = Vec::<u8>::with_capacity(len);
-    let mut fully_covered = Vec::<bool>::with_capacity(len);
-
-    for c in bmoc.into_iter() {
-        ipix.push(c.hash);
-        depth.push(c.depth);
-        fully_covered.push(c.is_full);
-    }
-
-    depth.shrink_to_fit();
-    ipix.shrink_to_fit();
-    fully_covered.shrink_to_fit();
-
-    (ipix.into(), depth.into(), fully_covered.into())
-}
-
-fn get_flat_cells(bmoc: healpix::nested::bmoc::BMOC) -> (Array1<u64>, Array1<u8>, Array1<bool>) {
-    let len = bmoc.deep_size();
-    let mut ipix = Vec::<u64>::with_capacity(len);
-    let mut depth = Vec::<u8>::with_capacity(len);
-    let mut fully_covered = Vec::<bool>::with_capacity(len);
-
-    for c in bmoc.flat_iter_cell() {
-        ipix.push(c.hash);
-        depth.push(c.depth);
-        fully_covered.push(c.is_full);
-    }
-
-    depth.shrink_to_fit();
-    ipix.shrink_to_fit();
-    fully_covered.shrink_to_fit();
-
-    (ipix.into(), depth.into(), fully_covered.into())
-}
+use healpix_geo_core::scalar::nested::coverage as scalar;
 
 #[allow(clippy::type_complexity)]
 #[pyfunction]
@@ -58,39 +20,15 @@ pub(crate) fn zone_coverage<'py>(
     Bound<'py, PyArray1<u8>>,
     Bound<'py, PyArray1<bool>>,
 )> {
-    let is_spherical = ellipsoid.is_spherical();
-    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
-
-    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
-
-    let (lon_min, lat_min, lon_max, lat_max) = bbox;
-
+    let ellipsoid_ = ellipsoid.into_ellipsoid()?;
     let layer = healpix::nested::get(depth);
-    let bmoc = layer.zone_coverage(
-        lon_min.rem_euclid(360.0).to_radians(),
-        if is_spherical {
-            lat_min.to_radians()
-        } else {
-            ellipsoid_.latitude_geographic_to_authalic(lat_min.to_radians(), &coefficients)
-        },
-        lon_max.rem_euclid(360.0).to_radians(),
-        if is_spherical {
-            lat_max.to_radians()
-        } else {
-            ellipsoid_.latitude_geographic_to_authalic(lat_max.to_radians(), &coefficients)
-        },
-    );
 
-    let (ipix, moc_depth, fully_covered) = if flat {
-        get_flat_cells(bmoc)
-    } else {
-        get_cells(bmoc)
-    };
+    let (ipix, depths, fully_covered) = scalar::zone_coverage(bbox, &layer, &ellipsoid_, flat);
 
     Ok((
-        ipix.into_pyarray(py),
-        moc_depth.into_pyarray(py),
-        fully_covered.into_pyarray(py),
+        PyArray1::from_vec(py, ipix),
+        PyArray1::from_vec(py, depths),
+        PyArray1::from_vec(py, fully_covered),
     ))
 }
 
@@ -110,37 +48,16 @@ pub(crate) fn box_coverage<'py>(
     Bound<'py, PyArray1<u8>>,
     Bound<'py, PyArray1<bool>>,
 )> {
-    let is_spherical = ellipsoid.is_spherical();
-    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
-
-    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
-
-    let (lon, lat) = center;
-    let (size_lon, size_lat) = size;
-
+    let ellipsoid_ = ellipsoid.into_ellipsoid()?;
     let layer = healpix::nested::get(depth);
-    let bmoc = layer.box_coverage(
-        lon.rem_euclid(360.0).to_radians(),
-        if is_spherical {
-            lat.to_radians()
-        } else {
-            ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
-        },
-        size_lon.rem_euclid(360.0).to_radians(),
-        size_lat.to_radians(),
-        angle.to_radians(),
-    );
 
-    let (ipix, moc_depth, fully_covered) = if flat {
-        get_flat_cells(bmoc)
-    } else {
-        get_cells(bmoc)
-    };
+    let (ipix, depths, fully_covered) =
+        scalar::box_coverage(center, size, angle, &layer, &ellipsoid_, flat);
 
     Ok((
-        ipix.into_pyarray(py),
-        moc_depth.into_pyarray(py),
-        fully_covered.into_pyarray(py),
+        PyArray1::from_vec(py, ipix),
+        PyArray1::from_vec(py, depths),
+        PyArray1::from_vec(py, fully_covered),
     ))
 }
 
@@ -159,43 +76,30 @@ pub(crate) fn polygon_coverage<'py>(
     Bound<'py, PyArray1<u8>>,
     Bound<'py, PyArray1<bool>>,
 )> {
-    let vertices = unsafe { vertices.as_array() };
+    let ellipsoid_ = ellipsoid.into_ellipsoid()?;
+    let layer = healpix::nested::get(depth);
 
-    let is_spherical = ellipsoid.is_spherical();
-    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
+    let shape = vertices.shape();
+    if shape[1] != 2 {
+        return Err(PyValueError::new_err(format!(
+            "The last dimension of the vertices array must have a size of 2, got shape ({}, {})",
+            shape[0], shape[1]
+        )));
+    }
 
-    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
-
-    let converted_vertices: Vec<(f64, f64)> = vertices
-        .rows()
-        .into_iter()
-        .map(|row| {
-            let lon = row[0];
-            let lat = row[1];
-            (
-                lon.rem_euclid(360.0).to_radians(),
-                if is_spherical {
-                    lat.to_radians()
-                } else {
-                    ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
-                },
-            )
-        })
+    let vertices_: Vec<(f64, f64)> = vertices
+        .to_vec()?
+        .chunks()
+        .map(|row| (row[0], row[1]))
         .collect();
 
-    let layer = healpix::nested::get(depth);
-    let bmoc = layer.polygon_coverage(&converted_vertices, exact);
-
-    let (ipix, moc_depth, fully_covered) = if flat {
-        get_flat_cells(bmoc)
-    } else {
-        get_cells(bmoc)
-    };
+    let (ipix, depths, fully_covered) =
+        scalar::polygon_coverage(&vertices_, &layer, &ellipsoid_, exact, flat);
 
     Ok((
-        ipix.into_pyarray(py),
-        moc_depth.into_pyarray(py),
-        fully_covered.into_pyarray(py),
+        PyArray1::from_vec(py, ipix),
+        PyArray1::from_vec(py, depths),
+        PyArray1::from_vec(py, fully_covered),
     ))
 }
 
@@ -215,11 +119,6 @@ pub(crate) fn cone_coverage<'py>(
     Bound<'py, PyArray1<u8>>,
     Bound<'py, PyArray1<bool>>,
 )> {
-    let is_spherical = ellipsoid.is_spherical();
-    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
-
-    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
-
     if depth > 29 {
         return Err(PyValueError::new_err(
             "depth must be between 0 and 29, inclusive.",
@@ -230,30 +129,16 @@ pub(crate) fn cone_coverage<'py>(
         ));
     }
 
-    let (lon, lat) = center;
-
+    let ellipsoid_ = ellipsoid.into_ellipsoid()?;
     let layer = healpix::nested::get(depth);
-    let bmoc = layer.cone_coverage_approx_custom(
-        delta_depth,
-        lon.rem_euclid(360.0).to_radians(),
-        if is_spherical {
-            lat.to_radians()
-        } else {
-            ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
-        },
-        radius.to_radians(),
-    );
 
-    let (ipix, moc_depth, fully_covered) = if flat {
-        get_flat_cells(bmoc)
-    } else {
-        get_cells(bmoc)
-    };
+    let (ipix, depths, fully_covered) =
+        scalar::cone_coverage(center, radius, &layer, &ellipsoid_, delta_depth, flat);
 
     Ok((
-        ipix.into_pyarray(py),
-        moc_depth.into_pyarray(py),
-        fully_covered.into_pyarray(py),
+        PyArray1::from_vec(py, ipix),
+        PyArray1::from_vec(py, depths),
+        PyArray1::from_vec(py, fully_covered),
     ))
 }
 
@@ -284,37 +169,22 @@ pub(crate) fn elliptical_cone_coverage<'py>(
         ));
     }
 
-    let is_spherical = ellipsoid.is_spherical();
-    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
-
-    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
-
-    let (lon, lat) = center;
-    let (a, b) = ellipse_geometry;
-
+    let ellipsoid_ = ellipsoid.into_ellipsoid()?;
     let layer = healpix::nested::get(depth);
-    let bmoc = layer.elliptical_cone_coverage_custom(
+
+    let (ipix, depths, fully_covered) = scalar::elliptical_cone_coverage(
+        center,
+        ellipse_geometry,
+        position_angle,
+        &layer,
+        &ellipsoid_,
         delta_depth,
-        lon.rem_euclid(360.0).to_radians(),
-        if is_spherical {
-            lat.to_radians()
-        } else {
-            ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
-        },
-        a.to_radians(),
-        b.to_radians(),
-        position_angle.to_radians(),
+        flat,
     );
 
-    let (ipix, moc_depth, fully_covered) = if flat {
-        get_flat_cells(bmoc)
-    } else {
-        get_cells(bmoc)
-    };
-
     Ok((
-        ipix.into_pyarray(py),
-        moc_depth.into_pyarray(py),
-        fully_covered.into_pyarray(py),
+        PyArray1::from_vec(py, ipix),
+        PyArray1::from_vec(py, depths),
+        PyArray1::from_vec(py, fully_covered),
     ))
 }
