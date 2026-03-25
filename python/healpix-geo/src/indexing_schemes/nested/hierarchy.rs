@@ -1,7 +1,4 @@
-use crate::maybe_parallelize;
-
 use cdshealpix as healpix;
-use ndarray::{Array1, Zip, s};
 use numpy::{PyArray1, PyArray2, PyArrayDyn, PyArrayMethods};
 use pyo3::prelude::*;
 
@@ -36,20 +33,19 @@ pub(crate) fn zoom_to<'py>(
     use std::cmp::Ordering;
 
     let ipix_ = ipix.readonly();
-    let layer = healpix::nested::get(depth);
     let delta_depth = (depth as i8 - new_depth as i8).abs() as u8;
 
     let result = match depth.cmp(&new_depth) {
-        Ordering::Equal => ipix.to_dyn(),
+        Ordering::Equal => ipix.to_dyn().clone(),
         Ordering::Less => {
             let result = vectorized::children(ipix_.as_slice()?, delta_depth, nthreads as usize);
 
-            PyArray2::from_vec(py, result)?.to_dyn()
+            PyArray2::from_vec2(py, &result)?.to_dyn().clone()
         }
         Ordering::Greater => {
             let result = vectorized::parents(ipix_.as_slice()?, delta_depth, nthreads as usize);
 
-            PyArray1::from_vec(py, result).to_dyn()
+            PyArray1::from_vec(py, result).to_dyn().clone()
         }
     };
 
@@ -68,5 +64,5 @@ pub(crate) fn siblings<'py>(
 
     let siblings = vectorized::siblings(ipix_.as_slice()?, &layer, nthreads as usize);
 
-    Ok(PyArray2::from_vec2(py, siblings)?)
+    Ok(PyArray2::from_vec2(py, &siblings)?)
 }

@@ -1,4 +1,3 @@
-use cdshealpix as healpix;
 use numpy::{PyArray1, PyArray2, PyArrayMethods};
 use pyo3::prelude::*;
 
