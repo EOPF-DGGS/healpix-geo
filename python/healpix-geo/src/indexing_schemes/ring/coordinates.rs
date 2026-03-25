@@ -2,146 +2,86 @@ use crate::ellipsoid::EllipsoidLike;
 use crate::maybe_parallelize;
 use cdshealpix as healpix;
 use cdshealpix::sph_geom::coo3d::{UnitVec3, UnitVect3, vec3_of};
-use geodesy::ellps::Latitudes;
 use ndarray::{Array1, Zip, s};
-use numpy::{PyArrayDyn, PyArrayMethods};
+use numpy::{PyArray1, PyArray2, PyArrayDyn, PyArrayMethods};
 use pyo3::prelude::*;
 
+use healpix_geo_core::vectorized::ring::coordinates as vectorized;
+
 #[pyfunction]
-pub(crate) fn healpix_to_lonlat<'a>(
-    _py: Python,
+pub(crate) fn healpix_to_lonlat<'py>(
+    py: Python<'py>,
     depth: u8,
-    ipix: &Bound<'a, PyArrayDyn<u64>>,
-    ellipsoid: EllipsoidLike,
-    longitude: &Bound<'a, PyArrayDyn<f64>>,
-    latitude: &Bound<'a, PyArrayDyn<f64>>,
+    ipix: &Bound<'py, PyArray1<u64>>,
+    ellipsoid_like: EllipsoidLike,
     nthreads: u16,
-) -> PyResult<()> {
-    let is_spherical = ellipsoid.is_spherical();
-    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
+) -> PyResult<(Bound<'py, PyArray1<f64>>, Bound<'py, PyArray1<f64>>)> {
+    let ellipsoid = ellipsoid_like.into_ellipsoid()?;
 
-    let ipix = unsafe { ipix.as_array() };
-    let mut longitude = unsafe { longitude.as_array_mut() };
-    let mut latitude = unsafe { latitude.as_array_mut() };
-
-    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+    let ipix_ = ipix.readonly();
 
     let nside = healpix::nside(depth);
 
-    maybe_parallelize!(
-        nthreads,
-        Zip::from(&mut longitude).and(&mut latitude).and(&ipix),
-        |lon, lat, &p| {
-            let center = healpix::ring::center(nside, p);
-            *lon = center.0.to_degrees();
-            if is_spherical {
-                *lat = center.1.to_degrees();
-            } else {
-                *lat = ellipsoid_
-                    .latitude_authalic_to_geographic(center.1, &coefficients)
-                    .to_degrees();
-            }
-        },
-    );
+    let (lon, lat): (Vec<f64>, Vec<f64>) =
+        vectorized::healpix_to_lonlat(ipix_.as_slice()?, &nside, &ellipsoid, nthreads as usize)
+            .into_iter()
+            .unzip();
 
-    Ok(())
+    Ok((PyArray1::from_vec(py, lon), PyArray1::from_vec(py, lat)))
 }
 
 #[pyfunction]
-pub(crate) fn lonlat_to_healpix<'a>(
-    _py: Python,
+pub(crate) fn lonlat_to_healpix<'py>(
+    py: Python<'py>,
     depth: u8,
-    longitude: &Bound<'a, PyArrayDyn<f64>>,
-    latitude: &Bound<'a, PyArrayDyn<f64>>,
-    ellipsoid: EllipsoidLike,
-    ipix: &Bound<'a, PyArrayDyn<u64>>,
+    longitude: &Bound<'py, PyArray1<f64>>,
+    latitude: &Bound<'py, PyArray1<f64>>,
+    ellipsoid_like: EllipsoidLike,
     nthreads: u16,
-) -> PyResult<()> {
-    let is_spherical = ellipsoid.is_spherical();
-    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
+) -> PyResult<Bound<'py, PyArray1<u64>>> {
+    let ellipsoid = ellipsoid_like.into_ellipsoid()?;
 
-    let mut ipix = unsafe { ipix.as_array_mut() };
-    let longitude = unsafe { longitude.as_array() };
-    let latitude = unsafe { latitude.as_array() };
-
-    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+    let lon = longitude.readonly();
+    let lat = latitude.readonly();
+    let coords: Vec<(f64, f64)> = lon
+        .as_slice()?
+        .iter()
+        .zip(lat.as_slice()?)
+        .map(|(&lon, &lat)| (lon, lat))
+        .collect();
 
     let nside = healpix::nside(depth);
 
-    maybe_parallelize!(
-        nthreads,
-        Zip::from(&longitude).and(&latitude).and(&mut ipix),
-        |&lon, &lat, p| {
-            let lon_ = lon.to_radians();
-            let lat_ = if is_spherical {
-                lat.to_radians()
-            } else {
-                ellipsoid_.latitude_geographic_to_authalic(lat.to_radians(), &coefficients)
-            };
-            *p = healpix::ring::hash(nside, lon_, lat_);
-        }
-    );
+    let ipix = vectorized::lonlat_to_healpix(&coords, &nside, &ellipsoid, nthreads as usize);
 
-    Ok(())
+    Ok(PyArray1::from_vec(py, ipix))
 }
 
 #[pyfunction]
-pub(crate) fn vertices<'a>(
-    _py: Python,
+pub(crate) fn vertices<'py>(
+    py: Python<'py>,
     depth: u8,
-    ipix: &Bound<'a, PyArrayDyn<u64>>,
-    ellipsoid: EllipsoidLike,
-    longitude: &Bound<'a, PyArrayDyn<f64>>,
-    latitude: &Bound<'a, PyArrayDyn<f64>>,
+    ipix: &Bound<'py, PyArray1<u64>>,
+    ellipsoid_like: EllipsoidLike,
     nthreads: u16,
-) -> PyResult<()> {
-    let is_spherical = ellipsoid.is_spherical();
-    let ellipsoid_ = ellipsoid.into_geodesy_ellipsoid()?;
-
-    let ipix = unsafe { ipix.as_array() };
-    let mut longitude = unsafe { longitude.as_array_mut() };
-    let mut latitude = unsafe { latitude.as_array_mut() };
-
-    let coefficients = ellipsoid_.coefficients_for_authalic_latitude_computations();
+) -> PyResult<(Bound<'py, PyArray2<f64>>, Bound<'py, PyArray2<f64>>)> {
+    let ellipsoid = ellipsoid_like.into_ellipsoid()?;
+    let ipix_ = ipix.readonly();
 
     let nside = healpix::nside(depth);
 
-    maybe_parallelize!(
-        nthreads,
-        Zip::from(longitude.rows_mut())
-            .and(latitude.rows_mut())
-            .and(&ipix),
-        |mut lon, mut lat, &p| {
-            let vertices = healpix::ring::vertices(nside, p);
-            let (vertex_lon, vertex_lat): (Vec<f64>, Vec<f64>) = vertices.into_iter().unzip();
-            let vertex_lon_ = Array1::from_iter(
-                vertex_lon
-                    .into_iter()
-                    .map(|l| l.to_degrees() % 360.0)
-                    .collect::<Vec<f64>>(),
-            );
-            lon.slice_mut(s![..]).assign(&vertex_lon_);
+    let vertices: Vec<Vec<(f64, f64)>> =
+        vectorized::vertices(ipix_.as_slice()?, &nside, &ellipsoid, nthreads as usize);
 
-            let vertex_lat_ = Array1::from_iter(if is_spherical {
-                vertex_lat
-                    .into_iter()
-                    .map(|l| l.to_degrees())
-                    .collect::<Vec<f64>>()
-            } else {
-                vertex_lat
-                    .into_iter()
-                    .map(|l| {
-                        ellipsoid_
-                            .latitude_authalic_to_geographic(l, &coefficients)
-                            .to_degrees()
-                    })
-                    .collect()
-            });
-            lat.slice_mut(s![..]).assign(&vertex_lat_);
-        },
-    );
+    let (lon, lat): (Vec<Vec<f64>>, Vec<Vec<f64>>) = vertices
+        .into_iter()
+        .map(|row: Vec<(f64, f64)>| -> (Vec<f64>, Vec<f64>) { row.into_iter().unzip() })
+        .unzip();
 
-    Ok(())
+    let longitude = PyArray2::from_vec2(py, &lon)?;
+    let latitude = PyArray2::from_vec2(py, &lat)?;
+
+    Ok((longitude.into(), latitude.into()))
 }
 
 fn to_vec3(nside: u32, cell_id: u64) -> UnitVect3 {
