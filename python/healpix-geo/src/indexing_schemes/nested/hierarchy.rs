@@ -26,70 +26,47 @@ pub(crate) fn kth_neighbourhood<'py>(
 }
 
 #[pyfunction]
-pub(crate) fn zoom_to<'a>(
-    _py: Python,
+pub(crate) fn zoom_to<'py>(
+    _py: Python<'py>,
     depth: u8,
-    ipix: &Bound<'a, PyArrayDyn<u64>>,
+    ipix: &Bound<'py, PyArray1<u64>>,
     new_depth: u8,
-    result: &Bound<'a, PyArrayDyn<u64>>,
     nthreads: u16,
-) -> PyResult<()> {
-    use crate::hierarchy::nested::{children, parent};
+) -> PyResult<Bound<'py, PyArrayDyn<u64>>> {
     use std::cmp::Ordering;
 
-    let ipix = unsafe { ipix.as_array() };
-    let mut result = unsafe { result.as_array_mut() };
-
+    let ipix_ = ipix.readonly();
     let layer = healpix::nested::get(depth);
+    let delta_depth = (depth as i8 - new_depth as i8).abs() as u8;
 
-    match depth.cmp(&new_depth) {
-        Ordering::Equal => {
-            maybe_parallelize!(nthreads, Zip::from(&mut result).and(&ipix), |n, &p| {
-                *n = p;
-            });
-        }
+    let result = match depth.cmp(&new_depth) {
+        Ordering::Equal => ipix.to_dyn(),
         Ordering::Less => {
-            maybe_parallelize!(
-                nthreads,
-                Zip::from(result.rows_mut()).and(&ipix),
-                |mut n, &p| {
-                    let map = Array1::from_iter(children(layer, p, new_depth));
-                    n.slice_mut(s![..map.len()]).assign(&map);
-                },
-            );
+            let result = vectorized::children(ipix_.as_slice()?, delta_depth, nthreads as usize);
+
+            PyArray2::from_vec(py, result)?.to_dyn()
         }
         Ordering::Greater => {
-            maybe_parallelize!(nthreads, Zip::from(&mut result).and(&ipix), |n, &p| {
-                *n = parent(layer, p, new_depth);
-            });
+            let result = vectorized::parents(ipix_.as_slice()?, delta_depth, nthreads as usize);
+
+            PyArray1::from_vec(py, result).to_dyn()
         }
     };
 
-    Ok(())
+    Ok(result)
 }
 
 #[pyfunction]
-pub(crate) fn siblings<'a>(
-    _py: Python,
+pub(crate) fn siblings<'py>(
+    _py: Python<'py>,
     depth: u8,
-    ipix: &Bound<'a, PyArrayDyn<u64>>,
-    result: &Bound<'a, PyArrayDyn<u64>>,
+    ipix: &Bound<'py, PyArrayDyn<u64>>,
     nthreads: u16,
-) -> PyResult<()> {
-    use crate::hierarchy::nested::siblings;
-
-    let ipix = unsafe { ipix.as_array() };
-    let mut result = unsafe { result.as_array_mut() };
+) -> PyResult<Bound<'py, PyArray2<u64>>> {
+    let ipix_ = ipix.readonly();
     let layer = healpix::nested::get(depth);
 
-    maybe_parallelize!(
-        nthreads,
-        Zip::from(result.rows_mut()).and(&ipix),
-        |mut n, &p| {
-            let map = Array1::from_iter(siblings(layer, p));
-            n.slice_mut(s![..map.len()]).assign(&map);
-        },
-    );
+    let siblings = vectorized::siblings(ipix_.as_slice()?, &layer, nthreads as usize);
 
-    Ok(())
+    Ok(PyArray2::from_vec(py, siblings)?)
 }

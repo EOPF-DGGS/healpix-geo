@@ -14,10 +14,8 @@ pub(crate) fn kth_neighbourhood<'py>(
     ring: u32,
     nthreads: u16,
 ) -> PyResult<Bound<'py, PyArray2<i64>>> {
-    let layer = healpix::nested::get(depth);
     let ipix_ = ipix.readonly();
-
-    let nside = u64::pow(2, ring);
+    let nside = u32::pow(2, depth as u32);
 
     let result = vectorized::kth_neighbourhood(ipix_.as_slice()?, &nside, &ring, nthreads as usize);
 
