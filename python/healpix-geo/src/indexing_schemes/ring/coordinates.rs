@@ -1,7 +1,6 @@
 use crate::ellipsoid::EllipsoidLike;
-use crate::maybe_parallelize;
 use cdshealpix as healpix;
-use numpy::{PyArray1, PyArray2, PyArrayDyn, PyArrayMethods, PyUntypedArrayMethods};
+use numpy::{PyArray1, PyArray2, PyArrayMethods, PyUntypedArrayMethods};
 use pyo3::prelude::*;
 
 use healpix_geo_core::vectorized::ring::coordinates as vectorized;
@@ -102,7 +101,7 @@ pub(crate) fn angular_distances<'py>(
         from_.as_slice()?,
         to_.as_slice()?,
         cols,
-        nside,
+        &nside,
         nthreads as usize,
     );
 

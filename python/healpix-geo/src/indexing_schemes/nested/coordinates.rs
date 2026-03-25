@@ -1,12 +1,8 @@
 use crate::ellipsoid::EllipsoidLike;
 
 use cdshealpix as healpix;
-use cdshealpix::sph_geom::coo3d::{UnitVec3, UnitVect3, vec3_of};
-use ndarray::{Array1, Zip, s};
-use numpy::{PyArray1, PyArray2, PyArrayDyn, PyArrayMethods};
+use numpy::{PyArray1, PyArray2, PyArrayMethods, PyUntypedArrayMethods};
 use pyo3::prelude::*;
-
-use crate::maybe_parallelize;
 
 use healpix_geo_core::vectorized::nested::coordinates as vectorized;
 
@@ -86,41 +82,30 @@ pub(crate) fn vertices<'py>(
     Ok((longitude.into(), latitude.into()))
 }
 
-fn to_vec3(depth: u8, cell_id: u64) -> UnitVect3 {
-    let (lon, lat) = cdshealpix::nested::center(depth, cell_id);
-
-    vec3_of(lon, lat)
-}
-
 /// Wrapper of `UnitVect3.ang_dist`
 /// The given array must be of the same size as `ipix`.
 #[pyfunction]
-pub(crate) fn angular_distances<'a>(
-    _py: Python,
+pub(crate) fn angular_distances<'py>(
+    py: Python<'py>,
     depth: u8,
-    from: &Bound<'a, PyArrayDyn<u64>>,
-    to: &Bound<'a, PyArrayDyn<u64>>,
-    distances: &Bound<'a, PyArrayDyn<f64>>,
+    from: &Bound<'py, PyArray1<u64>>,
+    to: &Bound<'py, PyArray2<u64>>,
     nthreads: u16,
-) -> PyResult<()> {
-    let from = unsafe { from.as_array() };
-    let to = unsafe { to.as_array() };
-    let mut distances = unsafe { distances.as_array_mut() };
+) -> PyResult<Bound<'py, PyArray2<f64>>> {
+    use healpix_geo_core::vectorized::nested::distances as vectorized;
 
-    maybe_parallelize!(
-        nthreads,
-        Zip::from(distances.rows_mut()).and(&from).and(to.rows()),
-        |mut n, from_, to_| {
-            let first = to_vec3(depth, *from_);
-            let distances = Array1::from_iter(
-                to_.iter()
-                    .map(|c| to_vec3(depth, *c))
-                    .map(|vec| first.ang_dist(&vec)),
-            );
+    let from_ = from.readonly();
+    let to_ = to.readonly();
+    let cols = to.shape()[1];
 
-            n.slice_mut(s![..]).assign(&distances);
-        }
+    let layer = cdshealpix::nested::get(depth);
+    let result = vectorized::angular_distances(
+        from_.as_slice()?,
+        to_.as_slice()?,
+        cols,
+        &layer,
+        nthreads as usize,
     );
 
-    Ok(())
+    Ok(PyArray2::from_vec2(py, &result)?)
 }
