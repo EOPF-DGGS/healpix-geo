@@ -134,14 +134,7 @@ def healpix_to_lonlat(ipix, ellipsoid, num_threads=0):
 
     num_threads = np.uint16(num_threads)
 
-    latitude = np.empty_like(ipix, dtype="float64")
-    longitude = np.empty_like(ipix, dtype="float64")
-
-    healpix_geo.zuniq.healpix_to_lonlat(
-        ipix, ellipsoid, longitude, latitude, num_threads
-    )
-
-    return longitude, latitude
+    return healpix_geo.zuniq.healpix_to_lonlat(ipix, ellipsoid, num_threads)
 
 
 def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_threads=0):
@@ -194,13 +187,9 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
 
     num_threads = np.uint16(num_threads)
 
-    ipix = np.empty_like(longitude, dtype="uint64")
-
-    healpix_geo.zuniq.lonlat_to_healpix(
-        depth, longitude, latitude, ellipsoid, ipix, num_threads
+    return healpix_geo.zuniq.lonlat_to_healpix(
+        depth, longitude, latitude, ellipsoid, num_threads
     )
-
-    return ipix
 
 
 def vertices(ipix, ellipsoid, num_threads=0):
@@ -259,13 +248,7 @@ def vertices(ipix, ellipsoid, num_threads=0):
 
     num_threads = np.uint16(num_threads)
 
-    shape = ipix.shape + (4,)
-    longitude = np.empty(shape=shape, dtype="float64")
-    latitude = np.empty(shape=shape, dtype="float64")
-
-    healpix_geo.zuniq.vertices(ipix, ellipsoid, longitude, latitude, num_threads)
-
-    return longitude, latitude
+    return healpix_geo.zuniq.vertices(ipix, ellipsoid, num_threads)
 
 
 def kth_neighbourhood(ipix, ring, num_threads=0):
@@ -361,11 +344,5 @@ def kth_neighbourhood(ipix, ring, num_threads=0):
     """
     ipix = np.astype(np.atleast_1d(ipix), np.uint64)
 
-    # Allocation of the array containing the neighbours
-    neighbours = np.full(
-        (*ipix.shape, (2 * ring + 1) ** 2), dtype=np.int64, fill_value=-1
-    )
     num_threads = np.uint16(num_threads)
-    healpix_geo.zuniq.kth_neighbourhood(ipix, ring, neighbours, num_threads)
-
-    return neighbours
+    return healpix_geo.zuniq.kth_neighbourhood(ipix, ring, num_threads)
