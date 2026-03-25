@@ -19,5 +19,6 @@ macro_rules! maybe_parallelize {
             let _ = &$nthreads; // no-op
             $iterable.iter().map($func).collect_into(&mut $buffer);
         }
+        $buffer.shrink_to_fit();
     };
 }
