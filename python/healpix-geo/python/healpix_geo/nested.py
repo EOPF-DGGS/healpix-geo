@@ -60,7 +60,10 @@ def healpix_to_lonlat(ipix, depth, ellipsoid="sphere", num_threads=0):
 
     num_threads = np.uint16(num_threads)
 
-    return healpix_geo.nested.healpix_to_lonlat(depth, ipix, ellipsoid, num_threads)
+    lon, lat = healpix_geo.nested.healpix_to_lonlat(
+        depth, np.reshape(ipix, (-1,)), ellipsoid, num_threads
+    )
+    return np.reshape(lon, ipix.shape), np.reshape(lat, ipix.shape)
 
 
 def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_threads=0):
@@ -112,9 +115,15 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
 
     num_threads = np.uint16(num_threads)
 
-    return healpix_geo.nested.lonlat_to_healpix(
-        depth, longitude, latitude, ellipsoid, num_threads
+    result = healpix_geo.nested.lonlat_to_healpix(
+        depth,
+        np.reshape(longitude, (-1,)),
+        np.reshape(latitude, (-1,)),
+        ellipsoid,
+        num_threads,
     )
+
+    return np.reshape(result, longitude.shape)
 
 
 def vertices(ipix, depth, ellipsoid, num_threads=0):
@@ -258,7 +267,11 @@ def kth_neighbourhood(ipix, depth, ring, num_threads=0):
     _check_ring(depth, ring)
 
     num_threads = np.uint16(num_threads)
-    return healpix_geo.nested.kth_neighbourhood(depth, ipix, ring, num_threads)
+    neighbours = healpix_geo.nested.kth_neighbourhood(
+        depth, np.reshape(ipix, (-1,)), ring, num_threads
+    )
+
+    return np.reshape(neighbours, ipix.shape + neighbours.shape[-1:])
 
 
 def zoom_to(ipix, depth, new_depth, num_threads=0):
@@ -290,7 +303,15 @@ def zoom_to(ipix, depth, new_depth, num_threads=0):
     ipix = ipix.astype(np.uint64)
 
     num_threads = np.uint16(num_threads)
-    return healpix_geo.nested.zoom_to(depth, ipix, new_depth, num_threads)
+    result = healpix_geo.nested.zoom_to(
+        depth, np.reshape(ipix, (-1,)), new_depth, num_threads
+    )
+
+    if result.shape == ipix.shape:
+        new_shape = result.shape
+    else:
+        new_shape = ipix.shape + result.shape[-1:]
+    return np.reshape(result, new_shape)
 
 
 def siblings(ipix, depth, num_threads=0):
@@ -316,7 +337,8 @@ def siblings(ipix, depth, num_threads=0):
 
     num_threads = np.uint16(num_threads)
 
-    return healpix_geo.nested.siblings(depth, ipix, num_threads)
+    result = healpix_geo.nested.siblings(depth, np.reshape(ipix, (-1,)), num_threads)
+    return np.reshape(result, ipix.shape + result.shape[-1:])
 
 
 def angular_distances(from_, to_, depth, num_threads=0):
