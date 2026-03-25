@@ -17,7 +17,7 @@ macro_rules! maybe_parallelize {
         #[cfg(target_arch = "wasm32")]
         {
             let _ = &$nthreads; // no-op
-            $iterable.iter().map($func).collect_into(&mut $buffer);
+            $buffer.extend($iterable.iter().map($func));
         }
         $buffer.shrink_to_fit();
     };
