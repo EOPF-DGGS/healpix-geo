@@ -3,7 +3,6 @@ use pyo3::prelude::*;
 mod ellipsoid;
 mod execution;
 mod geometry;
-mod hierarchy;
 mod index;
 mod indexing_schemes;
 mod slice_objects;

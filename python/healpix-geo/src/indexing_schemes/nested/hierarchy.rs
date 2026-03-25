@@ -17,7 +17,7 @@ pub(crate) fn kth_neighbourhood<'py>(
     let ipix_ = ipix.readonly();
     let layer = healpix::nested::get(depth);
 
-    let result = vectorized::kth_neighbourhood(ipix_.as_slice()?, &layer, &ring, nthreads as usize);
+    let result = vectorized::kth_neighbourhood(ipix_.as_slice()?, layer, &ring, nthreads as usize);
 
     Ok(PyArray2::from_vec2(py, &result)?)
 }
@@ -33,7 +33,7 @@ pub(crate) fn zoom_to<'py>(
     use std::cmp::Ordering;
 
     let ipix_ = ipix.readonly();
-    let delta_depth = (depth as i8 - new_depth as i8).abs() as u8;
+    let delta_depth = (depth as i8 - new_depth as i8).unsigned_abs();
 
     let result = match depth.cmp(&new_depth) {
         Ordering::Equal => ipix.to_dyn().clone(),
@@ -62,7 +62,7 @@ pub(crate) fn siblings<'py>(
     let ipix_ = ipix.readonly();
     let layer = healpix::nested::get(depth);
 
-    let siblings = vectorized::siblings(ipix_.as_slice()?, &layer, nthreads as usize);
+    let siblings = vectorized::siblings(ipix_.as_slice()?, layer, nthreads as usize);
 
     Ok(PyArray2::from_vec2(py, &siblings)?)
 }

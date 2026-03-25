@@ -23,7 +23,7 @@ pub(crate) fn zone_coverage<'py>(
     let ellipsoid_ = ellipsoid.into_ellipsoid()?;
     let layer = healpix::nested::get(depth);
 
-    let (ipix, depths, fully_covered) = scalar::zone_coverage(bbox, &layer, &ellipsoid_, flat);
+    let (ipix, depths, fully_covered) = scalar::zone_coverage(bbox, layer, &ellipsoid_, flat);
 
     Ok((
         PyArray1::from_vec(py, ipix),
@@ -52,7 +52,7 @@ pub(crate) fn box_coverage<'py>(
     let layer = healpix::nested::get(depth);
 
     let (ipix, depths, fully_covered) =
-        scalar::box_coverage(center, size, angle, &layer, &ellipsoid_, flat);
+        scalar::box_coverage(center, size, angle, layer, &ellipsoid_, flat);
 
     Ok((
         PyArray1::from_vec(py, ipix),
@@ -94,7 +94,7 @@ pub(crate) fn polygon_coverage<'py>(
         .collect();
 
     let (ipix, depths, fully_covered) =
-        scalar::polygon_coverage(&vertices_, &layer, &ellipsoid_, exact, flat);
+        scalar::polygon_coverage(&vertices_, layer, &ellipsoid_, exact, flat);
 
     Ok((
         PyArray1::from_vec(py, ipix),
@@ -133,7 +133,7 @@ pub(crate) fn cone_coverage<'py>(
     let layer = healpix::nested::get(depth);
 
     let (ipix, depths, fully_covered) =
-        scalar::cone_coverage(center, radius, &layer, &ellipsoid_, delta_depth, flat);
+        scalar::cone_coverage(center, radius, layer, &ellipsoid_, delta_depth, flat);
 
     Ok((
         PyArray1::from_vec(py, ipix),
@@ -176,7 +176,7 @@ pub(crate) fn elliptical_cone_coverage<'py>(
         center,
         ellipse_geometry,
         position_angle,
-        &layer,
+        layer,
         &ellipsoid_,
         delta_depth,
         flat,

@@ -5,6 +5,7 @@ use pyo3::prelude::*;
 
 use healpix_geo_core::vectorized::ring::coordinates as vectorized;
 
+#[allow(clippy::type_complexity)]
 #[pyfunction]
 pub(crate) fn healpix_to_lonlat<'py>(
     py: Python<'py>,
@@ -54,6 +55,7 @@ pub(crate) fn lonlat_to_healpix<'py>(
     Ok(PyArray1::from_vec(py, ipix))
 }
 
+#[allow(clippy::type_complexity)]
 #[pyfunction]
 pub(crate) fn vertices<'py>(
     py: Python<'py>,
@@ -78,7 +80,7 @@ pub(crate) fn vertices<'py>(
     let longitude = PyArray2::from_vec2(py, &lon)?;
     let latitude = PyArray2::from_vec2(py, &lat)?;
 
-    Ok((longitude.into(), latitude.into()))
+    Ok((longitude, latitude))
 }
 
 /// Wrapper of `UnitVect3.ang_dist`

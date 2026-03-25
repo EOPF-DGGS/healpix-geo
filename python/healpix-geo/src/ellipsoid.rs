@@ -29,14 +29,6 @@ pub(crate) enum EllipsoidLike {
 }
 
 impl EllipsoidLike {
-    pub fn is_spherical(&self) -> bool {
-        match self {
-            Self::Named(name) => name.contains("sphere"),
-            Self::EllipsoidParameters { .. } | Self::EllipsoidObject { .. } => false,
-            Self::SphereParameters { .. } | Self::SphereObject { .. } => true,
-        }
-    }
-
     pub fn into_ellipsoid(self) -> PyResult<Ellipsoid> {
         match self {
             Self::Named(name) => {
