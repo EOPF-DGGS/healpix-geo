@@ -46,12 +46,12 @@ impl ReferenceEllipsoid {
 impl ReferenceBody for ReferenceEllipsoid {
     fn latitude_authalic_to_geographic(&self, latitude: f64) -> f64 {
         self.ellipsoid
-            .latitude_geographic_to_authalic(latitude, &self.coefficients)
+            .latitude_authalic_to_geographic(latitude, &self.coefficients)
     }
 
     fn latitude_geographic_to_authalic(&self, latitude: f64) -> f64 {
         self.ellipsoid
-            .latitude_authalic_to_geographic(latitude, &self.coefficients)
+            .latitude_geographic_to_authalic(latitude, &self.coefficients)
     }
 }
 
@@ -70,8 +70,8 @@ impl ReferenceBody for Ellipsoid {
 
     fn latitude_geographic_to_authalic(&self, latitude: f64) -> f64 {
         match self {
-            Self::Ellipsoid(wrapped) => wrapped.latitude_authalic_to_geographic(latitude),
-            Self::Sphere(wrapped) => wrapped.latitude_authalic_to_geographic(latitude),
+            Self::Ellipsoid(wrapped) => wrapped.latitude_geographic_to_authalic(latitude),
+            Self::Sphere(wrapped) => wrapped.latitude_geographic_to_authalic(latitude),
         }
     }
 }
