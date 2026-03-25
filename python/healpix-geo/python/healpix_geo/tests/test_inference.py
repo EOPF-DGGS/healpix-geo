@@ -202,12 +202,67 @@ class TestHealpixToGeographic:
 
         diff_lat = actual_lat - expected_lat
         assert np.all(abs(diff_lat) < 0.3)
+        # check that actual is pulled away from the equator (i.e. the absolute is always bigger)
+        assert np.all(np.abs(actual_lat) >= np.abs(expected_lat))
+        assert np.all(np.sign(actual_lat) == np.sign(expected_lat))
 
-        signs = np.array([-1, 1])
-        actual = signs[(actual_lat >= 0).astype(int)]
-        expected_ = np.sign(diff_lat)
-        expected = np.where(expected_ == 0, 1, expected_)
-        assert np.all(diff_lat == 0) or np.all(actual == expected)
+    @pytest.mark.parametrize(
+        [
+            "depth",
+            "indexing_scheme",
+            "ellipsoid",
+            "cell_ids",
+            "expected_lon",
+            "expected_lat",
+        ],
+        (
+            pytest.param(
+                7,
+                "nested",
+                "WGS84",
+                np.array([472, 840, 1082], dtype="uint64"),
+                np.array([51.328125, 47.109375, 55.1953125], dtype="float64"),
+                np.array([11.77091534, 12.99776877, 13.30538509], dtype="float64"),
+                id="nested",
+            ),
+            pytest.param(
+                3,
+                "ring",
+                "bessel",
+                np.array([13, 43], dtype="uint64"),
+                np.array([45.0, 63.0], dtype="float64"),
+                np.array([72.46118472, 60.54408708], dtype="float64"),
+                id="ring",
+            ),
+            pytest.param(
+                None,
+                "zuniq",
+                "GRS80",
+                np.array([256272108617728], dtype="uint64"),
+                np.array([45.82397461], dtype="float64"),
+                np.array([1.40524054], dtype="float64"),
+                id="zuniq",
+            ),
+        ),
+    )
+    def test_ellipsoidal_explicit(
+        self, depth, indexing_scheme, ellipsoid, cell_ids, expected_lon, expected_lat
+    ):
+        funcs = {
+            "nested": healpix_geo.nested.healpix_to_lonlat,
+            "ring": healpix_geo.ring.healpix_to_lonlat,
+            "zuniq": healpix_geo.zuniq.healpix_to_lonlat,
+        }
+        kwargs = {
+            "ipix": cell_ids,
+            "ellipsoid": ellipsoid,
+        }
+        if indexing_scheme != "zuniq":
+            kwargs["depth"] = depth
+        actual_lon, actual_lat = funcs[indexing_scheme](**kwargs)
+
+        np.testing.assert_allclose(actual_lon, expected_lon)
+        np.testing.assert_allclose(actual_lat, expected_lat)
 
 
 class TestGeographicToHealpix:
