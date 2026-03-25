@@ -6,21 +6,17 @@ use rayon::iter::IndexedParallelIterator;
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 
-pub fn from_nested(ipix: &[u64], depth: DepthLike, nthreads: u16) -> Vec<u64> {
+pub fn from_nested(ipix: &[u64], depth: DepthLike, nthreads: usize) -> Vec<u64> {
     let mut result = Vec::<u64>::with_capacity(ipix.len());
 
     match depth {
         DepthLike::Scalar(depth) => {
             maybe_parallelize!(nthreads, ipix, result, |hash| scalar::from_nested(
-                hash, depth
+                hash, &depth
             ));
         }
         DepthLike::Array(depths) => {
-            let joined: Vec<(u64, u8)> = ipix
-                .iter()
-                .zip(depths)
-                .map(|(&hash, &depth)| (hash, depth))
-                .collect();
+            let joined: Vec<(&u64, &u8)> = ipix.iter().zip(depths.iter()).collect();
             maybe_parallelize!(nthreads, &joined, result, |(hash, depth)| {
                 scalar::from_nested(hash, depth)
             });
@@ -30,21 +26,17 @@ pub fn from_nested(ipix: &[u64], depth: DepthLike, nthreads: u16) -> Vec<u64> {
     result
 }
 
-pub fn from_ring(ipix: &[u64], depth: DepthLike, nthreads: u16) -> Vec<u64> {
+pub fn from_ring(ipix: &[u64], depth: DepthLike, nthreads: usize) -> Vec<u64> {
     let mut result = Vec::<u64>::with_capacity(ipix.len());
 
     match depth {
         DepthLike::Scalar(depth) => {
             maybe_parallelize!(nthreads, ipix, result, |hash| scalar::from_ring(
-                hash, depth
+                hash, &depth
             ));
         }
         DepthLike::Array(depths) => {
-            let joined: Vec<(u64, u8)> = ipix
-                .iter()
-                .zip(depths)
-                .map(|(&hash, &depth)| (hash, depth))
-                .collect();
+            let joined: Vec<(&u64, &u8)> = ipix.iter().zip(depths.iter()).collect();
             maybe_parallelize!(
                 nthreads,
                 &joined,
@@ -57,14 +49,14 @@ pub fn from_ring(ipix: &[u64], depth: DepthLike, nthreads: u16) -> Vec<u64> {
     result
 }
 
-pub fn to_nested(ipix: &[u64], nthreads: u16) -> (Vec<u64>, Vec<u8>) {
+pub fn to_nested(ipix: &[u64], nthreads: usize) -> (Vec<u64>, Vec<u8>) {
     let mut result = Vec::<(u64, u8)>::with_capacity(ipix.len());
     maybe_parallelize!(nthreads, ipix, result, scalar::to_nested);
 
     result.into_iter().unzip()
 }
 
-pub fn to_ring(ipix: &[u64], nthreads: u16) -> (Vec<u64>, Vec<u8>) {
+pub fn to_ring(ipix: &[u64], nthreads: usize) -> (Vec<u64>, Vec<u8>) {
     let mut result = Vec::<(u64, u8)>::with_capacity(ipix.len());
     maybe_parallelize!(nthreads, ipix, result, scalar::to_ring);
 

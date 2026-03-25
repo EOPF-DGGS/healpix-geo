@@ -1,11 +1,8 @@
-use crate::maybe_parallelize;
-use cdshealpix as healpix;
-use ndarray::{Array, IxDyn, Zip};
-
-use numpy::{IntoPyArray, PyArrayDyn, PyArrayMethods};
+use numpy::{PyArray1, PyArrayDyn, PyArrayMethods, PyUntypedArrayMethods};
 use pyo3::prelude::*;
 
 use crate::indexing_schemes::depth::DepthLike;
+use healpix_geo_core::vectorized::zuniq::conversion as vectorized;
 
 #[pyfunction]
 pub(crate) fn from_nested<'py>(
@@ -14,32 +11,17 @@ pub(crate) fn from_nested<'py>(
     depth: DepthLike,
     nthreads: u16,
 ) -> PyResult<Bound<'py, PyArrayDyn<u64>>> {
-    let nested = unsafe { nested.as_array() };
+    let input_shape = nested.shape();
+    let depth_ = depth.into_depth(py)?;
 
-    let mut zuniq = Array::<u64, IxDyn>::zeros(nested.shape());
-    match depth {
-        DepthLike::Constant(d) => {
-            maybe_parallelize!(
-                nthreads,
-                Zip::from(&mut zuniq).and(&nested),
-                |result, &hash| {
-                    *result = healpix::nested::to_zuniq_unsafe(d, hash);
-                }
-            );
-        }
-        DepthLike::Array(depths) => {
-            let depths = unsafe { depths.bind(py).as_array() };
-            maybe_parallelize!(
-                nthreads,
-                Zip::from(&mut zuniq).and(&nested).and(&depths),
-                |result, &hash, &d| {
-                    *result = healpix::nested::to_zuniq_unsafe(d, hash);
-                }
-            );
-        }
-    }
+    let flattened = nested.reshape([nested.len()])?;
+    let flattened_ = flattened.readonly();
+    let result = vectorized::from_nested(flattened_.as_slice()?, depth_, nthreads as usize);
 
-    Ok(zuniq.into_pyarray(py))
+    Ok(PyArray1::from_vec(py, result)
+        .reshape(input_shape)?
+        .to_dyn()
+        .clone())
 }
 
 #[allow(clippy::type_complexity)]
@@ -49,21 +31,21 @@ pub(crate) fn to_nested<'py>(
     zuniq: &Bound<'py, PyArrayDyn<u64>>,
     nthreads: u16,
 ) -> PyResult<(Bound<'py, PyArrayDyn<u64>>, Bound<'py, PyArrayDyn<u8>>)> {
-    let zuniq = unsafe { zuniq.as_array() };
+    let input_shape = zuniq.shape();
 
-    let mut nested = Array::<u64, IxDyn>::zeros(zuniq.shape());
-    let mut depths = Array::<u8, IxDyn>::zeros(zuniq.shape());
+    let flattened = zuniq.reshape([zuniq.len()])?;
+    let flattened_ = flattened.readonly();
 
-    maybe_parallelize!(
-        nthreads,
-        Zip::from(&mut nested).and(&mut depths).and(&zuniq),
-        |n, d, &z| {
-            let (d_, n_) = healpix::nested::from_zuniq(z);
+    let (nested, depths) = vectorized::to_nested(flattened_.as_slice()?, nthreads as usize);
 
-            *n = n_;
-            *d = d_;
-        }
-    );
-
-    Ok((nested.into_pyarray(py), depths.into_pyarray(py)))
+    Ok((
+        PyArray1::from_vec(py, nested)
+            .reshape(input_shape)?
+            .to_dyn()
+            .clone(),
+        PyArray1::from_vec(py, depths)
+            .reshape(input_shape)?
+            .to_dyn()
+            .clone(),
+    ))
 }
