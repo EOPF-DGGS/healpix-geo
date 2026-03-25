@@ -1,4 +1,3 @@
-use ndarray::{Array1, Ix1};
 use numpy::{PyArray1, PyArrayDyn, PyArrayMethods};
 use pyo3::exceptions::{PyKeyError, PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
@@ -341,11 +340,10 @@ impl RangeMOCIndex {
         _cls: &Bound<'a, PyType>,
         _py: Python,
         depth: u8,
-        cell_ids: &Bound<'a, PyArrayDyn<u64>>,
+        cell_ids: &Bound<'a, PyArray1<u64>>,
     ) -> PyResult<Self> {
-        let cell_ids = unsafe { cell_ids.as_array() };
         let index = RangeMOCIndex {
-            moc: RangeMOC::from_fixed_depth_cells(depth, cell_ids.iter().copied(), None),
+            moc: RangeMOC::from_fixed_depth_cells(depth, cell_ids.to_vec()?.into_iter(), None),
         };
 
         Ok(index)
@@ -512,9 +510,9 @@ impl RangeMOCIndex {
     /// cell_ids : numpy.ndarray
     ///     The cell ids contained by the index.
     fn cell_ids<'a>(&self, py: Python<'a>) -> PyResult<Bound<'a, PyArray1<u64>>> {
-        let cell_ids = Array1::from_iter(self.moc.flatten_to_fixed_depth_cells());
+        let cell_ids: Vec<u64> = self.moc.flatten_to_fixed_depth_cells().collect();
 
-        Ok(PyArray1::from_owned_array(py, cell_ids))
+        Ok(PyArray1::from_vec(py, cell_ids))
     }
 
     /// Subset the index using positions
@@ -607,10 +605,9 @@ impl RangeMOCIndex {
                 //   - find the range with value >= start and value <= end
                 //   - if not found, raise
                 //   - if found, compute the integer offset as range_offset + (value - start) / step
-                let array = unsafe { array.as_array() }
-                    .into_owned()
-                    .into_dimensionality::<Ix1>()
-                    .map_err(|err| PyRuntimeError::new_err(err.to_string()))?;
+                let ipix = array.readonly();
+                let ipix_ = ipix.as_slice()?;
+
                 let delta_depth = 29 - depth;
                 let shift = delta_depth << 1;
 
@@ -624,7 +621,7 @@ impl RangeMOCIndex {
                     })
                     .collect::<Vec<_>>();
 
-                let (positions, cell_ids): (Vec<_>, Vec<_>) = array
+                let (positions, cell_ids): (Vec<_>, Vec<_>) = ipix_
                     .iter()
                     .map(|&hash| {
                         let range_index = ranges
@@ -654,10 +651,7 @@ impl RangeMOCIndex {
                 let new_index = RangeMOCIndex { moc: new_moc };
 
                 Ok((
-                    IndexKind::Array(PyArrayDyn::from_owned_array(
-                        py,
-                        Array1::from_iter(positions).into_dyn(),
-                    )),
+                    IndexKind::Array(PyArray1::from_vec(py, positions).to_dyn().clone()),
                     new_index,
                 ))
             }
