@@ -75,3 +75,61 @@ impl ReferenceBody for Ellipsoid {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_reference_ellipsoid_new() {
+        let ellipsoid = GeodesyEllipsoid::named("WGS84").unwrap();
+
+        let obj = ReferenceEllipsoid::new(ellipsoid);
+
+        assert_eq!(obj.ellipsoid, ellipsoid);
+    }
+
+    #[test]
+    fn test_reference_sphere_new() {
+        let ellipsoid = GeodesyEllipsoid::named("unitsphere").unwrap();
+
+        let obj = ReferenceSphere::new(ellipsoid);
+
+        assert_eq!(obj.ellipsoid, ellipsoid);
+    }
+
+    #[test]
+    fn test_reference_sphere_conversions() {
+        let lat: f64 = 88.0;
+
+        let ellipsoid = ReferenceSphere::new(GeodesyEllipsoid::named("sphere").unwrap());
+
+        let actual1 = ellipsoid.latitude_geographic_to_authalic(lat);
+        assert_eq!(actual1, lat);
+
+        let actual2 = ellipsoid.latitude_authalic_to_geographic(lat);
+        assert_eq!(actual2, lat);
+    }
+
+    #[test]
+    fn test_reference_ellipsoid_conversions_wgs84() {
+        let ellipsoid = ReferenceEllipsoid::new(GeodesyEllipsoid::named("WGS84").unwrap());
+
+        let lat: f64 = 45.0;
+        let authalic = ellipsoid.latitude_geographic_to_authalic(lat);
+        let geographic = ellipsoid.latitude_authalic_to_geographic(authalic);
+
+        assert_eq!(geographic, lat);
+    }
+
+    #[test]
+    fn test_reference_ellipsoid_conversions_bessel() {
+        let ellipsoid = ReferenceEllipsoid::new(GeodesyEllipsoid::named("bessel").unwrap());
+
+        let lat: f64 = 45.0;
+        let authalic = ellipsoid.latitude_geographic_to_authalic(lat);
+        let geographic = ellipsoid.latitude_authalic_to_geographic(authalic);
+
+        assert_eq!(geographic, lat);
+    }
+}
