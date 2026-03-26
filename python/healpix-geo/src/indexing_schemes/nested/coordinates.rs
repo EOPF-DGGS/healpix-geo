@@ -1,7 +1,7 @@
 use crate::ellipsoid::EllipsoidLike;
 
 use cdshealpix as healpix;
-use numpy::{PyArray1, PyArray2, PyArrayMethods, PyUntypedArrayMethods};
+use numpy::{PyArray1, PyArray2, PyArrayDyn, PyArrayMethods, PyUntypedArrayMethods};
 use pyo3::prelude::*;
 
 use healpix_geo_core::vectorized::nested::coordinates as vectorized;
@@ -11,11 +11,12 @@ use healpix_geo_core::vectorized::nested::coordinates as vectorized;
 pub(crate) fn healpix_to_lonlat<'py>(
     py: Python<'py>,
     depth: u8,
-    ipix: &Bound<'py, PyArray1<u64>>,
+    ipix: &Bound<'py, PyArrayDyn<u64>>,
     ellipsoid_like: EllipsoidLike,
     nthreads: u16,
-) -> PyResult<(Bound<'py, PyArray1<f64>>, Bound<'py, PyArray1<f64>>)> {
+) -> PyResult<(Bound<'py, PyArrayDyn<f64>>, Bound<'py, PyArrayDyn<f64>>)> {
     let ellipsoid = ellipsoid_like.into_ellipsoid()?;
+    let input_shape = ipix.shape();
 
     let layer = healpix::nested::get(depth);
 
@@ -26,7 +27,10 @@ pub(crate) fn healpix_to_lonlat<'py>(
             .into_iter()
             .unzip();
 
-    Ok((PyArray1::from_vec(py, lon), PyArray1::from_vec(py, lat)))
+    Ok((
+        PyArray1::from_vec(py, lon).reshape(input_shape)?,
+        PyArray1::from_vec(py, lat).reshape(input_shape)?,
+    ))
 }
 
 #[pyfunction]
@@ -37,8 +41,9 @@ pub(crate) fn lonlat_to_healpix<'py>(
     latitude: &Bound<'py, PyArray1<f64>>,
     ellipsoid_like: EllipsoidLike,
     nthreads: u16,
-) -> PyResult<Bound<'py, PyArray1<u64>>> {
+) -> PyResult<Bound<'py, PyArrayDyn<u64>>> {
     let ellipsoid = ellipsoid_like.into_ellipsoid()?;
+    let input_shape = longitude.shape();
 
     let lon = longitude.readonly();
     let lat = latitude.readonly();
@@ -53,7 +58,7 @@ pub(crate) fn lonlat_to_healpix<'py>(
 
     let ipix = vectorized::lonlat_to_healpix(&coords, layer, &ellipsoid, nthreads as usize);
 
-    Ok(PyArray1::from_vec(py, ipix))
+    Ok(PyArray1::from_vec(py, ipix).reshape(input_shape)?)
 }
 
 #[allow(clippy::type_complexity)]
@@ -61,11 +66,13 @@ pub(crate) fn lonlat_to_healpix<'py>(
 pub(crate) fn vertices<'py>(
     py: Python<'py>,
     depth: u8,
-    ipix: &Bound<'py, PyArray1<u64>>,
+    ipix: &Bound<'py, PyArrayDyn<u64>>,
     ellipsoid_like: EllipsoidLike,
     nthreads: u16,
-) -> PyResult<(Bound<'py, PyArray2<f64>>, Bound<'py, PyArray2<f64>>)> {
+) -> PyResult<(Bound<'py, PyArrayDyn<f64>>, Bound<'py, PyArrayDyn<f64>>)> {
     let ellipsoid = ellipsoid_like.into_ellipsoid()?;
+    let input_shape: &[usize] = ipix.shape();
+
     let ipix_ = ipix.readonly();
 
     let layer = healpix::nested::get(depth);
@@ -78,8 +85,10 @@ pub(crate) fn vertices<'py>(
         .map(|row: Vec<(f64, f64)>| -> (Vec<f64>, Vec<f64>) { row.into_iter().unzip() })
         .unzip();
 
-    let longitude = PyArray2::from_vec2(py, &lon)?;
-    let latitude = PyArray2::from_vec2(py, &lat)?;
+    let output_shape: Vec<usize> = input_shape.iter().copied().chain([lon[0].len()]).collect();
+
+    let longitude = PyArray2::from_vec2(py, &lon)?.reshape(output_shape.as_slice())?;
+    let latitude = PyArray2::from_vec2(py, &lat)?.reshape(output_shape.as_slice())?;
 
     Ok((longitude, latitude))
 }

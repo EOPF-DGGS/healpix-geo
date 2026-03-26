@@ -60,10 +60,7 @@ def healpix_to_lonlat(ipix, depth, ellipsoid="sphere", num_threads=0):
 
     num_threads = np.uint16(num_threads)
 
-    lon, lat = healpix_geo.nested.healpix_to_lonlat(
-        depth, np.reshape(ipix, (-1,)), ellipsoid, num_threads
-    )
-    return np.reshape(lon, ipix.shape), np.reshape(lat, ipix.shape)
+    return healpix_geo.nested.healpix_to_lonlat(depth, ipix, ellipsoid, num_threads)
 
 
 def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_threads=0):
@@ -115,15 +112,13 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
 
     num_threads = np.uint16(num_threads)
 
-    result = healpix_geo.nested.lonlat_to_healpix(
+    return healpix_geo.nested.lonlat_to_healpix(
         depth,
-        np.reshape(longitude, (-1,)),
-        np.reshape(latitude, (-1,)),
+        longitude,
+        latitude,
         ellipsoid,
         num_threads,
     )
-
-    return np.reshape(result, longitude.shape)
 
 
 def vertices(ipix, depth, ellipsoid, num_threads=0):
