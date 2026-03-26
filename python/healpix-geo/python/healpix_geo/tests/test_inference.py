@@ -220,9 +220,9 @@ class TestHealpixToGeographic:
                 7,
                 "nested",
                 "WGS84",
-                np.array([472, 840, 1082], dtype="uint64"),
-                np.array([51.328125, 47.109375, 55.1953125], dtype="float64"),
-                np.array([11.77091534, 12.99776877, 13.30538509], dtype="float64"),
+                np.array([[472, 840, 1082]], dtype="uint64"),
+                np.array([[51.328125, 47.109375, 55.1953125]], dtype="float64"),
+                np.array([[11.77091534, 12.99776877, 13.30538509]], dtype="float64"),
                 id="nested",
             ),
             pytest.param(
@@ -372,6 +372,52 @@ class TestGeographicToHealpix:
         assert expected.dtype == "uint64"
 
         # TODO: this is currently a smoke check, try more thorough checks
+
+    @pytest.mark.parametrize(
+        ["depth", "indexing_scheme", "ellipsoid", "lon", "lat", "expected"],
+        (
+            pytest.param(
+                7,
+                "nested",
+                "WGS84",
+                np.array([[51.328125, 47.109375, 55.1953125]], dtype="float64"),
+                np.array([[11.77091534, 12.99776877, 13.30538509]], dtype="float64"),
+                np.array([[472, 840, 1082]], dtype="uint64"),
+                id="nested",
+            ),
+            pytest.param(
+                3,
+                "ring",
+                "bessel",
+                np.array([45.0, 63.0], dtype="float64"),
+                np.array([72.46118472, 60.54408708], dtype="float64"),
+                np.array([13, 43], dtype="uint64"),
+                id="ring",
+            ),
+            pytest.param(
+                12,
+                "zuniq",
+                "GRS80",
+                np.array([45.82397461], dtype="float64"),
+                np.array([1.40524054], dtype="float64"),
+                np.array([256272108617728], dtype="uint64"),
+                id="zuniq",
+            ),
+        ),
+    )
+    def test_ellipsoidal_explicit(
+        self, depth, indexing_scheme, ellipsoid, lon, lat, expected
+    ):
+        funcs = {
+            "nested": healpix_geo.nested.lonlat_to_healpix,
+            "ring": healpix_geo.ring.lonlat_to_healpix,
+            "zuniq": healpix_geo.zuniq.lonlat_to_healpix,
+        }
+        actual = funcs[indexing_scheme](
+            depth=depth, longitude=lon, latitude=lat, ellipsoid=ellipsoid
+        )
+
+        np.testing.assert_equal(actual, expected)
 
 
 class TestVertices:

@@ -37,8 +37,8 @@ pub(crate) fn healpix_to_lonlat<'py>(
 pub(crate) fn lonlat_to_healpix<'py>(
     py: Python<'py>,
     depth: u8,
-    longitude: &Bound<'py, PyArray1<f64>>,
-    latitude: &Bound<'py, PyArray1<f64>>,
+    longitude: &Bound<'py, PyArrayDyn<f64>>,
+    latitude: &Bound<'py, PyArrayDyn<f64>>,
     ellipsoid_like: EllipsoidLike,
     nthreads: u16,
 ) -> PyResult<Bound<'py, PyArrayDyn<u64>>> {
