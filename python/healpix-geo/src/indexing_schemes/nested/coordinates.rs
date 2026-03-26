@@ -58,7 +58,7 @@ pub(crate) fn lonlat_to_healpix<'py>(
 
     let ipix = vectorized::lonlat_to_healpix(&coords, layer, &ellipsoid, nthreads as usize);
 
-    Ok(PyArray1::from_vec(py, ipix).reshape(input_shape)?)
+    PyArray1::from_vec(py, ipix).reshape(input_shape)
 }
 
 #[allow(clippy::type_complexity)]

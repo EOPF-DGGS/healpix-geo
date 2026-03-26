@@ -23,7 +23,7 @@ pub(crate) fn kth_neighbourhood<'py>(
     let n_neighbours = usize::pow(2 * ring as usize + 1, 2);
     let output_shape: Vec<usize> = input_shape.iter().copied().chain([n_neighbours]).collect();
 
-    Ok(PyArray2::from_vec2(py, &result)?.reshape(output_shape.as_slice())?)
+    PyArray2::from_vec2(py, &result)?.reshape(output_shape.as_slice())
 }
 
 #[pyfunction]
@@ -91,5 +91,5 @@ pub(crate) fn siblings<'py>(
             .collect()
     };
 
-    Ok(PyArray2::from_vec2(py, &siblings)?.reshape(output_shape.as_slice())?)
+    PyArray2::from_vec2(py, &siblings)?.reshape(output_shape.as_slice())
 }

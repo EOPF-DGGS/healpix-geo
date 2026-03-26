@@ -27,5 +27,5 @@ pub(crate) fn kth_neighbourhood<'py>(
             .collect()
     };
 
-    Ok(PyArray2::from_vec2(py, &result)?.reshape(output_shape.as_slice())?)
+    PyArray2::from_vec2(py, &result)?.reshape(output_shape.as_slice())
 }
