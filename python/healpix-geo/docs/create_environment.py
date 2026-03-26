@@ -5,7 +5,9 @@ import pathlib
 def main():
     docs_root = pathlib.Path(__file__).parent
 
-    project_root = docs_root.parent
+    library_root = docs_root.parent
+    project_root = library_root.parent.parent
+
     local_repo = project_root / "target/conda"
     package_root = local_repo / "emscripten-wasm32"
 
