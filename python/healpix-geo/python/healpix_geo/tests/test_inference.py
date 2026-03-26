@@ -9,6 +9,10 @@ from astropy.coordinates import Latitude, Longitude
 
 import healpix_geo
 
+# TODO(keewis): at least one multidimensional test for the explicit checks
+# TODO(keewis): explicit tests for vertices
+# TODO(keewis): maybe double check ellipsoidal lon / lat using pyproj?
+
 
 @dataclass
 class Sphere:
