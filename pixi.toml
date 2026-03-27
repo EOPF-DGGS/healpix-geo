@@ -9,7 +9,7 @@ maturin = ">=1.12.6"
 numpy = ">=2.0"
 
 [pypi-dependencies]
-healpix-geo = { path = "python/healpix-geo", editable = true }
+healpix-geo = { path = "python/healpix-geo" }
 
 [tasks.build-wheel]
 cmd = "maturin build -r --compatibility manylinux_2_28 --strip --auditwheel repair"
