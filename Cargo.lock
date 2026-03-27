@@ -164,6 +164,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "cdshealpix"
+version = "0.9.1"
+source = "git+https://github.com/cds-astro/cds-healpix-rust.git#0c76809be71e248ed137b9d68f10746d0418d413"
+dependencies = [
+ "base64",
+ "bincode",
+ "byteorder",
+ "chrono",
+ "colorous",
+ "flate2",
+ "itertools",
+ "katex-doc",
+ "log",
+ "mapproj",
+ "memmap2",
+ "num",
+ "num-traits",
+ "png",
+ "rayon",
+ "serde",
+ "thiserror 2.0.18",
+ "toml",
+]
+
+[[package]]
 name = "cfg-if"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -438,7 +463,7 @@ checksum = "841d1cc9bed7f9236f321df977030373f4a4163ae1a7dbfe1a51a2c1a51d9100"
 name = "healpix-geo"
 version = "0.0.12"
 dependencies = [
- "cdshealpix",
+ "cdshealpix 0.9.1 (git+https://github.com/cds-astro/cds-healpix-rust.git)",
  "geodesy",
  "healpix-geo-core",
  "moc",
@@ -452,7 +477,7 @@ dependencies = [
 name = "healpix-geo-core"
 version = "0.0.12"
 dependencies = [
- "cdshealpix",
+ "cdshealpix 0.9.1 (git+https://github.com/cds-astro/cds-healpix-rust.git)",
  "geodesy",
  "itertools",
  "rayon",
@@ -666,7 +691,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6f3ead7aafd8b1397b8432855fd803cc8ab4e19dae31417a14ba1d915a67b222"
 dependencies = [
  "byteorder",
- "cdshealpix",
+ "cdshealpix 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "flate2",
  "log",
  "mapproj",
