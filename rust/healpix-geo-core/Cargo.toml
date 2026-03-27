@@ -1,0 +1,15 @@
+[package]
+name = "healpix-geo-core"
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+categories.workspace = true
+
+[dependencies]
+cdshealpix = { workspace = true }
+geodesy = { workspace = true }
+itertools = { workspace = true }
+rayon = { workspace = true }

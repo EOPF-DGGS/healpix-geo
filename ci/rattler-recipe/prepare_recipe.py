@@ -17,7 +17,7 @@ def dev_version(most_recent_release):
 def extract_version(cargo_data):
     parsed = tomllib.loads(cargo_data)
 
-    return packaging.version.parse(parsed["package"]["version"])
+    return packaging.version.parse(parsed["workspace"]["package"]["version"])
 
 
 def main():

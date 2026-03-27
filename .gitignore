@@ -37,9 +37,9 @@ venv/
 .ipynb_checkpoints/
 
 # docs
-/docs/_build/
+/healpix-geo/docs/_build/
 **/generated/
-/docs/healpix/healpix_levels_table.md
+/healpix-geo/docs/healpix/healpix_levels_table.md
 
 # Installer logs
 pip-log.txt
@@ -75,12 +75,12 @@ coverage.xml
 .DS_Store
 
 # Sphinx documentation
-docs/_build/
-docs/_contents/
-docs/jupyter_execute/
+/python/healpix-geo/docs/_build/
+/python/healpix-geo/docs/_contents/
+/python/healpix-geo/docs/jupyter_execute/
 .jupyterlite.doit.db
 ci/rattler-recipe/recipe.yaml
-docs/environment.yml
+/python/healpix-geo/docs/environment.yml
 /my_env
 
 # PyCharm

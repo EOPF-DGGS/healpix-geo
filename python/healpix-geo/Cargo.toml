@@ -1,0 +1,19 @@
+[package]
+name = "healpix-geo"
+version = "0.0.12"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "healpix_geo"
+crate-type = ["cdylib"]
+
+[dependencies]
+healpix-geo-core = { workspace = true }
+moc = { workspace = true }
+numpy = { workspace = true }
+pyo3 = { workspace = true }
+rayon = { workspace = true }
+geodesy = { workspace = true }
+cdshealpix = { workspace = true }
+ndarray = { version = "0.16.1", features = ["rayon"] }
