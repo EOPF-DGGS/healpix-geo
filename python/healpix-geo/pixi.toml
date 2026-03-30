@@ -16,3 +16,4 @@ maturin = "*"
 
 [package.run-dependencies]
 numpy = ">=2.0"
+marray-python = ">=0.0.12"
