@@ -5,7 +5,7 @@ use cdshealpix::nested::Layer;
 pub fn healpix_to_lonlat(hash: &u64, layer: &Layer, ellipsoid: &Ellipsoid) -> (f64, f64) {
     let center = layer.center(*hash);
 
-    let lon = center.0.to_degrees();
+    let lon = center.0.to_degrees().rem_euclid(360.0);
     let lat = ellipsoid
         .latitude_authalic_to_geographic(center.1)
         .to_degrees();
@@ -14,7 +14,7 @@ pub fn healpix_to_lonlat(hash: &u64, layer: &Layer, ellipsoid: &Ellipsoid) -> (f
 }
 
 pub fn lonlat_to_healpix(lon: &f64, lat: &f64, layer: &Layer, ellipsoid: &Ellipsoid) -> u64 {
-    let lon_ = lon.to_radians();
+    let lon_ = lon.rem_euclid(360.0).to_radians();
     let lat_ = ellipsoid.latitude_geographic_to_authalic(lat.to_radians());
 
     layer.hash(lon_, lat_)
