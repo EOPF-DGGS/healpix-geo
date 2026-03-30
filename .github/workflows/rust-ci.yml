@@ -29,6 +29,7 @@ jobs:
         with:
           hash-files: |
             pixi.toml
+            Cargo.toml
             python/healpix-geo/pyproject.toml
             python/healpix-geo/pixi.toml
 
