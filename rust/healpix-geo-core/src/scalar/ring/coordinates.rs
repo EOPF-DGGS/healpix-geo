@@ -33,3 +33,43 @@ pub fn vertices(hash: &u64, nside: &u32, ellipsoid: &Ellipsoid) -> Vec<(f64, f64
         })
         .collect()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ellipsoid::ReferenceEllipsoid;
+    use cdshealpix as healpix;
+    use geodesy::ellps::Ellipsoid as GeodesyEllipsoid;
+
+    #[test]
+    fn test_lonlat_to_healpix_edge_cases_lon() {
+        let nside = healpix::nside(0);
+        let ellipsoid = Ellipsoid::Ellipsoid(ReferenceEllipsoid::new(
+            GeodesyEllipsoid::named("WGS84").unwrap(),
+        ));
+
+        let lon: f64 = -180.0;
+        let lat: f64 = 75.0;
+
+        let actual = lonlat_to_healpix(&lon, &lat, &nside, &ellipsoid);
+        assert_eq!(actual, 2);
+
+        let lon: f64 = 180.0;
+        let lat: f64 = 75.0;
+
+        let actual = lonlat_to_healpix(&lon, &lat, &nside, &ellipsoid);
+        assert_eq!(actual, 2);
+
+        let lon: f64 = 0.0;
+        let lat: f64 = 75.0;
+
+        let actual = lonlat_to_healpix(&lon, &lat, &nside, &ellipsoid);
+        assert_eq!(actual, 0);
+
+        let lon: f64 = 360.0;
+        let lat: f64 = 75.0;
+
+        let actual = lonlat_to_healpix(&lon, &lat, &nside, &ellipsoid);
+        assert_eq!(actual, 0);
+    }
+}
