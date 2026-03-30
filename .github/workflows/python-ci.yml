@@ -49,8 +49,13 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: Parcels-code/pixi-lock/create-and-cache@5cbd7a155fa24aa0711ec0a9aad9ede0819e84a1 # v0.1.0
+      - uses: Parcels-code/pixi-lock/create-and-cache@a9aee67fa67426e6b0297fa5bef80600572be153 # v0.1.0
         id: pixi-lock
+        with:
+          hash-files: |
+            pixi.toml
+            python/healpix-geo/pyproject.toml
+            python/healpix-geo/pixi.toml
 
   test:
     name: ${{ matrix.os }} | ${{ matrix.env }}
@@ -81,7 +86,7 @@ jobs:
           rustup update stable
           rustup default stable
 
-      - uses: Parcels-code/pixi-lock/restore@5cbd7a155fa24aa0711ec0a9aad9ede0819e84a1 # v0.1.0
+      - uses: Parcels-code/pixi-lock/restore@a9aee67fa67426e6b0297fa5bef80600572be153 # v0.1.0
         with:
           cache-key: ${{ needs.cache-pixi-lock.outputs.cache-key }}
 
@@ -156,7 +161,7 @@ jobs:
           rustup update stable
           rustup default stable
 
-      - uses: Parcels-code/pixi-lock/restore@5cbd7a155fa24aa0711ec0a9aad9ede0819e84a1 # v0.1.0
+      - uses: Parcels-code/pixi-lock/restore@a9aee67fa67426e6b0297fa5bef80600572be153 # v0.1.0
         with:
           cache-key: ${{ needs.cache-pixi-lock.outputs.cache-key }}
 
