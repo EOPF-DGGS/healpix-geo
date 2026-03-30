@@ -75,3 +75,60 @@ jobs:
       - name: Cargo clippy
         run: |
           pixi run -e "${{ matrix.env }}" lint-rust
+
+  tests:
+    name: Rust tests
+    runs-on: ${{ matrix.os }}
+
+    env:
+      FORCE_COLOR: 3
+
+    strategy:
+      matrix:
+        env: ["rust"]
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: setup environment
+        uses: prefix-dev/setup-pixi@a0af7a228712d6121d37aba47adf55c1332c9c2e # 0.9.4
+        with:
+          environments: "${{ matrix.env }}"
+
+      - name: Create rust cache
+        uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # 2.9.1
+
+      - name: Help finding installed libraries
+        run: |
+          export CONDA_PREFIX=$(pixi run -e "${{ matrix.env }}" --frozen 'echo $CONDA_PREFIX')
+          if [[ -z "$CONDA_PREFIX" ]]; then
+            echo "CONDA_PREFIX is unset!"
+            exit 1
+          fi
+
+          pushd $CONDA_PREFIX
+          echo "PKG_CONFIG_PATH=$(readlink -f lib/pkgconfig)" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$(readlink -f lib)" >> $GITHUB_ENV
+          popd
+
+      - name: Help the linker on macos
+        if: runner.os == 'MacOS'
+        run: |
+          export CONDA_PREFIX=$(pixi run -e "${{ matrix.env }}" --frozen 'echo $CONDA_PREFIX')
+
+          if [ ! -d target/debug/deps ]; then
+              mkdir -p target/debug/deps
+              ln -s $CONDA_PREFIX/lib/*.dylib target/debug/deps/
+          fi
+
+      - name: Cargo clippy
+        run: |
+          pixi run -e "${{ matrix.env }}" rust-tests
