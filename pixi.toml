@@ -143,6 +143,12 @@ build-clean-and-host-docs = [
   { task = "host-docs" },
 ]
 
+[feature.rust.dependencies]
+rust = "*"
+
+[feature.rust.tasks]
+rust-tests = { cmd = "cargo test", cwd = "rust/healpix-geo-core" }
+
 [tasks.build-and-host]
 depends-on = [
   { task = "build-emscripten" },
@@ -164,3 +170,4 @@ ci-py313 = ["py313", "tests"]
 jupyterlite = { no-default-feature = true, features = ["jupyterlite"] }
 docs = ["docs", "py313"]
 templates = { features = ["templates"], no-default-feature = true }
+rust = { features = ["rust"], no-default-feature = true }
