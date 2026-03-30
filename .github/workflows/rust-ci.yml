@@ -14,9 +14,28 @@ permissions:
   contents: read
 
 jobs:
+  cache-pixi-lock:
+    runs-on: ubuntu-slim
+    outputs:
+      cache-key: ${{ steps.pixi-lock.outputs.cache-key }}
+      pixi-version: ${{ steps.pixi-lock.outputs.pixi-version }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: Parcels-code/pixi-lock/create-and-cache@a9aee67fa67426e6b0297fa5bef80600572be153 # v0.1.0
+        id: pixi-lock
+        with:
+          hash-files: |
+            pixi.toml
+            python/healpix-geo/pyproject.toml
+            python/healpix-geo/pixi.toml
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    needs: cache-pixi-lock
 
     env:
       FORCE_COLOR: 3
@@ -35,11 +54,15 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Rust
-        run: |
-          rustup update stable
-          rustup default stable
-          rustup component add clippy
+      # - name: Install Rust
+      #   run: |
+      #     rustup update stable
+      #     rustup default stable
+      #     rustup component add clippy
+
+      - uses: Parcels-code/pixi-lock/restore@a9aee67fa67426e6b0297fa5bef80600572be153 # v0.1.0
+        with:
+          cache-key: ${{ needs.cache-pixi-lock.outputs.cache-key }}
 
       - name: setup environment
         uses: prefix-dev/setup-pixi@a0af7a228712d6121d37aba47adf55c1332c9c2e # 0.9.4
@@ -75,3 +98,65 @@ jobs:
       - name: Cargo clippy
         run: |
           pixi run -e "${{ matrix.env }}" lint-rust
+
+  tests:
+    name: Rust tests
+    needs: cache-pixi-lock
+    runs-on: ${{ matrix.os }}
+
+    env:
+      FORCE_COLOR: 3
+
+    strategy:
+      matrix:
+        env: ["rust"]
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: Parcels-code/pixi-lock/restore@5cbd7a155fa24aa0711ec0a9aad9ede0819e84a1 # v0.1.0
+        with:
+          cache-key: ${{ needs.cache-pixi-lock.outputs.cache-key }}
+
+      - name: setup environment
+        uses: prefix-dev/setup-pixi@a0af7a228712d6121d37aba47adf55c1332c9c2e # 0.9.4
+        with:
+          environments: "${{ matrix.env }}"
+
+      - name: Create rust cache
+        uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # 2.9.1
+
+      - name: Help finding installed libraries
+        run: |
+          export CONDA_PREFIX=$(pixi run -e "${{ matrix.env }}" --frozen 'echo $CONDA_PREFIX')
+          if [[ -z "$CONDA_PREFIX" ]]; then
+            echo "CONDA_PREFIX is unset!"
+            exit 1
+          fi
+
+          pushd $CONDA_PREFIX
+          echo "PKG_CONFIG_PATH=$(readlink -f lib/pkgconfig)" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$(readlink -f lib)" >> $GITHUB_ENV
+          popd
+
+      - name: Help the linker on macos
+        if: runner.os == 'MacOS'
+        run: |
+          export CONDA_PREFIX=$(pixi run -e "${{ matrix.env }}" --frozen 'echo $CONDA_PREFIX')
+
+          if [ ! -d target/debug/deps ]; then
+              mkdir -p target/debug/deps
+              ln -s $CONDA_PREFIX/lib/*.dylib target/debug/deps/
+          fi
+
+      - name: Cargo clippy
+        run: |
+          pixi run -e "${{ matrix.env }}" rust-tests
