@@ -52,7 +52,7 @@ python = "3.12.*"
 python = "3.13.*"
 
 [feature.py313.tasks]
-lint-rust = { cmd = "cargo clippy --all-targets --all-features -- -D warnings", cwd = ".", default-environment = "dev" }
+lint-rust = { cmd = "cargo clippy --all-targets --all-features -- -D warnings", cwd = ".", default-environment = "rust" }
 
 [feature.py314.dependencies]
 python = "3.14.*"
@@ -164,4 +164,4 @@ ci-py313 = ["py313", "tests"]
 jupyterlite = { no-default-feature = true, features = ["jupyterlite"] }
 docs = ["docs", "py313"]
 templates = { features = ["templates"], no-default-feature = true }
-rust = { features = ["rust"], no-default-feature = true }
+rust = { features = ["rust", "py313"], no-default-feature = true }
