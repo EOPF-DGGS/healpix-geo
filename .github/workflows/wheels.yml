@@ -102,7 +102,7 @@ jobs:
         uses: PyO3/maturin-action@04ac600d27cdf7a9a280dadf7147097c42b757ad # 1.50.1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out ../../dist --find-interpreter
           sccache: "false"
           manylinux: auto
           working-directory: python/healpix-geo
@@ -111,7 +111,7 @@ jobs:
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: wheels-linux-${{ matrix.platform.target }}
-          path: python/healpix-geo/dist
+          path: dist
 
   musllinux:
     needs: detect-ci-trigger
@@ -151,7 +151,7 @@ jobs:
         uses: PyO3/maturin-action@04ac600d27cdf7a9a280dadf7147097c42b757ad # 1.50.1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out ../../dist --find-interpreter
           sccache: "false"
           manylinux: musllinux_1_2
           working-directory: python/healpix-geo
@@ -160,7 +160,7 @@ jobs:
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: wheels-musllinux-${{ matrix.platform.target }}
-          path: python/healpix-geo/dist
+          path: dist
 
   windows:
     needs: detect-ci-trigger
@@ -197,7 +197,7 @@ jobs:
         uses: PyO3/maturin-action@04ac600d27cdf7a9a280dadf7147097c42b757ad # 1.50.1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out ../../dist --find-interpreter
           sccache: "false"
           working-directory: python/healpix-geo
 
@@ -205,7 +205,7 @@ jobs:
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: wheels-windows-${{ matrix.platform.target }}
-          path: python/healpix-geo/dist
+          path: dist
 
   macos:
     needs: detect-ci-trigger
@@ -241,7 +241,7 @@ jobs:
         uses: PyO3/maturin-action@04ac600d27cdf7a9a280dadf7147097c42b757ad # 1.50.1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out ../../dist --find-interpreter
           sccache: "false"
           working-directory: python/healpix-geo
 
@@ -249,7 +249,7 @@ jobs:
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: wheels-macos-${{ matrix.platform.target }}
-          path: python/healpix-geo/dist
+          path: dist
 
   # sdist:
   #   runs-on: ubuntu-latest
@@ -259,13 +259,13 @@ jobs:
   #       uses: PyO3/maturin-action@v1
   #       with:
   #         command: sdist
-  #         args: --out dist
+  #         args: --out ../../dist
   #         working-directory: python/healpix-geo
   #     - name: Upload sdist
   #       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
   #       with:
   #         name: wheels-sdist
-  #         path: python/healpix-geo/dist
+  #         path: dist
 
   release:
     runs-on: ubuntu-latest
