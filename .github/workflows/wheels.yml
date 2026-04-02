@@ -102,7 +102,7 @@ jobs:
         uses: PyO3/maturin-action@04ac600d27cdf7a9a280dadf7147097c42b757ad # 1.50.1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out ../../dist --find-interpreter
           sccache: "false"
           manylinux: auto
           working-directory: python/healpix-geo
@@ -151,7 +151,7 @@ jobs:
         uses: PyO3/maturin-action@04ac600d27cdf7a9a280dadf7147097c42b757ad # 1.50.1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out ../../dist --find-interpreter
           sccache: "false"
           manylinux: musllinux_1_2
           working-directory: python/healpix-geo
@@ -197,7 +197,7 @@ jobs:
         uses: PyO3/maturin-action@04ac600d27cdf7a9a280dadf7147097c42b757ad # 1.50.1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out ../../dist --find-interpreter
           sccache: "false"
           working-directory: python/healpix-geo
 
@@ -241,7 +241,7 @@ jobs:
         uses: PyO3/maturin-action@04ac600d27cdf7a9a280dadf7147097c42b757ad # 1.50.1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter
+          args: --release --out ../../dist --find-interpreter
           sccache: "false"
           working-directory: python/healpix-geo
 
@@ -259,7 +259,7 @@ jobs:
   #       uses: PyO3/maturin-action@v1
   #       with:
   #         command: sdist
-  #         args: --out dist
+  #         args: --out ../../dist
   #         working-directory: python/healpix-geo
   #     - name: Upload sdist
   #       uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
