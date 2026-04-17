@@ -1,6 +1,6 @@
 # HEALPix Extension to Ellipsoids
 
-This page outlines an extension of the HEALPix pixelation scheme to ellipsoidal Earth models using an **authalic transformation**-a mapping to a sphere that preserves surface area.
+This page outlines an extension of the HEALPix pixelation scheme to ellipsoidal Earth models using an **authalic transformation**: a mapping to a sphere that preserves the surface area.
 
 ```{figure} ellipsoid_schema.png
 Ellipsoidal to Authalic Mapping
@@ -34,7 +34,7 @@ Authalic mappings:
 
 ## Ellipsoidal Pixelation
 
-This method results in an **distorted HEALPix grid** on the ellipsoid, preserving equal-area properties. It is ideal for satellite data, climate grids, and DGGS applications that need to account for Earth's flattening.
+This method results in a **distorted HEALPix grid** on the ellipsoid, preserving equal-area properties. It is ideal for satellite data, climate grids, and DGGS applications that need to account for Earth's flattening.
 
 ## See Also
 
