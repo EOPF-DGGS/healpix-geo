@@ -1,0 +1,50 @@
+package:
+  name: ${{ name }}
+  version: ${{ version }}
+
+source:
+  - path: ../..
+
+build:
+  number: 0
+
+  script: |
+    export MATURIN_PYTHON_SYSCONFIGDATA_DIR=${PREFIX}/etc/conda/_sysconfigdata__emscripten_wasm32-emscripten.py
+    ${PYTHON} -m pip install python/healpix-geo -vvv --no-build-isolation --no-deps
+
+  python:
+    skip_pyc_compilation:
+      - "**/*.py"
+
+requirements:
+  build:
+    - maturin
+    - cross-python_${{ target_platform }}
+    - rust-nightly
+    - setuptools-rust
+  host:
+    - python
+    - numpy
+  run:
+    - python
+    - numpy
+
+tests:
+  - script:
+      - echo "FIXME:"
+  # - script: pytester
+  #   requirements:
+  #     build:
+  #       - pytester
+  #     run:
+  #       - pytester-run
+  #   files:
+  #     recipe:
+  #       - test_healpix_geo.py
+
+about:
+  summary: healpix for the geo-sciences
+  license: Apache-2.0
+  license_file: LICENSE
+  homepage: https://github.com/EOPF-DGGS/healpix-geo
+  repository: https://github.com/EOPF-DGGS/healpix-geo

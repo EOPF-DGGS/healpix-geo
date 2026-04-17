@@ -2,17 +2,17 @@
 channels = ["conda-forge"]
 name = "healpix-geo"
 platforms = ["linux-64", "win-64", "osx-arm64"]
+preview = ["pixi-build"]
+
+[workspace.build-variants]
+python = ["3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 
 [dependencies]
-rust = ">=1.91.1,<1.92"
-maturin = ">=1.10.2,<2"
-numpy = ">=2.3.5,<3"
+healpix-geo = { path = "python/healpix-geo" }
 
-[pypi-dependencies]
-healpix-geo = { path = ".", editable = true }
-
-[tasks]
-build-wheel = "maturin build -r --compatibility manylinux_2_28 --strip --auditwheel repair"
+[tasks.build-wheel]
+cmd = "maturin build -r --compatibility manylinux_2_28 --strip --auditwheel repair"
+cwd = "python/healpix-geo"
 
 [tasks.build-all-wheels]
 depends-on = [
@@ -22,20 +22,15 @@ depends-on = [
   { task = "build-wheel", environment = "py314" },
 ]
 
-[tasks.tests]
-depends-on = [{ task = "run-tests", environment = "dev" }]
-
-[tasks.ci-lint-rust]
-depends-on = [{ task = "rust-lints", environment = "py313" }]
-
-[tasks.lint-rust]
-depends-on = [{ task = "rust-lints", environment = "dev" }]
-
 [feature.dev.dependencies]
 ipython = "*"
+jupyterlab = ">=4.5.5,<5"
 
 [feature.dev.tasks]
 ipython = "ipython"
+
+[feature.dev.pypi-dependencies]
+pytest-accept = ">=0.2.3, <0.3"
 
 [feature.tests.dependencies]
 pytest = "*"
@@ -44,7 +39,8 @@ shapely = "*"
 cdshealpix = "*"
 
 [feature.tests.tasks]
-run-tests = { cmd = "pytest --cov=healpix_geo" }
+tests = { cmd = "pytest --cov=healpix_geo", cwd = "python/healpix-geo", default-environment = "dev" }
+doctests = { cmd = "pytest --doctest-modules python/healpix_geo --ignore python/healpix_geo/tests", default-environment = "dev", cwd = "python/healpix-geo" }
 
 [feature.py311.dependencies]
 python = "3.11.*"
@@ -56,10 +52,57 @@ python = "3.12.*"
 python = "3.13.*"
 
 [feature.py313.tasks]
-rust-lints = "cargo clippy --all-targets --all-features -- -D warnings"
+lint-rust = { cmd = "cargo clippy --all-targets --all-features -- -D warnings", cwd = ".", default-environment = "rust" }
 
 [feature.py314.dependencies]
 python = "3.14.*"
+
+[feature.jupyterlite.dependencies]
+rattler-build = "*"
+rattler-index = "*"
+pyjs_code_runner = ">=3.2.0,<4"
+playwright = ">=1.58.2,<2"
+playwright-python = ">=1.58.0,<2"
+mamba = ">=2.5.0,<3"
+
+[feature.jupyterlite.tasks]
+check-build = { cmd = "ci/package_check/check-build.sh", cwd = "." }
+
+[feature.templates.dependencies]
+python = "3.14.*"
+packaging = "*"
+
+[feature.templates.tasks.prepare-recipe]
+cmd = "python ci/rattler-recipe/prepare_recipe.py"
+cwd = "."
+
+[feature.jupyterlite.tasks.build-emscripten]
+cmd = [
+  "rattler-build",
+  "build",
+  "--package-format",
+  "tar-bz2",
+  "-c",
+  "https://prefix.dev/emscripten-forge-4x",
+  "-c",
+  "https://prefix.dev/conda-forge",
+  "--output-dir",
+  "target/conda",
+  "--recipe",
+  "ci/rattler-recipe/recipe.yaml",
+  "--target-platform",
+  "emscripten-wasm32",
+]
+cwd = "."
+depends-on = ["prepare-recipe"]
+
+[feature.jupyterlite.tasks.create-channel]
+cmd = "rattler-index fs target/conda"
+cwd = "."
+
+[feature.templates.tasks.create-environment]
+cmd = "python docs/create_environment.py"
+cwd = "python/healpix-geo"
 
 [feature.docs.dependencies]
 sphinx = "*"
@@ -72,15 +115,42 @@ tabulate = "*"
 markdown = "*"
 pandas = "*"
 pyresample = "*"
-astropy = ">=7.2.0,<8"
-cdshealpix = ">=0.7.2,<0.8"
+astropy = ">=7.2.0"
+cdshealpix = ">=0.7.2"
 sphinx-design = ">=0.7.0,<0.8"
+jupyterlite-xeus = ">=4.5.0,<5"
+jupyterlite-sphinx = ">=0.22.1,<0.23"
+jupyterlite-core = ">=0.7.3,<0.8"
 
 [feature.docs.tasks]
-build-docs = { cmd = "rm -rf generated/; python -m sphinx -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
-autobuild-docs = { cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build", cwd = "docs" }
-build-docs-rtd = { cmd = "python -m sphinx -b html -W -T -j auto . $READTHEDOCS_OUTPUT/html", cwd = "docs" }
+clean-docs = { cmd = "rm -rf generated/ jupyter_execute/ _build/", cwd = "python/healpix-geo/docs" }
+build-docs = { cmd = "python -m sphinx -b html -w warnings.log -W -Tn -j auto . _build/html", cwd = "python/healpix-geo/docs" }
+autobuild-docs = { cmd = "sphinx-autobuild -b html -w warnings.log -W -Tn -j auto . _build/html", cwd = "python/healpix-geo/docs" }
+build-docs-rtd = { cmd = "python -m sphinx -b html -W -T -j auto . $READTHEDOCS_OUTPUT/html", cwd = "python/healpix-geo/docs" }
+host-docs = { cmd = "python -m http.server -b 127.0.0.1 -d _build/html 5447", cwd = "python/healpix-geo/docs" }
 
+build-clean-docs = [{ task = "clean-docs" }, { task = "build-docs" }]
+build-and-host-docs = [{ task = "build-docs" }, { task = "host-docs" }]
+build-clean-and-host-docs = [
+  { task = "clean-docs" },
+  { task = "build-docs" },
+  { task = "host-docs" },
+]
+
+[feature.rust.dependencies]
+rust = "*"
+
+[feature.rust.tasks]
+rust-tests = { cmd = "cargo test", cwd = "rust/healpix-geo-core" }
+
+[tasks.build-and-host]
+depends-on = [
+  { task = "build-emscripten" },
+  { task = "create-channel" },
+  { task = "create-environment" },
+  { task = "build-docs" },
+  { task = "host-docs" },
+]
 
 [environments]
 dev = ["tests", "py313", "dev"]
@@ -91,4 +161,8 @@ py314 = ["py314"]
 ci-py311 = ["py311", "tests"]
 ci-py312 = ["py312", "tests"]
 ci-py313 = ["py313", "tests"]
+ci-py314 = ["py314", "tests"]
+jupyterlite = { no-default-feature = true, features = ["jupyterlite"] }
 docs = ["docs", "py313"]
+templates = { features = ["templates"], no-default-feature = true }
+rust = { features = ["rust", "py313"], no-default-feature = true }

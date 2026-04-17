@@ -16,15 +16,19 @@ build:
       - asdf install pixi latest
       - asdf global pixi latest
     pre_install:
-      - git update-index --assume-unchanged docs/conf.py
+      - git update-index --assume-unchanged python/healpix-geo/docs/conf.py
     install:
+      - pixi install -e jupyterlite
+      - pixi install -e templates
       - pixi install -e docs
     build:
       html:
-        - pixi run -e docs build-docs-rtd
+        - pixi run build-emscripten
+        - pixi run create-environment
+        - pixi run build-docs-rtd
 
 sphinx:
   fail_on_warning: true
-  configuration: docs/conf.py
+  configuration: python/healpix-geo/docs/conf.py
 
 formats: []
