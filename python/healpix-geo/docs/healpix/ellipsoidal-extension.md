@@ -14,9 +14,11 @@ Standard HEALPix is defined on the sphere and provides:
 - Isolatitude grid
 - Equal-area pixels
 
-However, many geospatial applications use **ellipsoidal models** (e.g. WGS84). To maintain HEALPix's properties on an ellipsoid, it is mapped to an **authalic sphere**-a sphere with the same surface area.
+However, many geospatial applications use **ellipsoidal models** (e.g. WGS84).
 
 ## How it works
+
+To maintain HEALPix's properties on an ellipsoid, it is mapped to the ellipsoid's **authalic sphere** (a sphere with the same surface area as the ellipsoid). The procedure is:
 
 1. **Authalic Mapping**
    Geodetic latitudes ($\phi$) on the ellipsoid are mapped to authalic latitudes ($\xi$) on the sphere via an area-preserving transformation.
