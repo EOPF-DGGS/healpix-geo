@@ -34,6 +34,18 @@ pub fn vertices(hash: &u64, layer: &Layer, ellipsoid: &Ellipsoid) -> Vec<(f64, f
         .collect()
 }
 
+pub fn bilinear_interpolation(
+    lon: &f64,
+    lat: &f64,
+    layer: &Layer,
+    ellipsoid: &Ellipsoid,
+) -> Vec<(u64, f64)> {
+    let lon_ = lon.rem_euclid(360.0).to_radians();
+    let lat_ = ellipsoid.latitude_geographic_to_authalic(lat.to_radians());
+
+    layer.bilinear_interpolation(lon_, lat_).to_vec()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -44,6 +56,7 @@ mod tests {
     #[test]
     fn test_lonlat_to_healpix_edge_cases_lon() {
         let layer = healpix::nested::get(0);
+
         let ellipsoid = Ellipsoid::Ellipsoid(ReferenceEllipsoid::new(
             GeodesyEllipsoid::named("WGS84").unwrap(),
         ));
@@ -71,5 +84,32 @@ mod tests {
 
         let actual = lonlat_to_healpix(&lon, &lat, layer, &ellipsoid);
         assert_eq!(actual, 0);
+    }
+
+    #[test]
+    fn test_bilinear_interpolation() {
+        let layer = healpix::nested::get(1);
+        let ellipsoid = Ellipsoid::Ellipsoid(ReferenceEllipsoid::new(
+            GeodesyEllipsoid::named("WGS84").unwrap(),
+        ));
+
+        let lon = 45.0;
+        let lat = 60.0;
+
+        let (ipix, weights): (Vec<u64>, Vec<f64>) =
+            bilinear_interpolation(&lon, &lat, layer, &ellipsoid)
+                .into_iter()
+                .unzip();
+
+        assert_eq!(ipix, vec![0, 1, 2, 3]);
+        assert_eq!(
+            weights,
+            vec![
+                0.018569674659181364,
+                0.11770091886407795,
+                0.11770091886407795,
+                0.7460284876126627
+            ]
+        );
     }
 }

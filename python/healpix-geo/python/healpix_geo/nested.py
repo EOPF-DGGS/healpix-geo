@@ -1,3 +1,4 @@
+import marray
 import numpy as np
 
 from healpix_geo import healpix_geo
@@ -68,9 +69,9 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
 
     Parameters
     ----------
-    lon : array-like
+    longitude : array-like
         The longitudes of the input points, in degrees.
-    lat : array-like
+    latitude : array-like
         The latitudes of the input points, in degrees.
     depth : int or array-like of int
         The HEALPix cell depth given as a `np.uint8` numpy array.
@@ -121,7 +122,7 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
     )
 
 
-def vertices(ipix, depth, ellipsoid, num_threads=0):
+def vertices(ipix, depth, ellipsoid="sphere", num_threads=0):
     """Get the longitudes and latitudes of the vertices of some HEALPix cells at a given depth.
 
     This method returns the 4 vertices of each cell in `ipix`.
@@ -144,7 +145,7 @@ def vertices(ipix, depth, ellipsoid, num_threads=0):
     Returns
     -------
     longitude, latitude : array-like
-        The sky coordinates of the 4 vertices of the HEALPix cells.
+        The coordinates of the 4 vertices of the HEALPix cells.
         `lon` and `lat` are of shape :math:`N` x :math:`4` numpy arrays where N is the number of HEALPix cell given in `ipix`.
 
     Raises
@@ -185,6 +186,94 @@ def vertices(ipix, depth, ellipsoid, num_threads=0):
     return healpix_geo.nested.vertices(depth, ipix, ellipsoid, num_threads)
 
 
+def bilinear_interpolation(
+    longitude, latitude, depth, *, ellipsoid="sphere", num_threads=0
+):
+    """Get the cell ids and weights necessary to bilinearly interpolate the given values.
+
+    Parameters
+    ----------
+    longitude : array-like
+        The longitudes of the input points, in degrees.
+    latitude : array-like
+        The latitudes of the input points, in degrees.
+    depth : int, or `numpy.ndarray`
+        The depth of the HEALPix cells. If given as an array, should have the same shape than ipix
+    ellipsoid : ellipsoid-like, default: "sphere"
+        Reference ellipsoid to evaluate healpix on. If the reference ellipsoid
+        is spherical, this will return the same result as
+        :py:func:`cdshealpix.nested.vertices`.
+    num_threads : int, optional
+        Specifies the number of threads to use for the computation. Default to 0 means
+        it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
+        or the number of logical CPUs (otherwise)
+
+    Returns
+    -------
+    cell_ids : array-like
+        The neighbours above and below the given points as a :math:`N` x :math:`4` masked array.
+    weights : array-like
+        The associated weights as a :math:`N` x :math:`4` masked array.
+
+    Raises
+    ------
+    ValueError
+        When the HEALPix cell indexes given have values out of :math:`[0, 4^{29 - depth})`.
+
+    Examples
+    --------
+    >>> from healpix_geo.nested import bilinear_interpolation
+    >>> import numpy as np
+
+    Define coordinates
+    >>> lon = np.array([-15.0, -10.0, -5.0, 0.0, 5.0])
+    >>> lat = np.array([30.0, 35.0, 40.0, 45.0, 50.0])
+
+    Compute interpolation weights
+    >>> cell_ids, weights = bilinear_interpolation(lon, lat, depth=6, ellipsoid="WGS84")
+    >>> cell_ids
+    MArray(
+        array([[13400, 13401, 13402, 13403],
+               [13581, 13592, 13583, 13594],
+               [13638, 13639, 13644, 13645],
+               [ 2735,  2746, 13663, 13685],
+               [ 2800,  2801,  2802,  2803]], dtype=uint64),
+        array([[False, False, False, False],
+               [False, False, False, False],
+               [False, False, False, False],
+               [False, False, False, False],
+               [False, False, False, False]])
+    )
+    >>> weights
+    MArray(
+        array([[0.22596183, 0.68795133, 0.02128467, 0.06480216],
+               [0.15244623, 0.78751507, 0.00973729, 0.05030142],
+               [0.04859157, 0.12318081, 0.23429192, 0.5939357 ],
+               [0.32719215, 0.17280785, 0.32719215, 0.17280785],
+               [0.14255714, 0.34522269, 0.1497    , 0.36252017]]),
+        array([[False, False, False, False],
+               [False, False, False, False],
+               [False, False, False, False],
+               [False, False, False, False],
+               [False, False, False, False]])
+    )
+    """
+    _check_depth(depth)
+    longitude = np.atleast_1d(longitude).astype("float64")
+    latitude = np.atleast_1d(latitude).astype("float64")
+
+    num_threads = np.uint16(num_threads)
+
+    ipix, weights = healpix_geo.nested.bilinear_interpolation(
+        depth, longitude, latitude, ellipsoid, num_threads
+    )
+
+    xp = marray.masked_namespace(np)
+    mask = weights == 0
+
+    return xp.asarray(ipix, mask=mask), xp.asarray(weights, mask=mask)
+
+
 def kth_neighbourhood(ipix, depth, ring, num_threads=0):
     """Get the kth ring neighbouring cells of some HEALPix cells at a given depth.
 
@@ -211,7 +300,7 @@ def kth_neighbourhood(ipix, depth, ring, num_threads=0):
     neighbours : `numpy.ndarray`
         A :math:`N` x :math:`(2 k + 1)^2` `np.int64` numpy array containing the kth ring neighbours of each cell.
         The :math:`5^{th}` element corresponds to the index of HEALPix cell from which the neighbours are evaluated.
-        All its 8 neighbours occup the remaining elements of the line.
+        All its 8 neighbours occupy the remaining elements of the line.
 
     Raises
     ------
