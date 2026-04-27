@@ -648,78 +648,217 @@ def test_zone_coverage(
     np.testing.assert_equal(fully_covered, expected_coverage)
 
 
-def test_box_coverage():
+@pytest.mark.parametrize(
+    ["scheme", "expected_cell_ids", "expected_depths", "expected_coverage"],
+    (
+        pytest.param(
+            "nested",
+            np.array([0, 1, 2, 3], dtype="uint64"),
+            np.array([1, 1, 1, 1], dtype="uint8"),
+            np.array([False, False, False, False]),
+            id="nested",
+        ),
+        pytest.param(
+            "ring",
+            np.array([0, 4, 5, 13], dtype="uint64"),
+            np.array([1, 1, 1, 1], dtype="uint8"),
+            np.array([False, False, False, False], dtype=bool),
+            id="ring",
+        ),
+        pytest.param(
+            "zuniq",
+            np.array(
+                [
+                    72057594037927936,
+                    216172782113783808,
+                    360287970189639680,
+                    504403158265495552,
+                ],
+                dtype="uint64",
+            ),
+            None,
+            np.array([False, False, False, False], dtype=bool),
+            id="zuniq",
+        ),
+    ),
+)
+def test_box_coverage(scheme, expected_cell_ids, expected_depths, expected_coverage):
     center = (45.0, 45.0)
     size = (10.0, 10.0)
     angle = 0.0
 
     depth = 1
 
-    cell_ids, depths, fully_covered = healpix_geo.nested.box_coverage(
-        center, size, angle, depth, ellipsoid="WGS84"
-    )
+    ns = getattr(healpix_geo, scheme)
 
-    expected_cell_ids = np.array([0, 1, 2, 3], dtype="uint64")
-    expected_depths = np.array([1, 1, 1, 1], dtype="uint8")
-    expected_coverage = np.array([False, False, False, False])
+    result = ns.box_coverage(center, size, angle, depth, ellipsoid="WGS84")
+    if scheme in {"zuniq"}:
+        cell_ids, fully_covered = result
+    else:
+        cell_ids, depths, fully_covered = result
+        np.testing.assert_equal(depths, expected_depths)
 
     np.testing.assert_equal(cell_ids, expected_cell_ids)
-    np.testing.assert_equal(depths, expected_depths)
     np.testing.assert_equal(fully_covered, expected_coverage)
 
 
-def test_polygon_coverage():
+@pytest.mark.parametrize(
+    ["scheme", "expected_cell_ids", "expected_depths", "expected_coverage"],
+    (
+        pytest.param(
+            "nested",
+            np.array([0, 1, 2, 3], dtype="uint64"),
+            np.array([1, 1, 1, 1], dtype="uint8"),
+            np.array([False, False, False, False], dtype="bool"),
+            id="nested",
+        ),
+        pytest.param(
+            "ring",
+            np.array([0, 4, 5, 13], dtype="uint64"),
+            np.array([1, 1, 1, 1], dtype="uint8"),
+            np.array([False, False, False, False], dtype="bool"),
+            id="ring",
+        ),
+        pytest.param(
+            "zuniq",
+            np.array(
+                [
+                    72057594037927936,
+                    216172782113783808,
+                    360287970189639680,
+                    504403158265495552,
+                ],
+                dtype="uint64",
+            ),
+            None,
+            np.array([False, False, False, False], dtype="bool"),
+            id="zuniq",
+        ),
+    ),
+)
+def test_polygon_coverage(
+    scheme, expected_cell_ids, expected_depths, expected_coverage
+):
     vertices = np.array(
         [[40.0, 40.0], [50.0, 40.0], [50.0, 50.0], [40.0, 50.0]], dtype="float64"
     )
 
     depth = 1
+    ns = getattr(healpix_geo, scheme)
 
-    cell_ids, depths, fully_covered = healpix_geo.nested.polygon_coverage(
-        vertices, depth, ellipsoid="WGS84"
-    )
-
-    expected_cell_ids = np.array([0, 1, 2, 3], dtype="uint64")
-    expected_depths = np.array([1, 1, 1, 1], dtype="uint8")
-    expected_coverage = np.array([False, False, False, False])
+    result = ns.polygon_coverage(vertices, depth, ellipsoid="WGS84")
+    if scheme in {"zuniq"}:
+        cell_ids, fully_covered = result
+    else:
+        cell_ids, depths, fully_covered = result
+        np.testing.assert_equal(depths, expected_depths)
 
     np.testing.assert_equal(cell_ids, expected_cell_ids)
-    np.testing.assert_equal(depths, expected_depths)
     np.testing.assert_equal(fully_covered, expected_coverage)
 
 
-def test_cone_coverage():
+@pytest.mark.parametrize(
+    ["scheme", "expected_cell_ids", "expected_depths", "expected_coverage"],
+    (
+        pytest.param(
+            "nested",
+            np.array([0, 1, 2, 3], dtype="uint64"),
+            np.array([1, 1, 1, 1], dtype="uint8"),
+            np.array([False, False, False, False], dtype="bool"),
+            id="nested",
+        ),
+        pytest.param(
+            "ring",
+            np.array([0, 4, 5, 13], dtype="uint64"),
+            np.array([1, 1, 1, 1], dtype="uint8"),
+            np.array([False, False, False, False], dtype="bool"),
+            id="ring",
+        ),
+        pytest.param(
+            "zuniq",
+            np.array(
+                [
+                    72057594037927936,
+                    216172782113783808,
+                    360287970189639680,
+                    504403158265495552,
+                ],
+                dtype="uint64",
+            ),
+            None,
+            np.array([False, False, False, False], dtype="bool"),
+            id="zuniq",
+        ),
+    ),
+)
+def test_cone_coverage(scheme, expected_cell_ids, expected_depths, expected_coverage):
     center = (45.0, 45.0)
     radius = 5.0
     depth = 1
 
-    cell_ids, depths, fully_covered = healpix_geo.nested.cone_coverage(
-        center, radius, depth, ellipsoid="WGS84"
-    )
-
-    expected_cell_ids = np.array([0, 1, 2, 3], dtype="uint64")
-    expected_depths = np.array([1, 1, 1, 1], dtype="uint8")
-    expected_coverage = np.array([False, False, False, False])
+    ns = getattr(healpix_geo, scheme)
+    result = ns.cone_coverage(center, radius, depth, ellipsoid="WGS84")
+    if scheme in {"zuniq"}:
+        cell_ids, fully_covered = result
+    else:
+        cell_ids, depths, fully_covered = result
+        np.testing.assert_equal(depths, expected_depths)
 
     np.testing.assert_equal(cell_ids, expected_cell_ids)
-    np.testing.assert_equal(depths, expected_depths)
     np.testing.assert_equal(fully_covered, expected_coverage)
 
 
-def test_elliptical_cone_coverage():
+@pytest.mark.parametrize(
+    ["scheme", "expected_cell_ids", "expected_depths", "expected_coverage"],
+    (
+        pytest.param(
+            "nested",
+            np.array([0, 1, 2, 3], dtype="uint64"),
+            np.array([1, 1, 1, 1], dtype="uint8"),
+            np.array([False, False, False, False], dtype="bool"),
+            id="nested",
+        ),
+        pytest.param(
+            "ring",
+            np.array([0, 4, 5, 13], dtype="uint64"),
+            np.array([1, 1, 1, 1], dtype="uint8"),
+            np.array([False, False, False, False], dtype="bool"),
+            id="ring",
+        ),
+        pytest.param(
+            "zuniq",
+            np.array(
+                [
+                    72057594037927936,
+                    216172782113783808,
+                    360287970189639680,
+                    504403158265495552,
+                ],
+                dtype="uint64",
+            ),
+            None,
+            np.array([False, False, False, False], dtype="bool"),
+            id="zuniq",
+        ),
+    ),
+)
+def test_elliptical_cone_coverage(
+    scheme, expected_cell_ids, expected_depths, expected_coverage
+):
     center = (45.0, 45.0)
     ellipse_geometry = (10.0, 8.0)
     positional_angle = 30.0
     depth = 1
 
-    cell_ids, depths, fully_covered = healpix_geo.nested.elliptical_cone_coverage(
+    ns = getattr(healpix_geo, scheme)
+    result = ns.elliptical_cone_coverage(
         center, ellipse_geometry, positional_angle, depth, ellipsoid="WGS84"
     )
-
-    expected_cell_ids = np.array([0, 1, 2, 3], dtype="uint64")
-    expected_depths = np.array([1, 1, 1, 1], dtype="uint8")
-    expected_coverage = np.array([False, False, False, False])
+    if scheme in {"zuniq"}:
+        cell_ids, fully_covered = result
+    else:
+        cell_ids, depths, fully_covered = result
+        np.testing.assert_equal(depths, expected_depths)
 
     np.testing.assert_equal(cell_ids, expected_cell_ids)
-    np.testing.assert_equal(depths, expected_depths)
     np.testing.assert_equal(fully_covered, expected_coverage)
