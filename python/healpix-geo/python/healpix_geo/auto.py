@@ -129,7 +129,7 @@ def lonlat_to_healpix(
 
 
 def vertices(
-    ipix: npt.NDArray[np.uint64], grid: Grid, *, num_threads: int = 0
+    ipix: npt.NDArray[np.uint64], grid: Grid, *, step: int = 1, num_threads: int = 0
 ) -> (npt.NDArray[np.float64], npt.NDArray[np.float64]):
     """Get the longitudes and latitudes of the vertices of some HEALPix cells.
 
@@ -141,6 +141,11 @@ def vertices(
         The HEALPix cell indexes given as a `np.uint64` numpy array.
     grid : Grid
         The definition of the HEALPix grid.
+    step : int, default: 1
+        The number of vertices returned per HEALPix side. By default it is set to 1 meaning that
+        it will only return the vertices of the cell. 2 means that it will return the vertices of
+        the cell plus one more vertex per edge (the center of the edge). More generally, the number
+        of vertices returned is ``4 * step``.
     num_threads : int, optional
         Specifies the number of threads to use for the computation. Default to 0 means
         it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
@@ -154,12 +159,17 @@ def vertices(
 
     Examples
     --------
+    Imports
     >>> import healpix_geo.auto as hg
     >>> import numpy as np
+
+    Set up the grid and cell ids
     >>> ipix = np.array([42, 6, 10])
     >>> grid = hg.Grid(level=12, indexing_scheme="nested", ellipsoid="sphere")
     >>> grid
     Grid(level=12, indexing_scheme='nested', ellipsoid='sphere')
+
+    Compute just the vertices:
     >>> lon, lat = hg.vertices(ipix, grid)
     >>> np.stack([lon, lat], axis=-1)
     array([[[4.49230957e+01, 6.52784088e-02],
@@ -176,11 +186,65 @@ def vertices(
             [4.49780273e+01, 3.73019424e-02],
             [4.49670410e+01, 4.66274299e-02],
             [4.49560547e+01, 3.73019424e-02]]])
+
+    Subsample the edges to have 3 additional points per edge:
+    >>> lon, lat = hg.vertices(ipix, grid, step=4)
+    >>> np.stack([lon, lat], axis=-1)
+    array([[[4.49230957e+01, 6.52784088e-02],
+            [4.49258423e+01, 6.76097816e-02],
+            [4.49285889e+01, 6.99411545e-02],
+            [4.49313354e+01, 7.22725275e-02],
+            [4.49340820e+01, 7.46039007e-02],
+            [4.49313354e+01, 7.69352739e-02],
+            [4.49285889e+01, 7.92666473e-02],
+            [4.49258423e+01, 8.15980209e-02],
+            [4.49230957e+01, 8.39293945e-02],
+            [4.49203491e+01, 8.15980209e-02],
+            [4.49176025e+01, 7.92666473e-02],
+            [4.49148560e+01, 7.69352739e-02],
+            [4.49121094e+01, 7.46039007e-02],
+            [4.49148560e+01, 7.22725275e-02],
+            [4.49176025e+01, 6.99411545e-02],
+            [4.49203491e+01, 6.76097816e-02]],
+    <BLANKLINE>
+           [[4.50109863e+01, 2.79764560e-02],
+            [4.50137329e+01, 3.03078275e-02],
+            [4.50164795e+01, 3.26391991e-02],
+            [4.50192261e+01, 3.49705707e-02],
+            [4.50219727e+01, 3.73019424e-02],
+            [4.50192261e+01, 3.96333142e-02],
+            [4.50164795e+01, 4.19646860e-02],
+            [4.50137329e+01, 4.42960579e-02],
+            [4.50109863e+01, 4.66274299e-02],
+            [4.50082397e+01, 4.42960579e-02],
+            [4.50054932e+01, 4.19646860e-02],
+            [4.50027466e+01, 3.96333142e-02],
+            [4.50000000e+01, 3.73019424e-02],
+            [4.50027466e+01, 3.49705707e-02],
+            [4.50054932e+01, 3.26391991e-02],
+            [4.50082397e+01, 3.03078275e-02]],
+    <BLANKLINE>
+           [[4.49670410e+01, 2.79764560e-02],
+            [4.49697876e+01, 3.03078275e-02],
+            [4.49725342e+01, 3.26391991e-02],
+            [4.49752808e+01, 3.49705707e-02],
+            [4.49780273e+01, 3.73019424e-02],
+            [4.49752808e+01, 3.96333142e-02],
+            [4.49725342e+01, 4.19646860e-02],
+            [4.49697876e+01, 4.42960579e-02],
+            [4.49670410e+01, 4.66274299e-02],
+            [4.49642944e+01, 4.42960579e-02],
+            [4.49615479e+01, 4.19646860e-02],
+            [4.49588013e+01, 3.96333142e-02],
+            [4.49560547e+01, 3.73019424e-02],
+            [4.49588013e+01, 3.49705707e-02],
+            [4.49615479e+01, 3.26391991e-02],
+            [4.49642944e+01, 3.03078275e-02]]])
     """
     module = _dispatch_module(grid.indexing_scheme)
     params = grid._as_params()
 
-    return module.vertices(ipix, num_threads=num_threads, **params)
+    return module.vertices(ipix, num_threads=num_threads, step=step, **params)
 
 
 def kth_neighbourhood(
