@@ -315,6 +315,13 @@ class TestGeographicToHealpix:
                 "zuniq",
                 id="level4-zuniq",
             ),
+            pytest.param(
+                np.array([-10.3, 0.0]),
+                np.array([45.4, 88.0]),
+                5,
+                "ring",
+                id="level5-ring",
+            ),
         ),
     )
     def test_spherical(self, lon, lat, depth, indexing_scheme):
@@ -340,7 +347,12 @@ class TestGeographicToHealpix:
         lat_ = Latitude(lat, unit="degree")
         expected = cds_lonlat_to_healpix(lon_, lat_, param_cds)
 
-        np.testing.assert_equal(actual, expected)
+        assert np.all(np.astype(actual, "int64") != -1)
+
+        # TODO: remove once cdshealpix-python has been upgraded
+        # last broken version: 0.8.1
+        mask = np.astype(expected, "int64") != -1
+        np.testing.assert_equal(actual[mask], expected[mask])
 
     @pytest.mark.parametrize("ellipsoid", ["unitsphere", "sphere", "WGS84", "bessel"])
     @pytest.mark.parametrize("depth", [0, 1, 9])

@@ -2,13 +2,12 @@
 channels = ["conda-forge"]
 name = "healpix-geo"
 platforms = ["linux-64", "win-64", "osx-arm64"]
+preview = ["pixi-build"]
+
+[workspace.build-variants]
+python = ["3.11.*", "3.12.*", "3.13.*", "3.14.*"]
 
 [dependencies]
-rust = ">=1.94.0"
-maturin = ">=1.12.6"
-numpy = ">=2.0"
-
-[pypi-dependencies]
 healpix-geo = { path = "python/healpix-geo" }
 
 [tasks.build-wheel]
@@ -22,15 +21,6 @@ depends-on = [
   { task = "build-wheel", environment = "py313" },
   { task = "build-wheel", environment = "py314" },
 ]
-
-[tasks.tests]
-depends-on = [{ task = "run-tests", environment = "dev" }]
-
-[tasks.ci-lint-rust]
-depends-on = [{ task = "rust-lints", environment = "py313" }]
-
-[tasks.lint-rust]
-depends-on = [{ task = "rust-lints", environment = "dev" }]
 
 [feature.dev.dependencies]
 ipython = "*"
@@ -49,7 +39,7 @@ shapely = "*"
 cdshealpix = "*"
 
 [feature.tests.tasks]
-run-tests = { cmd = "pytest --cov=healpix_geo", cwd = "python/healpix-geo" }
+tests = { cmd = "pytest --cov=healpix_geo", cwd = "python/healpix-geo", default-environment = "dev" }
 doctests = { cmd = "pytest --doctest-modules python/healpix_geo --ignore python/healpix_geo/tests", default-environment = "dev", cwd = "python/healpix-geo" }
 
 [feature.py311.dependencies]
@@ -62,7 +52,7 @@ python = "3.12.*"
 python = "3.13.*"
 
 [feature.py313.tasks]
-rust-lints = "cargo clippy --all-targets --all-features -- -D warnings"
+lint-rust = { cmd = "cargo clippy --all-targets --all-features -- -D warnings", cwd = ".", default-environment = "rust" }
 
 [feature.py314.dependencies]
 python = "3.14.*"
@@ -147,6 +137,12 @@ build-clean-and-host-docs = [
   { task = "host-docs" },
 ]
 
+[feature.rust.dependencies]
+rust = "*"
+
+[feature.rust.tasks]
+rust-tests = { cmd = "cargo test", cwd = "rust/healpix-geo-core" }
+
 [tasks.build-and-host]
 depends-on = [
   { task = "build-emscripten" },
@@ -165,6 +161,8 @@ py314 = ["py314"]
 ci-py311 = ["py311", "tests"]
 ci-py312 = ["py312", "tests"]
 ci-py313 = ["py313", "tests"]
+ci-py314 = ["py314", "tests"]
 jupyterlite = { no-default-feature = true, features = ["jupyterlite"] }
 docs = ["docs", "py313"]
 templates = { features = ["templates"], no-default-feature = true }
+rust = { features = ["rust", "py313"], no-default-feature = true }
