@@ -10,9 +10,9 @@ version = "0.4.*"
 noarch = false
 
 [package.host-dependencies]
-rust = "*"
-python = "*"
-maturin = "*"
+rust = ">=1.94.0"
+python = ">=3.10"
+maturin = ">=1.12.6"
 
 [package.run-dependencies]
 numpy = ">=2.0"
