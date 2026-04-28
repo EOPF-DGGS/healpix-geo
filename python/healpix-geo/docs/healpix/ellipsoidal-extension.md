@@ -14,7 +14,7 @@ Standard HEALPix is defined on the sphere and provides:
 - Isolatitude grid
 - Equal-area pixels
 
-However, many geospatial applications require **ellipsoidal models** (e.g. WGS84).
+However, many geospatial applications require **ellipsoidal models** (e.g. WGS84). As a consequence, to be viable for these HEALPix needs to be mapped to ellipsoids of revolution.
 
 ## How it works
 
