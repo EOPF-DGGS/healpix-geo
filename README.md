@@ -1,3 +1,11 @@
+[![Rust CI](https://github.com/EOPF-DGGS/healpix-geo/actions/workflows/rust-ci.yml/badge.svg)](https://github.com/EOPF-DGGS/healpix-geo/actions/workflows/rust-ci.yml)
+[![Python CI](https://github.com/EOPF-DGGS/healpix-geo/actions/workflows/python-ci.yml/badge.svg)](https://github.com/EOPF-DGGS/healpix-geo/actions/workflows/python-ci.yml)
+[![Docs](https://readthedocs.org/projects/healpix-geo/badge/?version=latest)](https://healpix-geo.readthedocs.io/)
+[![Formatted with black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
+[![Available on pypi](https://img.shields.io/pypi/v/healpix-geo.svg)](https://pypi.python.org/pypi/healpix-geo/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/healpix-geo)](https://pypistats.org/packages/healpix-geo)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/xarray/badges/downloads.svg)](https://anaconda.org/conda-forge/xarray)
+
 # `healpix-geo`
 
 This package integrates with `cds-healpix-rust` and `cds-healpix-python` to support specialized algorithms for the geosciences.
