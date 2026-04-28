@@ -91,11 +91,12 @@ def test_healpix_to_lonlat(grid, cell_ids, expected_lon, expected_lat):
 
 
 @pytest.mark.parametrize(
-    ["grid", "cell_ids", "expected_lon", "expected_lat"],
+    ["grid", "cell_ids", "step", "expected_lon", "expected_lat"],
     (
         (
             auto.Grid(level=2, indexing_scheme="nested", ellipsoid="WGS84"),
             np.array([3, 54], dtype="uint64"),
+            1,
             np.array([[45.0, 56.25, 45.0, 33.75], [326.25, 337.5, 330.0, 315.0]]),
             np.array(
                 [
@@ -107,19 +108,74 @@ def test_healpix_to_lonlat(grid, cell_ids, expected_lon, expected_lat):
         (
             auto.Grid(level=3, indexing_scheme="ring", ellipsoid="WGS84"),
             np.array([19, 67, 94], dtype="uint64"),
+            2,
             np.array(
                 [
-                    [225.0, 240.0, 225.0, 210.0],
-                    [115.71428571, 120.0, 108.0, 105.0],
-                    [135.0, 141.42857143, 135.0, 128.57142857],
+                    [
+                        225.0,
+                        231.42857143,
+                        240.0,
+                        234.0,
+                        225.0,
+                        216.0,
+                        210.0,
+                        218.57142857,
+                    ],
+                    [
+                        115.71428571,
+                        117.69230769,
+                        120.0,
+                        114.54545455,
+                        108.0,
+                        106.36363636,
+                        105.0,
+                        110.76923077,
+                    ],
+                    [
+                        135.0,
+                        138.0,
+                        141.42857143,
+                        138.46153846,
+                        135.0,
+                        131.53846154,
+                        128.57142857,
+                        132.0,
+                    ],
                 ],
                 dtype="float64",
             ),
             np.array(
                 [
-                    [66.53737405, 72.46140572, 78.33504545, 72.46140572],
-                    [48.26869833, 54.46234938, 60.54441647, 54.46234938],
-                    [41.93785391, 48.26869833, 54.46234938, 48.26869833],
+                    [
+                        66.53737405,
+                        69.50681506,
+                        72.46140572,
+                        75.40341607,
+                        78.33504545,
+                        75.40341607,
+                        72.46140572,
+                        69.50681506,
+                    ],
+                    [
+                        48.26869833,
+                        51.38098728,
+                        54.46234938,
+                        57.51586389,
+                        60.54441647,
+                        57.51586389,
+                        54.46234938,
+                        51.38098728,
+                    ],
+                    [
+                        41.93785391,
+                        45.12217715,
+                        48.26869833,
+                        51.38098728,
+                        54.46234938,
+                        51.38098728,
+                        48.26869833,
+                        45.12217715,
+                    ],
                 ],
                 dtype="float64",
             ),
@@ -130,6 +186,7 @@ def test_healpix_to_lonlat(grid, cell_ids, expected_lon, expected_lat):
                 [1963569437533536256, 824158731808800768, 5116089176692883456],
                 dtype="uint64",
             ),
+            1,
             np.array(
                 [
                     [326.25, 337.5, 330.0, 315.0],
@@ -150,8 +207,8 @@ def test_healpix_to_lonlat(grid, cell_ids, expected_lon, expected_lat):
     ),
     ids=["nested", "ring", "zuniq"],
 )
-def test_vertices(grid, cell_ids, expected_lon, expected_lat):
-    actual_lon, actual_lat = auto.vertices(cell_ids, grid)
+def test_vertices(grid, cell_ids, step, expected_lon, expected_lat):
+    actual_lon, actual_lat = auto.vertices(cell_ids, grid, step=step)
 
     np.testing.assert_allclose(actual_lon, expected_lon)
     np.testing.assert_allclose(actual_lat, expected_lat)
