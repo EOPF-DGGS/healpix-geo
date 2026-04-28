@@ -3,7 +3,7 @@
 [![Docs](https://readthedocs.org/projects/healpix-geo/badge/?version=latest)](https://healpix-geo.readthedocs.io/)
 [![Formatted with black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![Available on pypi](https://img.shields.io/pypi/v/healpix-geo.svg)](https://pypi.python.org/pypi/healpix-geo/)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/healpix-geo)](https://pypistats.org/packages/healpix-geo)
+[![PyPI Downloads](https://pepy.tech/badge/healpix-geo)](https://pepy.tech/projects/healpix-geo)
 [![conda-forge](https://anaconda.org/conda-forge/healpix-geo/badges/downloads.svg)](https://anaconda.org/conda-forge/healpix-geo)
 [![DOI](https://zenodo.org/badge/930370213.svg)](https://zenodo.org/badge/latestdoi/930370213)
 
