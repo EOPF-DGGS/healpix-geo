@@ -192,7 +192,7 @@ def lonlat_to_healpix(longitude, latitude, depth, ellipsoid="sphere", num_thread
     )
 
 
-def vertices(ipix, ellipsoid, num_threads=0):
+def vertices(ipix, ellipsoid, step=1, num_threads=0):
     """Get the longitudes and latitudes of the vertices of some HEALPix cells in zuniq encoding.
 
     This method returns the 4 vertices of each cell in `ipix`.
@@ -205,6 +205,11 @@ def vertices(ipix, ellipsoid, num_threads=0):
         Reference ellipsoid to evaluate healpix on. If the reference ellipsoid
         is spherical, this will return the same result as
         :py:func:`cdshealpix.nested.vertices`.
+    step : int, default: 1
+        The number of vertices returned per HEALPix side. By default it is set to 1 meaning that
+        it will only return the vertices of the cell. 2 means that it will return the vertices of
+        the cell plus one more vertex per edge (the center of the edge). More generally, the number
+        of vertices returned is ``4 * step``.
     num_threads : int, optional
         Specifies the number of threads to use for the computation. Default to 0 means
         it will choose the number of threads based on the RAYON_NUM_THREADS environment variable (if set),
@@ -248,7 +253,7 @@ def vertices(ipix, ellipsoid, num_threads=0):
 
     num_threads = np.uint16(num_threads)
 
-    return healpix_geo.zuniq.vertices(ipix, ellipsoid, num_threads)
+    return healpix_geo.zuniq.vertices(ipix, ellipsoid, step, num_threads)
 
 
 def kth_neighbourhood(ipix, ring, num_threads=0):
