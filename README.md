@@ -5,6 +5,7 @@
 [![Available on pypi](https://img.shields.io/pypi/v/healpix-geo.svg)](https://pypi.python.org/pypi/healpix-geo/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/healpix-geo)](https://pypistats.org/packages/healpix-geo)
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/xarray/badges/downloads.svg)](https://anaconda.org/conda-forge/xarray)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19388454.svg)](https://doi.org/10.5281/zenodo.19388454)
 
 # `healpix-geo`
 
