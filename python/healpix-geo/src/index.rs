@@ -549,15 +549,15 @@ impl RangeMOCIndex {
     ///
     /// Parameters
     /// ----------
-    /// indexer : slice of int or array-like of numpy.uint64
-    ///     The cell ids or ranges of cell ids to find.
+    /// indexer : slice of int or array-like
+    ///     The cell ids or ranges of cell ids to find. If an array, must be of dtype uint64.
     ///
     /// Returns
     /// -------
     /// subset : RangeMOCIndex
     ///     The resulting subset.
-    /// indexer : slice of int or array-like of numpy.uint64
-    ///     The integer positions of the selected cells.
+    /// indexer : slice of int or array-like
+    ///     The integer positions of the selected cells as a uint64 array.
     fn sel<'a>(&self, py: Python<'a>, indexer: IndexKind<'a>) -> PyResult<(IndexKind<'a>, Self)> {
         let depth = self.moc.depth_max();
         let range_sizes = self.moc.range_sizes();
