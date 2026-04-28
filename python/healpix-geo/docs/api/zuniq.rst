@@ -31,7 +31,7 @@ Coordinates Conversions
    vertices
 
 Hierarchy and neighbourhood
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autosummary::
    :toctree: ../generated/
