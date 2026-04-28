@@ -20,8 +20,12 @@ pub fn lonlat_to_healpix(lon: &f64, lat: &f64, layer: &Layer, ellipsoid: &Ellips
     layer.hash(lon_, lat_)
 }
 
-pub fn vertices(hash: &u64, layer: &Layer, ellipsoid: &Ellipsoid) -> Vec<(f64, f64)> {
-    let vertices = layer.vertices(*hash);
+pub fn vertices(hash: &u64, layer: &Layer, ellipsoid: &Ellipsoid, step: &usize) -> Vec<(f64, f64)> {
+    let vertices = if step == 1 {
+        layer.vertices(*hash)
+    } else {
+        layer.path_along_cell_edge(*hash, Cardinal::S, false, *step as u32)
+    };
 
     vertices
         .into_iter()

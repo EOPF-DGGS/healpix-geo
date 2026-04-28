@@ -20,8 +20,14 @@ pub fn lonlat_to_healpix(lon: &f64, lat: &f64, nside: &u32, ellipsoid: &Ellipsoi
     healpix::ring::hash(*nside, lon_, lat_)
 }
 
-pub fn vertices(hash: &u64, nside: &u32, ellipsoid: &Ellipsoid) -> Vec<(f64, f64)> {
-    let vertices = healpix::ring::vertices(*nside, *hash);
+pub fn vertices(hash: &u64, nside: &u32, ellipsoid: &Ellipsoid, step: &usize) -> Vec<(f64, f64)> {
+    let vertices = if step == 1 {
+        healpix::ring::vertices(*hash)
+    } else {
+        let layer = healpix::nested::get(healpix::depth(*nside));
+
+        layer.path_along_cell_edge(layer.from_ring(*hash), Cardinal::S, false, *step as u32)
+    };
 
     vertices
         .into_iter()
