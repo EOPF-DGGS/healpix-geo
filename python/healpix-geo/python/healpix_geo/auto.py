@@ -160,16 +160,19 @@ def vertices(
     Examples
     --------
     Imports
+
     >>> import healpix_geo.auto as hg
     >>> import numpy as np
 
     Set up the grid and cell ids
+
     >>> ipix = np.array([42, 6, 10])
     >>> grid = hg.Grid(level=12, indexing_scheme="nested", ellipsoid="sphere")
     >>> grid
     Grid(level=12, indexing_scheme='nested', ellipsoid='sphere')
 
     Compute just the vertices:
+
     >>> lon, lat = hg.vertices(ipix, grid)
     >>> np.stack([lon, lat], axis=-1)
     array([[[4.49230957e+01, 6.52784088e-02],
@@ -188,6 +191,7 @@ def vertices(
             [4.49560547e+01, 3.73019424e-02]]])
 
     Subsample the edges to have 3 additional points per edge:
+
     >>> lon, lat = hg.vertices(ipix, grid, step=4)
     >>> np.stack([lon, lat], axis=-1)
     array([[[4.49230957e+01, 6.52784088e-02],
