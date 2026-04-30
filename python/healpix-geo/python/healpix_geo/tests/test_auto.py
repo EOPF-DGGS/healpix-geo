@@ -374,3 +374,221 @@ def test_kth_neighbours(grid, cell_ids, ring, expected):
     actual = auto.kth_neighbourhood(cell_ids, grid, ring=ring)
 
     np.testing.assert_equal(actual, expected)
+
+
+def test_zone_coverage():
+    bbox = (0.0, 0.0, 45.0, 45.0)
+    grid = auto.Grid(level=2, indexing_scheme="nested", ellipsoid="WGS84")
+
+    actual_cell_ids, actual_levels, actual_coverage = auto.zone_coverage(
+        bbox, grid, flat=True
+    )
+
+    expected_cell_ids = np.array(
+        [0, 2, 3, 8, 9, 10, 11, 12, 69, 70, 71, 76, 77, 79], dtype="uint64"
+    )
+    expected_coverage = np.array(
+        [
+            False,
+            False,
+            False,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            False,
+            False,
+            False,
+        ],
+        dtype="bool",
+    )
+
+    np.testing.assert_equal(actual_cell_ids, expected_cell_ids)
+    np.testing.assert_equal(actual_levels, grid.level)
+    np.testing.assert_equal(actual_coverage, expected_coverage)
+
+
+def test_box_coverage():
+    grid = auto.Grid(level=2, indexing_scheme="nested", ellipsoid="WGS84")
+
+    expected_cell_ids = np.array([9, 11, 12, 13, 14], dtype="uint64")
+    expected_coverage = np.array([False, False, False, False, False], dtype="uint64")
+
+    actual_cell_ids, actual_levels, actual_coverage = auto.box_coverage(
+        center=(35.0, 55.0), size=(10.0, 10.0), angle=25.0, grid=grid, flat=True
+    )
+
+    np.testing.assert_equal(actual_cell_ids, expected_cell_ids)
+    np.testing.assert_equal(actual_levels, grid.level)
+    np.testing.assert_equal(actual_coverage, expected_coverage)
+
+
+def test_polygon_coverage():
+    grid = auto.Grid(level=2, indexing_scheme="nested", ellipsoid="WGS84")
+
+    expected_cell_ids = np.array(
+        [0, 1, 2, 3, 6, 8, 9, 10, 11, 12, 53, 69, 70, 71, 76, 77, 78, 79],
+        dtype="uint64",
+    )
+    expected_coverage = np.array(
+        [
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+        ],
+        dtype="bool",
+    )
+
+    actual_cell_ids, actual_levels, actual_coverage = auto.polygon_coverage(
+        np.array(
+            [
+                [0.0, 0.0],
+                [45.0, 0.0],
+                [45.0, 45.0],
+                [0.0, 45.0],
+                [0.0, 0.0],
+            ],
+            dtype="float64",
+        ),
+        grid=grid,
+        flat=True,
+    )
+
+    np.testing.assert_equal(actual_cell_ids, expected_cell_ids)
+    np.testing.assert_equal(actual_levels, grid.level)
+    np.testing.assert_equal(actual_coverage, expected_coverage)
+
+
+def test_cone_coverage():
+    grid = auto.Grid(level=2, indexing_scheme="nested", ellipsoid="WGS84")
+
+    expected_cell_ids = np.array(
+        [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            27,
+            30,
+            31,
+            53,
+            55,
+            61,
+            63,
+            79,
+        ],
+        dtype="uint64",
+    )
+    expected_coverage = np.array(
+        [
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+        ],
+        dtype="bool",
+    )
+
+    actual_cell_ids, actual_levels, actual_coverage = auto.cone_coverage(
+        center=(35.0, 55.0), radius=25.0, grid=grid, flat=True
+    )
+
+    np.testing.assert_equal(actual_cell_ids, expected_cell_ids)
+    np.testing.assert_equal(actual_levels, grid.level)
+    np.testing.assert_equal(actual_coverage, expected_coverage)
+
+
+def test_elliptical_cone_coverage():
+    grid = auto.Grid(level=2, indexing_scheme="nested", ellipsoid="WGS84")
+
+    expected_cell_ids = np.array(
+        [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 30, 31, 53, 55, 61, 63, 79],
+        dtype="uint64",
+    )
+    expected_coverage = np.array(
+        [
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            True,
+            True,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+            False,
+        ],
+        dtype="bool",
+    )
+
+    actual_cell_ids, actual_levels, actual_coverage = auto.elliptical_cone_coverage(
+        center=(35.0, 55.0),
+        ellipse_geometry=(25.0, 20.0),
+        position_angle=25.0,
+        grid=grid,
+        flat=True,
+    )
+
+    np.testing.assert_equal(actual_cell_ids, expected_cell_ids)
+    np.testing.assert_equal(actual_levels, grid.level)
+    np.testing.assert_equal(actual_coverage, expected_coverage)
