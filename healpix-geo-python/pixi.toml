@@ -1,0 +1,19 @@
+[package]
+name = "healpix-geo"
+version = "0.3.1"
+
+[package.build.backend]
+name = "pixi-build-python"
+version = "0.*"
+
+[package.build.config]
+noarch = false
+
+[package.host-dependencies]
+rust = ">=1.94.0"
+python = "*"
+maturin = ">=1.12.6"
+
+[package.run-dependencies]
+numpy = ">=2.0"
+marray-python = ">=0.0.12"

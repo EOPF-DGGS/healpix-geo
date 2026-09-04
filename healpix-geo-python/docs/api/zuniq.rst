@@ -1,0 +1,73 @@
+Module zuniq
+============
+
+The module `healpix_geo.zuniq` gives functions for the zuniq scheme, utilised for MOC (Multi-Order Coverage).
+
+.. currentmodule:: healpix_geo.zuniq
+
+Coordinate Conversions
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: ../generated/
+
+   healpix_to_lonlat
+   lonlat_to_healpix
+   healpix_to_cartesian
+   cartesian_to_healpix
+
+.. seealso::
+   Complete tutorial : :doc:`../tutorials/coordinate_conversion`
+
+Cell geometry
+~~~~~~~~~~~~~
+.. autosummary::
+   :toctree: ../generated/
+
+   vertices
+   vertex_indices
+
+Indexing Scheme Conversions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: ../generated/
+
+   to_ring
+   to_nested
+
+Interpolation
+~~~~~~~~~~~~~
+
+Interpolation from HEALPix to geographic coordinates.
+
+.. autosummary::
+   :toctree: ../generated/
+
+   bilinear_interpolation
+
+Hierarchy and neighbourhood
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: ../generated/
+
+   kth_neighbours
+   kth_neighbourhood
+
+Coverage
+~~~~~~~~
+
+Find all cells which intersect a region.
+
+.. autosummary::
+   :toctree: ../generated/
+
+   box_coverage
+   zone_coverage
+   polygon_coverage
+   cone_coverage
+   elliptical_cone_coverage
+
+.. seealso::
+   Complete tutorial : :doc:`../tutorials/coverage_queries`
