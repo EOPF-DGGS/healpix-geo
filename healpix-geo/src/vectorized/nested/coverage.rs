@@ -9,24 +9,9 @@ use crate::scalar::nested::coverage as scalar;
 
 pub type Coverage = (Vec<u64>, Vec<u8>, Vec<bool>);
 
-// Keep automatic parallelism conservative because every worker builds an
-// independent variable-sized coverage result.
-const MAX_CONE_COVERAGE_THREADS: usize = 8;
-
-fn bounded_thread_count(nthreads: usize) -> usize {
-    if nthreads == 0 {
-        std::thread::available_parallelism()
-            .map(usize::from)
-            .unwrap_or(1)
-            .min(MAX_CONE_COVERAGE_THREADS)
-    } else {
-        nthreads.clamp(1, MAX_CONE_COVERAGE_THREADS)
-    }
-}
-
 /// Evaluate multiple cone coverage queries while preserving the result and
 /// ordering of [`scalar::cone_coverage`] for every input center.
-pub fn cone_coverage_many(
+pub fn cone_coverage(
     centers: &[(f64, f64)],
     radius: f64,
     layer: &Layer,
@@ -39,7 +24,6 @@ pub fn cone_coverage_many(
         return Vec::new();
     }
 
-    let nthreads = bounded_thread_count(nthreads).min(centers.len());
     let mut result = Vec::<Coverage>::with_capacity(centers.len());
 
     maybe_parallelize!(nthreads, centers, result, |&center| {
@@ -52,7 +36,7 @@ pub fn cone_coverage_many(
 // Re-export the scalar functions which do not benefit from vectorization.
 #[allow(unused)]
 use crate::scalar::nested::coverage::{
-    box_coverage, cone_coverage, elliptical_cone_coverage, polygon_coverage, zone_coverage,
+    box_coverage, elliptical_cone_coverage, polygon_coverage, zone_coverage,
 };
 
 #[cfg(test)]
@@ -73,7 +57,7 @@ mod tests {
             .collect();
 
         assert_eq!(
-            cone_coverage_many(&centers, 0.5, layer, &ellipsoid, 1, false, 4),
+            cone_coverage(&centers, 0.5, layer, &ellipsoid, 1, false, 4),
             expected
         );
     }
@@ -83,6 +67,6 @@ mod tests {
         let layer = cdshealpix::nested::get(8);
         let ellipsoid = Ellipsoid::Sphere(ReferenceSphere::new(GeodesyEllipsoid::new(1.0, 0.0)));
 
-        assert!(cone_coverage_many(&[], 0.5, layer, &ellipsoid, 0, true, 0).is_empty());
+        assert!(cone_coverage(&[], 0.5, layer, &ellipsoid, 0, true, 0).is_empty());
     }
 }
