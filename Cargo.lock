@@ -579,7 +579,7 @@ dependencies = [
 
 [[package]]
 name = "healpix-geo-wasm"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "cdshealpix 0.9.1 (git+https://github.com/cds-astro/cds-healpix-rust.git?rev=d9d017cda85a097b65d200e3c4cccefc54665915)",
  "console_error_panic_hook",
