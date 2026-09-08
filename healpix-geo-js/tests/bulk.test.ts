@@ -1,5 +1,5 @@
-import init, * as healpixGeo from "../pkg/index.js";
-import { Grid } from "../pkg/index.js";
+import init, * as healpixGeo from "../pkg/healpix_geo.js";
+import { Grid } from "../pkg/healpix_geo.js";
 import { describe, expect, test } from "vitest";
 
 const wgs84 = {

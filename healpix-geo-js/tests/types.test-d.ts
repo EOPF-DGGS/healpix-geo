@@ -1,5 +1,5 @@
-import type { EllipsoidInput, GridOptions } from "../pkg/index.js";
-import { Ellipsoid, Grid } from "../pkg/index.js";
+import type { EllipsoidInput, GridOptions } from "../pkg/healpix_geo.js";
+import { Ellipsoid, Grid } from "../pkg/healpix_geo.js";
 import { describe, expectTypeOf, test } from "vitest";
 
 // The generated `.d.ts` is the API surface TypeScript consumers actually see.
