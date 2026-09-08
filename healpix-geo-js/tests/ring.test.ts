@@ -1,5 +1,5 @@
-import init, * as healpixGeo from "../pkg/index.js";
-import { Coordinate, Ellipsoid } from "../pkg/index.js";
+import init, * as healpixGeo from "../pkg/healpix_geo.js";
+import { Coordinate, Ellipsoid } from "../pkg/healpix_geo.js";
 import { describe, expect, test } from "vitest";
 
 describe("ring bitcombine", () => {
