@@ -58,7 +58,7 @@ target="$1"
 
 [ -d pkg ] && rm -rf pkg
 
-opts=("--out-name" "healpix-geo" "--target" "$target" "--out-dir" "$root")
+opts=("--out-name" "index" "--target" "$target" "--out-dir" "$root")
 if [[ "$mode" == "dev" ]]; then
    opts+=("--dev")
 fi
