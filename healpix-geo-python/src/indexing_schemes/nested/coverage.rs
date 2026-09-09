@@ -123,7 +123,7 @@ pub(crate) fn cone_coverage<'py>(
         return Err(PyValueError::new_err(
             "depth must be between 0 and 29, inclusive.",
         ));
-    } else if depth + delta_depth > 29 {
+    } else if u16::from(depth) + u16::from(delta_depth) > 29 {
         return Err(PyValueError::new_err(
             "delta_depth must chosen such that depth + delta_depth <= 29",
         ));
@@ -136,7 +136,7 @@ pub(crate) fn cone_coverage<'py>(
         CenterLike::Array(array) => {
             let shape = array.shape();
 
-            if shape[shape.len() - 1] != 2 {
+            if shape.last() != Some(&2) {
                 Err(PyValueError::new_err(
                     "`center` must have a last dimension of size 2",
                 ))
@@ -146,14 +146,10 @@ pub(crate) fn cone_coverage<'py>(
 
                 Ok(readonly
                     .as_slice()?
-                    .chunks_exact(2)
-                    .map(|chunk| {
-                        if let [lon, lat] = chunk {
-                            (*lon, *lat)
-                        } else {
-                            unreachable!()
-                        }
-                    })
+                    .as_chunks::<2>()
+                    .0
+                    .iter()
+                    .map(|&[lon, lat]| (lon, lat))
                     .collect::<Vec<(f64, f64)>>())
             }
         }

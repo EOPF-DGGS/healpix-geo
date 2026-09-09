@@ -34,7 +34,9 @@ def timed(function):
 
 
 def assert_matches_scalar(scalar_rows, batched):
-    offsets, cell_ids, depths, fully_covered = batched
+    cell_ids, depths, fully_covered = batched
+    offsets = cell_ids.offsets
+    cell_ids, depths, fully_covered = (a.data for a in batched)
     assert len(offsets) == len(scalar_rows) + 1
     for index, expected in enumerate(scalar_rows):
         start, end = offsets[index : index + 2]
@@ -61,7 +63,7 @@ def main():
         ]
     )
     one_thread_seconds, one_thread = timed(
-        lambda: nested.cone_coverage_many(
+        lambda: nested.cone_coverage(
             centers,
             radius_degrees,
             args.depth,
@@ -70,7 +72,7 @@ def main():
         )
     )
     eight_thread_seconds, eight_threads = timed(
-        lambda: nested.cone_coverage_many(
+        lambda: nested.cone_coverage(
             centers,
             radius_degrees,
             args.depth,
