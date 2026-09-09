@@ -181,7 +181,9 @@ pub(crate) fn _cone_coverage_many<'py>(
 
     let centers_: Vec<(f64, f64)> = centers
         .to_vec()?
-        .chunks_exact(2)
+        .as_chunks::<2>()
+        .0
+        .iter()
         .map(|row| (row[0], row[1]))
         .collect();
     let ellipsoid_ = ellipsoid.into_ellipsoid()?;
