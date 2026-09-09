@@ -78,3 +78,17 @@ def test_invalid_thread_count(threads):
 def test_invalid_combined_depth(center):
     with pytest.raises(ValueError, match="delta_depth"):
         nested.cone_coverage(center, 0.5, 8, delta_depth=255)
+
+
+@pytest.mark.parametrize("available, expected", [(18, 8), (2, 2), (None, 1)])
+def test_automatic_workers_respect_limit(monkeypatch, available, expected):
+    observed = {}
+
+    def native(*args, **kwargs):
+        observed.update(kwargs)
+        return ()
+
+    monkeypatch.setattr(nested.os, "cpu_count", lambda: available)
+    monkeypatch.setattr(nested._healpix_geo_python.nested, "cone_coverage", native)
+    nested.cone_coverage([[45.0, 45.0]], 0.5, 8)
+    assert observed["nthreads"] == expected

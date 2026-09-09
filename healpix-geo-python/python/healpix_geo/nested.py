@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 
 import marray
@@ -1161,7 +1162,7 @@ def cone_coverage(
         delta_depth=delta_depth,
         ellipsoid=ellipsoid,
         flat=flat,
-        nthreads=1 if scalar else min(int(num_threads), 8),
+        nthreads=1 if scalar else min(int(num_threads) or os.cpu_count() or 1, 8),
     )
     return tuple(array.data for array in result) if scalar else result
 
