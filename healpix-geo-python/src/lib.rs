@@ -18,12 +18,12 @@ mod nested {
 
     #[pymodule_export]
     use crate::indexing_schemes::nested::{
-        angular_distances, base_cell_coordinates_to_healpix, bilinear_interpolation, box_coverage,
-        cartesian_to_healpix, cone_coverage, elliptical_cone_coverage,
-        healpix_to_base_cell_coordinates, healpix_to_cartesian, healpix_to_lonlat,
-        internal_boundary, kth_neighbourhood, kth_neighbours, lonlat_to_healpix, neighbours,
-        polygon_coverage, siblings, to_ring, to_zuniq, vertex_indices, vertices, zone_coverage,
-        zoom_to,
+        _cone_coverage_many, angular_distances, base_cell_coordinates_to_healpix,
+        bilinear_interpolation, box_coverage, cartesian_to_healpix, cone_coverage,
+        elliptical_cone_coverage, healpix_to_base_cell_coordinates, healpix_to_cartesian,
+        healpix_to_lonlat, internal_boundary, kth_neighbourhood, kth_neighbours, lonlat_to_healpix,
+        neighbours, polygon_coverage, siblings, to_ring, to_zuniq, vertex_indices, vertices,
+        zone_coverage, zoom_to,
     };
 }
 
