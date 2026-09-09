@@ -1,6 +1,5 @@
 {
   "name": "healpix-geo",
-  "version": "0.2.0",
   "license": "Apache-2.0",
   "author": "Justus Magin <keewis@posteo.de>",
   "repository": "https://github.com/GRID4EARTH/healpix-geo",

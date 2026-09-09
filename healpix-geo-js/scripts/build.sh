@@ -58,14 +58,14 @@ target="$1"
 
 [ -d pkg ] && rm -rf pkg
 
-opts=("--out-name" "index" "--target" "$target" "--out-dir" "$root")
+opts=("--out-name" "healpix_geo" "--target" "$target" "--out-dir" "$root")
 if [[ "$mode" == "dev" ]]; then
    opts+=("--dev")
 fi
 
 wasm-pack build "${opts[@]}"
 
-jq '.name = "healpix-geo" | .repository.url = "git+https://github.com/GRID4EARTH/healpix-geo.git" | .["sideEffects"] = []' \
+jq '.name = "healpix-geo" | .repository.url = "git+https://github.com/GRID4EARTH/healpix-geo.git" | .sideEffects = true' \
     pkg/package.json \
     > pkg/package.json.new
 mv pkg/package.json.new pkg/package.json

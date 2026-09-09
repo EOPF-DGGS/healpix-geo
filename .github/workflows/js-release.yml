@@ -1,4 +1,4 @@
-name: wasm
+name: js release
 
 on:
   push:
