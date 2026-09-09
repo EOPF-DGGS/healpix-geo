@@ -4,6 +4,8 @@ use numpy::{PyArray1, PyArray2, PyArrayMethods, PyUntypedArrayMethods};
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 
+use crate::indexing_schemes::coverage_types::CenterLike;
+use crate::ragged::RaggedArray;
 use healpix_geo::scalar::nested::coverage as scalar;
 use healpix_geo::vectorized::nested::coverage as vectorized;
 
@@ -104,63 +106,19 @@ pub(crate) fn polygon_coverage<'py>(
     ))
 }
 
-#[allow(clippy::type_complexity)]
+#[allow(clippy::type_complexity, clippy::too_many_arguments)]
 #[pyfunction]
-#[pyo3(signature = (depth, center, radius, *, ellipsoid, delta_depth = 0, flat = true))]
+#[pyo3(signature = (depth, center, radius, *, ellipsoid, delta_depth = 0, flat = true, nthreads = 0))]
 pub(crate) fn cone_coverage<'py>(
     py: Python<'py>,
     depth: u8,
-    center: (f64, f64),
-    radius: f64,
-    ellipsoid: EllipsoidLike,
-    delta_depth: u8,
-    flat: bool,
-) -> PyResult<(
-    Bound<'py, PyArray1<u64>>,
-    Bound<'py, PyArray1<u8>>,
-    Bound<'py, PyArray1<bool>>,
-)> {
-    if depth > 29 {
-        return Err(PyValueError::new_err(
-            "depth must be between 0 and 29, inclusive.",
-        ));
-    } else if u16::from(depth) + u16::from(delta_depth) > 29 {
-        return Err(PyValueError::new_err(
-            "delta_depth must chosen such that depth + delta_depth <= 29",
-        ));
-    }
-
-    let ellipsoid_ = ellipsoid.into_ellipsoid()?;
-    let layer = healpix::nested::get(depth);
-
-    let (ipix, depths, fully_covered) =
-        scalar::cone_coverage(center, radius, layer, &ellipsoid_, delta_depth, flat);
-
-    Ok((
-        PyArray1::from_vec(py, ipix),
-        PyArray1::from_vec(py, depths),
-        PyArray1::from_vec(py, fully_covered),
-    ))
-}
-
-#[allow(clippy::type_complexity, clippy::too_many_arguments)]
-#[pyfunction]
-#[pyo3(signature = (depth, centers, radius, *, ellipsoid, delta_depth = 0, flat = true, nthreads = 0))]
-pub(crate) fn _cone_coverage_many<'py>(
-    py: Python<'py>,
-    depth: u8,
-    centers: &Bound<'py, PyArray2<f64>>,
+    center: CenterLike,
     radius: f64,
     ellipsoid: EllipsoidLike,
     delta_depth: u8,
     flat: bool,
     nthreads: u16,
-) -> PyResult<(
-    Bound<'py, PyArray1<u64>>,
-    Bound<'py, PyArray1<u64>>,
-    Bound<'py, PyArray1<u8>>,
-    Bound<'py, PyArray1<bool>>,
-)> {
+) -> PyResult<(RaggedArray, RaggedArray, RaggedArray)> {
     if depth > 29 {
         return Err(PyValueError::new_err(
             "depth must be between 0 and 29, inclusive.",
@@ -171,27 +129,36 @@ pub(crate) fn _cone_coverage_many<'py>(
         ));
     }
 
-    let shape = centers.shape();
-    if shape[1] != 2 {
-        return Err(PyValueError::new_err(format!(
-            "The last dimension of the centers array must have a size of 2, got shape ({}, {})",
-            shape[0], shape[1]
-        )));
-    }
-
-    let centers_: Vec<(f64, f64)> = centers
-        .to_vec()?
-        .as_chunks::<2>()
-        .0
-        .iter()
-        .map(|row| (row[0], row[1]))
-        .collect();
     let ellipsoid_ = ellipsoid.into_ellipsoid()?;
     let layer = healpix::nested::get(depth);
 
-    let result = py.detach(move || {
-        let rows = vectorized::cone_coverage_many(
-            &centers_,
+    let center_coords = match center {
+        CenterLike::Array(array) => {
+            let shape = array.shape();
+
+            if shape.last() != Some(&2) {
+                Err(PyValueError::new_err(
+                    "`center` must have a last dimension of size 2",
+                ))
+            } else {
+                let reshaped = array.reshape([shape[..shape.len() - 1].iter().product(), 2])?;
+                let readonly = reshaped.readonly();
+
+                Ok(readonly
+                    .as_slice()?
+                    .as_chunks::<2>()
+                    .0
+                    .iter()
+                    .map(|&[lon, lat]| (lon, lat))
+                    .collect::<Vec<(f64, f64)>>())
+            }
+        }
+        CenterLike::Scalar((lon, lat)) => Ok(vec![(lon, lat)]),
+    }?;
+
+    let (offsets, ipix, depths, fully_covered) = py.detach(move || {
+        let result = vectorized::cone_coverage(
+            &center_coords,
             radius,
             layer,
             &ellipsoid_,
@@ -200,33 +167,36 @@ pub(crate) fn _cone_coverage_many<'py>(
             nthreads as usize,
         );
 
-        let total_len = rows
-            .iter()
-            .try_fold(0usize, |total, row| total.checked_add(row.0.len()))?;
-        let mut offsets = Vec::<u64>::with_capacity(rows.len() + 1);
-        let mut ipix = Vec::<u64>::with_capacity(total_len);
-        let mut depths = Vec::<u8>::with_capacity(total_len);
-        let mut fully_covered = Vec::<bool>::with_capacity(total_len);
-        offsets.push(0);
+        let n_elements = result.iter().fold(0, |total, entry| total + entry.0.len());
 
-        for (row_ipix, row_depths, row_fully_covered) in rows {
-            ipix.extend(row_ipix);
-            depths.extend(row_depths);
-            fully_covered.extend(row_fully_covered);
-            offsets.push(u64::try_from(ipix.len()).ok()?);
+        let mut offsets = Vec::<u64>::with_capacity(result.len() + 1);
+        let mut ipix = Vec::<u64>::with_capacity(n_elements);
+        let mut depths = Vec::<u8>::with_capacity(n_elements);
+        let mut fully_covered = Vec::<bool>::with_capacity(n_elements);
+
+        offsets.push(0);
+        for (index, (entry_ipix, entry_depths, entry_fully_covered)) in
+            result.into_iter().enumerate()
+        {
+            offsets.push(offsets[index] + entry_ipix.len() as u64);
+
+            ipix.extend(entry_ipix);
+            depths.extend(entry_depths);
+            fully_covered.extend(entry_fully_covered);
         }
 
-        Some((offsets, ipix, depths, fully_covered))
+        (offsets, ipix, depths, fully_covered)
     });
 
-    let (offsets, ipix, depths, fully_covered) = result
-        .ok_or_else(|| PyValueError::new_err("cone coverage result is too large to represent"))?;
+    let offset_array = PyArray1::from_vec(py, offsets);
 
     Ok((
-        PyArray1::from_vec(py, offsets),
-        PyArray1::from_vec(py, ipix),
-        PyArray1::from_vec(py, depths),
-        PyArray1::from_vec(py, fully_covered),
+        RaggedArray::new(&offset_array, PyArray1::from_vec(py, ipix).as_untyped())?,
+        RaggedArray::new(&offset_array, PyArray1::from_vec(py, depths).as_untyped())?,
+        RaggedArray::new(
+            &offset_array,
+            PyArray1::from_vec(py, fully_covered).as_untyped(),
+        )?,
     ))
 }
 

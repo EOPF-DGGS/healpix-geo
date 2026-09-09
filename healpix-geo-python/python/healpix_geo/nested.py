@@ -1151,33 +1151,19 @@ def cone_coverage(
     if num_threads < 0:
         raise ValueError("num_threads must be non-negative")
     center = np.asarray(center, dtype=np.float64)
-    if center.ndim == 2 and center.shape[1] == 2:
-        offsets, cells, depths, covered = (
-            _healpix_geo_python.nested._cone_coverage_many(
-                depth,
-                np.ascontiguousarray(center),
-                float(radius),
-                delta_depth=delta_depth,
-                ellipsoid=ellipsoid,
-                flat=flat,
-                nthreads=min(int(num_threads), 8),
-            )
-        )
-        return tuple(
-            _healpix_geo_python.RaggedArray(offsets, data)
-            for data in (cells, depths, covered)
-        )
-    if center.shape != (2,):
+    scalar = center.shape == (2,)
+    if not scalar and not (center.ndim == 2 and center.shape[1] == 2):
         raise ValueError(f"center must have shape (2,) or (N, 2), got {center.shape}")
-
-    return _healpix_geo_python.nested.cone_coverage(
+    result = _healpix_geo_python.nested.cone_coverage(
         depth,
-        tuple(center),
-        radius,
+        tuple(center) if scalar else np.ascontiguousarray(center),
+        float(radius),
         delta_depth=delta_depth,
         ellipsoid=ellipsoid,
         flat=flat,
+        nthreads=1 if scalar else min(int(num_threads), 8),
     )
+    return tuple(array.data for array in result) if scalar else result
 
 
 def elliptical_cone_coverage(

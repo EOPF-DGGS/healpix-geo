@@ -12,8 +12,7 @@ pub(crate) use self::coordinates::{
     healpix_to_lonlat, lonlat_to_healpix, vertices,
 };
 pub(crate) use self::coverage::{
-    _cone_coverage_many, box_coverage, cone_coverage, elliptical_cone_coverage, polygon_coverage,
-    zone_coverage,
+    box_coverage, cone_coverage, elliptical_cone_coverage, polygon_coverage, zone_coverage,
 };
 pub(crate) use self::hierarchy::{
     kth_neighbourhood, kth_neighbours, neighbours, siblings, zoom_to,
